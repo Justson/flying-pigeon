@@ -1,0 +1,3 @@
+rootProject.name='Flying Pigeon'
+include ':app'
+include ':library'
