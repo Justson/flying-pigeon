@@ -2,6 +2,9 @@ package com.flyingpigeon.library;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
+
+import static com.flyingpigeon.library.Config.PREFIX;
 
 /**
  * @author ringle-android
@@ -9,6 +12,7 @@ import android.os.Parcelable;
  * @since 1.0.0
  */
 public abstract class Pair implements Parcelable {
+    private static final String TAG = PREFIX + Pair.class.getSimpleName();
     private String key;
 
     protected Pair(String key) {
@@ -98,15 +102,15 @@ public abstract class Pair implements Parcelable {
             dest.writeDouble(value);
         }
 
-        public static final Creator<PairInt> CREATOR = new Creator<PairInt>() {
+        public static final Creator<PairDouble> CREATOR = new Creator<PairDouble>() {
             @Override
-            public PairInt createFromParcel(Parcel in) {
-                return new PairInt(in);
+            public PairDouble createFromParcel(Parcel in) {
+                return new PairDouble(in);
             }
 
             @Override
-            public PairInt[] newArray(int size) {
-                return new PairInt[size];
+            public PairDouble[] newArray(int size) {
+                return new PairDouble[size];
             }
         };
 
@@ -139,15 +143,15 @@ public abstract class Pair implements Parcelable {
             dest.writeLong(value);
         }
 
-        public static final Creator<PairInt> CREATOR = new Creator<PairInt>() {
+        public static final Creator<PairLong> CREATOR = new Creator<PairLong>() {
             @Override
-            public PairInt createFromParcel(Parcel in) {
-                return new PairInt(in);
+            public PairLong createFromParcel(Parcel in) {
+                return new PairLong(in);
             }
 
             @Override
-            public PairInt[] newArray(int size) {
-                return new PairInt[size];
+            public PairLong[] newArray(int size) {
+                return new PairLong[size];
             }
         };
 
@@ -180,15 +184,15 @@ public abstract class Pair implements Parcelable {
             dest.writeInt(value);
         }
 
-        public static final Creator<PairInt> CREATOR = new Creator<PairInt>() {
+        public static final Creator<PairShort> CREATOR = new Creator<PairShort>() {
             @Override
-            public PairInt createFromParcel(Parcel in) {
-                return new PairInt(in);
+            public PairShort createFromParcel(Parcel in) {
+                return new PairShort(in);
             }
 
             @Override
-            public PairInt[] newArray(int size) {
-                return new PairInt[size];
+            public PairShort[] newArray(int size) {
+                return new PairShort[size];
             }
         };
 
@@ -221,15 +225,15 @@ public abstract class Pair implements Parcelable {
             dest.writeFloat(value);
         }
 
-        public static final Creator<PairInt> CREATOR = new Creator<PairInt>() {
+        public static final Creator<PairFloat> CREATOR = new Creator<PairFloat>() {
             @Override
-            public PairInt createFromParcel(Parcel in) {
-                return new PairInt(in);
+            public PairFloat createFromParcel(Parcel in) {
+                return new PairFloat(in);
             }
 
             @Override
-            public PairInt[] newArray(int size) {
-                return new PairInt[size];
+            public PairFloat[] newArray(int size) {
+                return new PairFloat[size];
             }
         };
 
@@ -262,15 +266,15 @@ public abstract class Pair implements Parcelable {
             dest.writeByte(value);
         }
 
-        public static final Creator<PairInt> CREATOR = new Creator<PairInt>() {
+        public static final Creator<PairByte> CREATOR = new Creator<PairByte>() {
             @Override
-            public PairInt createFromParcel(Parcel in) {
-                return new PairInt(in);
+            public PairByte createFromParcel(Parcel in) {
+                return new PairByte(in);
             }
 
             @Override
-            public PairInt[] newArray(int size) {
-                return new PairInt[size];
+            public PairByte[] newArray(int size) {
+                return new PairByte[size];
             }
         };
 
@@ -303,15 +307,15 @@ public abstract class Pair implements Parcelable {
             dest.writeByte((byte) (value ? 1 : 0));
         }
 
-        public static final Creator<PairInt> CREATOR = new Creator<PairInt>() {
+        public static final Creator<PairBoolean> CREATOR = new Creator<PairBoolean>() {
             @Override
-            public PairInt createFromParcel(Parcel in) {
-                return new PairInt(in);
+            public PairBoolean createFromParcel(Parcel in) {
+                return new PairBoolean(in);
             }
 
             @Override
-            public PairInt[] newArray(int size) {
-                return new PairInt[size];
+            public PairBoolean[] newArray(int size) {
+                return new PairBoolean[size];
             }
         };
 
@@ -324,6 +328,112 @@ public abstract class Pair implements Parcelable {
         }
     }
 
+    public static class PairParcelable extends Pair {
+        private Parcelable value;
+
+        public PairParcelable(String key, Parcelable value) {
+            super(key);
+            this.value = value;
+            Log.e(TAG, "key:" + this.getKey());
+        }
+
+        protected PairParcelable(String key) {
+            super(key);
+
+        }
+
+        protected PairParcelable(Parcel in) throws ClassNotFoundException {
+            super(in);
+            value = in.readParcelable(Class.forName(getKey()).getClassLoader());
+            Log.e(TAG, "PairParcelable:" + value);
+        }
+
+        @Override
+        public void writeToParcel(Parcel dest, int flags) {
+            super.writeToParcel(dest, flags);
+            dest.writeParcelable(value, flags);
+        }
+
+        public static final Creator<PairParcelable> CREATOR = new Creator<PairParcelable>() {
+            @Override
+            public PairParcelable createFromParcel(Parcel in) {
+                Log.e(TAG, "createFromParcel");
+                try {
+                    return new PairParcelable(in);
+                } catch (ClassNotFoundException e) {
+                    e.printStackTrace();
+                    return null;
+                }
+            }
+
+            @Override
+            public PairParcelable[] newArray(int size) {
+                return new PairParcelable[size];
+            }
+        };
+
+        public Parcelable getValue() {
+            return value;
+        }
+
+        public void setValue(Parcelable value) {
+            this.value = value;
+        }
+    }
+
+
+    public static class PairString extends Pair {
+        private String value;
+
+        public PairString(String key, String value) {
+            super(key);
+            this.value = value;
+            Log.e(TAG, "key:" + this.getKey());
+        }
+
+        protected PairString(String key) {
+            super(key);
+
+        }
+
+        protected PairString(Parcel in) throws ClassNotFoundException {
+            super(in);
+            value = in.readString();
+            Log.e(TAG, "PairParcelable:" + value);
+        }
+
+        @Override
+        public void writeToParcel(Parcel dest, int flags) {
+            super.writeToParcel(dest, flags);
+            dest.writeString(value);
+        }
+
+        public static final Creator<PairString> CREATOR = new Creator<PairString>() {
+            @Override
+            public PairString createFromParcel(Parcel in) {
+                Log.e(TAG, "createFromParcel");
+                try {
+                    return new PairString(in);
+                } catch (ClassNotFoundException e) {
+                    e.printStackTrace();
+                    return null;
+                }
+            }
+
+            @Override
+            public PairString[] newArray(int size) {
+                return new PairString[size];
+            }
+        };
+
+        public String getValue() {
+            return value;
+        }
+
+        public void setValue(String value) {
+            this.value = value;
+        }
+    }
 
 }
 

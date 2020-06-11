@@ -9,6 +9,6 @@ public interface MainService {
 
     void queryItems(int id, double score, long timestamp, short gender, float ring, byte b, boolean isABoy);
 
-    void submitInformation(Information information, String uuid, int hash);
+    void submitInformation(String uuid, int hash, Information information);
 
 }

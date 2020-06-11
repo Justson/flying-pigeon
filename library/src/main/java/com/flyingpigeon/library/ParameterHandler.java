@@ -1,6 +1,7 @@
 package com.flyingpigeon.library;
 
 import android.os.Bundle;
+import android.os.Parcelable;
 
 /**
  * @author ringle-android
@@ -56,6 +57,20 @@ public abstract class ParameterHandler<T> {
         @Override
         void apply(Boolean value, String key, Bundle bundle) {
             bundle.putParcelable(key, new Pair.PairBoolean(boolean.class.getName(), value));
+        }
+    }
+
+    public static class StringHandler extends ParameterHandler<String> {
+        @Override
+        void apply(String value, String key, Bundle bundle) {
+            bundle.putParcelable(key, new Pair.PairString(value.getClass().getName(), value));
+        }
+    }
+
+    public static class ParcelableHandler extends ParameterHandler<Parcelable> {
+        @Override
+        void apply(Parcelable value, String key, Bundle bundle) {
+            bundle.putParcelable(key, new Pair.PairParcelable(value.getClass().getName(), value));
         }
     }
 }

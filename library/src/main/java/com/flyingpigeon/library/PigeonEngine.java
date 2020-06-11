@@ -13,6 +13,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import static com.flyingpigeon.library.Config.PREFIX;
+
 /**
  * @author ringle-android
  * @date 20-6-11
@@ -31,7 +33,7 @@ public final class PigeonEngine {
     static final String KEY_INDEX = "key_%s";
 
 
-    private static final String TAG = PigeonEngine.class.getSimpleName();
+    private static final String TAG = PREFIX + PigeonEngine.class.getSimpleName();
     private Gson mGson = new Gson();
     private ConcurrentHashMap<String, MethodCaller> callers = new ConcurrentHashMap<>();
 
@@ -50,7 +52,7 @@ public final class PigeonEngine {
         Type[] types = method.getGenericParameterTypes();
         String key = KEY_INDEX;
         for (int i = 0; i < types.length; i++) {
-            Log.e(TAG, "type name:" + types[i] + " method:" + method.getName());
+            Log.e(TAG, "type name:" + types[i] + " method:" + method.getName() + " Parcelable.class.isAssignableFrom(((Class<?>) types[i])):" + Parcelable.class.isAssignableFrom(((Class<?>) types[i])) + " key:" + String.format(key, i + ""));
             if (int.class.isAssignableFrom((Class<?>) types[i])) {
                 ParameterHandler.IntHandler handler = (ParameterHandler.IntHandler) map.get(int.class);
                 assert handler != null;
@@ -79,6 +81,16 @@ public final class PigeonEngine {
                 ParameterHandler.BooleanHandler handler = (ParameterHandler.BooleanHandler) map.get(boolean.class);
                 assert handler != null;
                 handler.apply((Boolean) args[i], String.format(key, i + ""), bundle);
+            } else if (String.class.isAssignableFrom((Class<?>) types[i])) {
+                ParameterHandler.StringHandler handler = (ParameterHandler.StringHandler) map.get(String.class);
+                assert handler != null;
+                handler.apply((String) args[i], String.format(key, i + ""), bundle);
+            } else if (Parcelable.class.isAssignableFrom(((Class<?>) types[i]))) {
+                ParameterHandler.ParcelableHandler handler = (ParameterHandler.ParcelableHandler) map.get(Parcelable.class);
+                assert handler != null;
+                handler.apply((Parcelable) args[i], String.format(key, i + ""), bundle);
+                Parcelable parcelable = bundle.getParcelable(String.format(key, i + ""));
+                Log.e(TAG, "parcelable:" + mGson.toJson(parcelable));
             }
 
         }
@@ -105,14 +117,20 @@ public final class PigeonEngine {
         for (int i = 0; i < length; i++) {
             Parcelable parcelable = extras.getParcelable(String.format(key, i + ""));
             if (parcelable == null) {
+                Log.e(TAG, "break index:" + i + " key:" + String.format(key, i + ""));
                 break;
             }
-            Log.e(TAG, "parcelable:" + mGson.toJson(parcelable) + " parcelable:" + parcelable);
             android.util.Pair<Class<?>, Object> data = parcelableToClazz(parcelable);
             clazzs[i] = data.first;
+            Log.e(TAG, "parcelable:" + parcelable.toString() + " data.first:" + data.first + " key:" + String.format(key, i + ""));
+        }
+        for (int i = 0; i < length; i++) {
+            if (clazzs[i] == null) {
+                throw new IllegalArgumentException("arg error");
+            }
         }
         assert owner != null;
-        Log.e(TAG, "method:" + method);
+        Log.e(TAG, "method:" + method + "  clazzs:" + clazzs.length + "  clazz:" + clazzs);
         Method target = owner.getClass().getDeclaredMethod(method, clazzs);
         target.setAccessible(true);
         methodCaller = new Caller(target, "", ServiceContentProvider.serviceContext);
@@ -156,6 +174,8 @@ public final class PigeonEngine {
             put(float.class, new ParameterHandler.FloatHandler());
             put(byte.class, new ParameterHandler.ByteHandler());
             put(boolean.class, new ParameterHandler.BooleanHandler());
+            put(Parcelable.class, new ParameterHandler.ParcelableHandler());
+            put(String.class, new ParameterHandler.StringHandler());
 
         }
     };
@@ -173,8 +193,22 @@ public final class PigeonEngine {
             return new android.util.Pair<Class<?>, Object>(float.class, ((com.flyingpigeon.library.Pair.PairFloat) parcelable).getValue());
         } else if (parcelable instanceof com.flyingpigeon.library.Pair.PairByte) {
             return new android.util.Pair<Class<?>, Object>(byte.class, ((com.flyingpigeon.library.Pair.PairByte) parcelable).getValue());
-        } else {
+        } else if (parcelable instanceof com.flyingpigeon.library.Pair.PairBoolean) {
             return new android.util.Pair<Class<?>, Object>(boolean.class, ((com.flyingpigeon.library.Pair.PairBoolean) parcelable).isValue());
+        } else if (parcelable instanceof com.flyingpigeon.library.Pair.PairString) {
+            try {
+                return new android.util.Pair<Class<?>, Object>(Class.forName(((Pair.PairString) parcelable).getKey()), ((Pair.PairString) parcelable).getValue());
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+                return null;
+            }
+        } else {
+            try {
+                return new android.util.Pair<Class<?>, Object>(Class.forName(((Pair.PairParcelable) parcelable).getKey()), ((Pair.PairParcelable) parcelable).getValue());
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+                return null;
+            }
         }
     }
 

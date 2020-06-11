@@ -20,7 +20,7 @@ public class MyService extends ServiceContentProvider implements MainService {
     }
 
     @Override
-    public void submitInformation(Information information, String uuid, int hash) {
+    public void submitInformation(String uuid, int hash, Information information) {
         Log.e(TAG, "Information:" + GsonUtils.toJson(information) + " uuid:" + uuid + " hash:" + hash);
     }
 }

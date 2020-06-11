@@ -46,6 +46,7 @@ public class ServiceContentProvider extends ContentProvider {
     @Nullable
     @Override
     public Bundle call(@NonNull String method, @Nullable String arg, @Nullable Bundle extras) {
+        Log.e(TAG, "call extras:" + mGson.toJson(extras));
         Bundle response = new Bundle();
         try {
             MethodCaller methodCaller = PigeonEngine.getInstance().parseRequest(method, arg, extras);
