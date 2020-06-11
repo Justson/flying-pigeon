@@ -23,4 +23,10 @@ public class MyService extends ServiceContentProvider implements MainService {
     public void submitInformation(String uuid, int hash, Information information) {
         Log.e(TAG, "Information:" + GsonUtils.toJson(information) + " uuid:" + uuid + " hash:" + hash);
     }
+
+    @Override
+    public int createPoster(Poster poster) {
+        Log.e(TAG, "poster:" + GsonUtils.toJson(poster));
+        return 0;
+    }
 }

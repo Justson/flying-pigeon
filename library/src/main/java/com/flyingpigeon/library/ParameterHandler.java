@@ -3,6 +3,8 @@ package com.flyingpigeon.library;
 import android.os.Bundle;
 import android.os.Parcelable;
 
+import java.io.Serializable;
+
 /**
  * @author ringle-android
  * @date 20-6-10
@@ -71,6 +73,13 @@ public abstract class ParameterHandler<T> {
         @Override
         void apply(Parcelable value, String key, Bundle bundle) {
             bundle.putParcelable(key, new Pair.PairParcelable(value.getClass().getName(), value));
+        }
+    }
+
+    public static class SerializableHandler extends ParameterHandler<Serializable> {
+        @Override
+        void apply(Serializable value, String key, Bundle bundle) {
+            bundle.putParcelable(key, new Pair.PairSerializable(value.getClass().getName(), value));
         }
     }
 }

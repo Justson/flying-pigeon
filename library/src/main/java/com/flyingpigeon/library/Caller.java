@@ -18,7 +18,6 @@ import static com.flyingpigeon.library.PigeonEngine.PREXFIX_ROUTE;
  */
 public class Caller implements MethodCaller {
 
-
     private Method target;
     private String route;
     private Object owner;

@@ -11,4 +11,6 @@ public interface MainService {
 
     void submitInformation(String uuid, int hash, Information information);
 
+    int createPoster(Poster poster);
+
 }

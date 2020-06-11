@@ -4,8 +4,6 @@ import android.os.Bundle;
 
 import com.flyingpigeon.library.Pigeon;
 
-import java.util.UUID;
-
 import androidx.appcompat.app.AppCompatActivity;
 
 public class MainActivity extends AppCompatActivity {
@@ -20,8 +18,11 @@ public class MainActivity extends AppCompatActivity {
 //        Short aShort = 1;
 //        byte aByte = 10;
 //        mainService.queryItems(UUID.randomUUID().hashCode(), 0.001D, SystemClock.elapsedRealtime(), aShort, 0.011F, aByte, true);
-//
-        Information information = new Information("Justson", "xiaozhongcen", 110, (short) 1, 'c', 1.22F, (byte) 14, 8989123.111D, 100000L);
-        mainService.submitInformation(UUID.randomUUID().toString(), 123144231, information);
+//        Information information = new Information("Justson", "just", 110, (short) 1, 'c', 1.22F, (byte) 14, 8989123.111D, 100000L);
+//        mainService.submitInformation(UUID.randomUUID().toString(), 123144231, information);
+
+
+        Poster poster = new Poster("Justson", "just", 119, 11111000L, (short) 23, 1.15646F, 'h', (byte) 4, 123456.415D);
+        mainService.createPoster(poster);
     }
 }

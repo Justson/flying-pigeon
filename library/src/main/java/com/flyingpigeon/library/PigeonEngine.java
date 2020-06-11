@@ -6,6 +6,7 @@ import android.util.Log;
 
 import com.google.gson.Gson;
 
+import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.concurrent.ConcurrentHashMap;
@@ -89,6 +90,12 @@ public final class PigeonEngine {
                 ParameterHandler.ParcelableHandler handler = (ParameterHandler.ParcelableHandler) map.get(Parcelable.class);
                 assert handler != null;
                 handler.apply((Parcelable) args[i], String.format(key, i + ""), bundle);
+                Parcelable parcelable = bundle.getParcelable(String.format(key, i + ""));
+                Log.e(TAG, "parcelable:" + mGson.toJson(parcelable));
+            } else if (Serializable.class.isAssignableFrom(((Class<?>) types[i]))) {
+                ParameterHandler.SerializableHandler handler = (ParameterHandler.SerializableHandler) map.get(Serializable.class);
+                assert handler != null;
+                handler.apply((Serializable) args[i], String.format(key, i + ""), bundle);
                 Parcelable parcelable = bundle.getParcelable(String.format(key, i + ""));
                 Log.e(TAG, "parcelable:" + mGson.toJson(parcelable));
             }
@@ -175,8 +182,8 @@ public final class PigeonEngine {
             put(byte.class, new ParameterHandler.ByteHandler());
             put(boolean.class, new ParameterHandler.BooleanHandler());
             put(Parcelable.class, new ParameterHandler.ParcelableHandler());
+            put(Serializable.class, new ParameterHandler.SerializableHandler());
             put(String.class, new ParameterHandler.StringHandler());
-
         }
     };
 
@@ -202,7 +209,14 @@ public final class PigeonEngine {
                 e.printStackTrace();
                 return null;
             }
-        } else {
+        }  else if (parcelable instanceof com.flyingpigeon.library.Pair.PairSerializable) {
+            try {
+                return new android.util.Pair<Class<?>, Object>(Class.forName(((Pair.PairSerializable) parcelable).getKey()), ((Pair.PairSerializable) parcelable).getValue());
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+                return null;
+            }
+        }else {
             try {
                 return new android.util.Pair<Class<?>, Object>(Class.forName(((Pair.PairParcelable) parcelable).getKey()), ((Pair.PairParcelable) parcelable).getValue());
             } catch (ClassNotFoundException e) {
