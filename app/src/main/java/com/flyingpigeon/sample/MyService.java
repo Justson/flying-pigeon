@@ -15,7 +15,12 @@ public class MyService extends ServiceContentProvider implements MainService {
     private static final String TAG = PREFIX + MyService.class.getSimpleName();
 
     @Override
-    public void queryItems(int id) {
-        Log.e(TAG, "queryItems method call id:" + id);
+    public void queryItems(int id, double score, long idcard, short gender, float ring, byte b, boolean isABoy) {
+        Log.e(TAG, "queryItems method call id:" + id + " score:" + score + " idcard:" + idcard + " gender:" + gender + " ring:" + ring + " b:" + b + " isABoy:" + isABoy);
+    }
+
+    @Override
+    public void submitInformation(Information information, String uuid, int hash) {
+        Log.e(TAG, "Information:" + GsonUtils.toJson(information) + " uuid:" + uuid + " hash:" + hash);
     }
 }

@@ -55,7 +55,7 @@ public abstract class ParameterHandler<T> {
     public static class BooleanHandler extends ParameterHandler<Boolean> {
         @Override
         void apply(Boolean value, String key, Bundle bundle) {
-            bundle.putParcelable(key, new Pair.PairBoolean(float.class.getName(), value));
+            bundle.putParcelable(key, new Pair.PairBoolean(boolean.class.getName(), value));
         }
     }
 }

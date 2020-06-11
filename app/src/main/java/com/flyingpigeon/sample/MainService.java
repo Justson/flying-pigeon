@@ -7,6 +7,8 @@ package com.flyingpigeon.sample;
  */
 public interface MainService {
 
-    void queryItems(int id);
+    void queryItems(int id, double score, long timestamp, short gender, float ring, byte b, boolean isABoy);
+
+    void submitInformation(Information information, String uuid, int hash);
 
 }

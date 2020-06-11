@@ -27,8 +27,8 @@ public final class PigeonEngine {
     static final int APPROACH_ROUTE = 2;
     static final String KEY_RESPONSE_CODE = "reponse_code";
     static final int RESPONSE_RESULE_NO_SUCH_METHOD = 1;
-
     static final String KEY_LENGTH = "key_length";
+    static final String KEY_INDEX = "key_%s";
 
 
     private static final String TAG = PigeonEngine.class.getSimpleName();
@@ -48,14 +48,39 @@ public final class PigeonEngine {
     Bundle buildRequest(Method method, Object[] args) {
         Bundle bundle = new Bundle();
         Type[] types = method.getGenericParameterTypes();
-        String key = "key_%s";
+        String key = KEY_INDEX;
         for (int i = 0; i < types.length; i++) {
             Log.e(TAG, "type name:" + types[i] + " method:" + method.getName());
             if (int.class.isAssignableFrom((Class<?>) types[i])) {
                 ParameterHandler.IntHandler handler = (ParameterHandler.IntHandler) map.get(int.class);
                 assert handler != null;
                 handler.apply((Integer) args[i], String.format(key, i + ""), bundle);
+            } else if (double.class.isAssignableFrom((Class<?>) types[i])) {
+                ParameterHandler.DoubleHandler handler = (ParameterHandler.DoubleHandler) map.get(double.class);
+                assert handler != null;
+                handler.apply((Double) args[i], String.format(key, i + ""), bundle);
+            } else if (long.class.isAssignableFrom((Class<?>) types[i])) {
+                ParameterHandler.LongHandler handler = (ParameterHandler.LongHandler) map.get(long.class);
+                assert handler != null;
+                handler.apply((Long) args[i], String.format(key, i + ""), bundle);
+            } else if (short.class.isAssignableFrom((Class<?>) types[i])) {
+                ParameterHandler.ShortHandler handler = (ParameterHandler.ShortHandler) map.get(short.class);
+                assert handler != null;
+                handler.apply((Short) args[i], String.format(key, i + ""), bundle);
+            } else if (float.class.isAssignableFrom((Class<?>) types[i])) {
+                ParameterHandler.FloatHandler handler = (ParameterHandler.FloatHandler) map.get(float.class);
+                assert handler != null;
+                handler.apply((Float) args[i], String.format(key, i + ""), bundle);
+            } else if (byte.class.isAssignableFrom((Class<?>) types[i])) {
+                ParameterHandler.ByteHandler handler = (ParameterHandler.ByteHandler) map.get(byte.class);
+                assert handler != null;
+                handler.apply((Byte) args[i], String.format(key, i + ""), bundle);
+            } else if (boolean.class.isAssignableFrom((Class<?>) types[i])) {
+                ParameterHandler.BooleanHandler handler = (ParameterHandler.BooleanHandler) map.get(boolean.class);
+                assert handler != null;
+                handler.apply((Boolean) args[i], String.format(key, i + ""), bundle);
             }
+
         }
         bundle.putInt(KEY_LENGTH, types.length);
         bundle.putInt(KEY_LOOK_UP_APPROACH, APPROACH_METHOD);
@@ -73,7 +98,7 @@ public final class PigeonEngine {
         if (approach == APPROACH_METHOD && (methodCaller = lookupMethodByCache(method)) != null) {
             return methodCaller;
         }
-        String key = "key_%s";
+        String key = KEY_INDEX;
         int length = extras.getInt(KEY_LENGTH);
         Class<?>[] clazzs = new Class[length];
         Log.e(TAG, "length:" + length);
@@ -97,7 +122,7 @@ public final class PigeonEngine {
 
 
     Object[] parseData(@Nullable String arg, @Nullable Bundle extras) {
-        String key = "key_%s";
+        String key = KEY_INDEX;
         int length = extras.getInt(KEY_LENGTH);
         Object[] values = new Object[length];
         Class<?>[] clazzs = new Class[length];
@@ -128,20 +153,28 @@ public final class PigeonEngine {
             put(double.class, new ParameterHandler.DoubleHandler());
             put(long.class, new ParameterHandler.LongHandler());
             put(short.class, new ParameterHandler.ShortHandler());
-            put(byte.class, new ParameterHandler.ByteHandler());
             put(float.class, new ParameterHandler.FloatHandler());
+            put(byte.class, new ParameterHandler.ByteHandler());
             put(boolean.class, new ParameterHandler.BooleanHandler());
 
         }
     };
 
-    android.util.Pair<Class<?>, Object> parcelableToClazz(Parcelable parcelable) {
+    private android.util.Pair<Class<?>, Object> parcelableToClazz(Parcelable parcelable) {
         if (parcelable instanceof com.flyingpigeon.library.Pair.PairInt) {
             return new android.util.Pair<Class<?>, Object>(int.class, ((com.flyingpigeon.library.Pair.PairInt) parcelable).getValue());
+        } else if (parcelable instanceof com.flyingpigeon.library.Pair.PairDouble) {
+            return new android.util.Pair<Class<?>, Object>(double.class, ((com.flyingpigeon.library.Pair.PairDouble) parcelable).getValue());
         } else if (parcelable instanceof com.flyingpigeon.library.Pair.PairLong) {
             return new android.util.Pair<Class<?>, Object>(long.class, ((com.flyingpigeon.library.Pair.PairLong) parcelable).getValue());
+        } else if (parcelable instanceof com.flyingpigeon.library.Pair.PairShort) {
+            return new android.util.Pair<Class<?>, Object>(short.class, ((com.flyingpigeon.library.Pair.PairShort) parcelable).getValue());
+        } else if (parcelable instanceof com.flyingpigeon.library.Pair.PairFloat) {
+            return new android.util.Pair<Class<?>, Object>(float.class, ((com.flyingpigeon.library.Pair.PairFloat) parcelable).getValue());
+        } else if (parcelable instanceof com.flyingpigeon.library.Pair.PairByte) {
+            return new android.util.Pair<Class<?>, Object>(byte.class, ((com.flyingpigeon.library.Pair.PairByte) parcelable).getValue());
         } else {
-            return new android.util.Pair<Class<?>, Object>(int.class, ((com.flyingpigeon.library.Pair.PairBoolean) parcelable).isValue());
+            return new android.util.Pair<Class<?>, Object>(boolean.class, ((com.flyingpigeon.library.Pair.PairBoolean) parcelable).isValue());
         }
     }
 

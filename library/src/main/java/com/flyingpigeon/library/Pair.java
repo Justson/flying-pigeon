@@ -110,6 +110,13 @@ public abstract class Pair implements Parcelable {
             }
         };
 
+        public double getValue() {
+            return value;
+        }
+
+        public void setValue(double value) {
+            this.value = value;
+        }
     }
 
 
@@ -185,6 +192,13 @@ public abstract class Pair implements Parcelable {
             }
         };
 
+        public short getValue() {
+            return value;
+        }
+
+        public void setValue(short value) {
+            this.value = value;
+        }
     }
 
 
@@ -219,6 +233,13 @@ public abstract class Pair implements Parcelable {
             }
         };
 
+        public float getValue() {
+            return value;
+        }
+
+        public void setValue(float value) {
+            this.value = value;
+        }
     }
 
 
@@ -253,6 +274,13 @@ public abstract class Pair implements Parcelable {
             }
         };
 
+        public byte getValue() {
+            return value;
+        }
+
+        public void setValue(byte value) {
+            this.value = value;
+        }
     }
 
 
