@@ -5,10 +5,11 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.util.Log;
 
 import com.google.gson.Gson;
+
+import java.lang.reflect.InvocationTargetException;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -25,9 +26,13 @@ public class ServiceContentProvider extends ContentProvider {
     public static final String TAG = PREFIX + ServiceContentProvider.class.getSimpleName();
     private Gson mGson = new Gson();
 
+
+    static ServiceContentProvider serviceContext;
+
     @Override
     public boolean onCreate() {
         Log.e(TAG, "onCreate");
+        serviceContext = this;
         return true;
     }
 
@@ -41,17 +46,19 @@ public class ServiceContentProvider extends ContentProvider {
     @Nullable
     @Override
     public Bundle call(@NonNull String method, @Nullable String arg, @Nullable Bundle extras) {
-        Log.e(TAG, "call:" + method + " arg:" + mGson.toJson(arg) + " size:" + extras.size());
-        String key = "key_%s";
-
-        for (int i = 0; i < extras.size(); i++) {
-            Parcelable parcelable = extras.getParcelable(String.format(key, i + ""));
-            if (parcelable == null) {
-                break;
-            }
-            Log.e(TAG, "parcelable:" + mGson.toJson(parcelable));
+        Bundle response = new Bundle();
+        try {
+            MethodCaller methodCaller = PigeonEngine.getInstance().parseRequest(method, arg, extras);
+            methodCaller.call(PigeonEngine.getInstance().parseData(arg, extras));
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+            response.putInt(PigeonEngine.KEY_RESPONSE_CODE, PigeonEngine.RESPONSE_RESULE_NO_SUCH_METHOD);
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
         }
-        return super.call(method, arg, extras);
+        return response;
     }
 
     @Nullable

@@ -24,6 +24,14 @@ public abstract class Pair implements Parcelable {
         dest.writeString(key);
     }
 
+    public String getKey() {
+        return key;
+    }
+
+    public void setKey(String key) {
+        this.key = key;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -61,6 +69,13 @@ public abstract class Pair implements Parcelable {
             }
         };
 
+        public int getValue() {
+            return value;
+        }
+
+        public void setValue(int value) {
+            this.value = value;
+        }
     }
 
 
@@ -129,6 +144,13 @@ public abstract class Pair implements Parcelable {
             }
         };
 
+        public long getValue() {
+            return value;
+        }
+
+        public void setValue(long value) {
+            this.value = value;
+        }
     }
 
 
@@ -265,6 +287,13 @@ public abstract class Pair implements Parcelable {
             }
         };
 
+        public boolean isValue() {
+            return value;
+        }
+
+        public void setValue(boolean value) {
+            this.value = value;
+        }
     }
 
 
