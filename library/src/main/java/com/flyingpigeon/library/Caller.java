@@ -29,9 +29,9 @@ public class Caller implements MethodCaller {
     }
 
     @Override
-    public void call(Object... arg) throws IllegalAccessException, InvocationTargetException {
+    public Object call(Object... arg) throws IllegalAccessException, InvocationTargetException {
         target.setAccessible(true);
-        target.invoke(owner, arg);
+        return target.invoke(owner, arg);
     }
 
     @Override

@@ -27,6 +27,6 @@ public class MyService extends ServiceContentProvider implements MainService {
     @Override
     public int createPoster(Poster poster) {
         Log.e(TAG, "poster:" + GsonUtils.toJson(poster));
-        return 0;
+        return 1999;
     }
 }

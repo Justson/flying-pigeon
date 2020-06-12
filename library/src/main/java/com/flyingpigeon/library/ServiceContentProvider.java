@@ -50,14 +50,18 @@ public class ServiceContentProvider extends ContentProvider {
         Bundle response = new Bundle();
         try {
             MethodCaller methodCaller = PigeonEngine.getInstance().parseRequest(method, arg, extras);
-            methodCaller.call(PigeonEngine.getInstance().parseData(arg, extras));
+            Object result = methodCaller.call(PigeonEngine.getInstance().parseData(arg, extras));
+            PigeonEngine.getInstance().buildResponse(extras, response, result);
+            response.putInt(PigeonEngine.KEY_RESPONSE_CODE, PigeonEngine.RESPONSE_RESULE_SUCCESS);
         } catch (NoSuchMethodException e) {
             e.printStackTrace();
             response.putInt(PigeonEngine.KEY_RESPONSE_CODE, PigeonEngine.RESPONSE_RESULE_NO_SUCH_METHOD);
         } catch (IllegalAccessException e) {
             e.printStackTrace();
+            response.putInt(PigeonEngine.KEY_RESPONSE_CODE, PigeonEngine.RESPONSE_RESULE_ILLGEALACCESS);
         } catch (InvocationTargetException e) {
             e.printStackTrace();
+            response.putInt(PigeonEngine.KEY_RESPONSE_CODE, PigeonEngine.RESPONSE_RESULE_NO_SUCH_METHOD);
         }
         return response;
     }

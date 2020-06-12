@@ -9,7 +9,7 @@ import java.lang.reflect.InvocationTargetException;
  */
 public interface MethodCaller {
 
-    void call(Object... arg) throws IllegalAccessException, InvocationTargetException;
+    Object call(Object... arg) throws IllegalAccessException, InvocationTargetException;
 
     String callerId();
 }

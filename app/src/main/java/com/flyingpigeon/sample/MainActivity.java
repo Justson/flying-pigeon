@@ -1,12 +1,15 @@
 package com.flyingpigeon.sample;
 
 import android.os.Bundle;
+import android.util.Log;
 
 import com.flyingpigeon.library.Pigeon;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 public class MainActivity extends AppCompatActivity {
+
+    private static final String TAG = MainActivity.class.getSimpleName();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,6 +26,7 @@ public class MainActivity extends AppCompatActivity {
 
 
         Poster poster = new Poster("Justson", "just", 119, 11111000L, (short) 23, 1.15646F, 'h', (byte) 4, 123456.415D);
-        mainService.createPoster(poster);
+        int posterId = mainService.createPoster(poster);
+        Log.e(TAG, "posterId:" + posterId);
     }
 }

@@ -40,8 +40,7 @@ public final class Pigeon {
             @Override
             public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
                 Log.e(TAG, " method:" + method + " args:" + new Gson().toJson(args) + " proxy:" + proxy.getClass());
-                call(proxy, method, args);
-                return null;
+                return (T) call(proxy, method, args);
             }
         });
 
@@ -49,11 +48,19 @@ public final class Pigeon {
 
     Gson mGson = new Gson();
 
+    private static final Object EMPTY = new Object();
 
-    private void call(Object proxy, Method method, Object[] args) {
+    private Object call(Object proxy, Method method, Object[] args) {
         Bundle bundle = PigeonEngine.getInstance().buildRequest(method, args);
         ContentResolver contentResolver = mContext.getContentResolver();
-        contentResolver.call(base, method.getName(), null, bundle);
+        Bundle response = contentResolver.call(base, method.getName(), null, bundle);
+        Object o = null;
+        try {
+            o = PigeonEngine.getInstance().parseReponse(response, method);
+        } catch (CallRemoteException e) {
+            throw new RuntimeException(e);
+        }
+        return o;
     }
 
 

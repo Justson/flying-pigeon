@@ -29,9 +29,13 @@ public final class PigeonEngine {
     static final int APPROACH_METHOD = 1;
     static final int APPROACH_ROUTE = 2;
     static final String KEY_RESPONSE_CODE = "reponse_code";
-    static final int RESPONSE_RESULE_NO_SUCH_METHOD = 1;
+    static final int RESPONSE_RESULE_NO_SUCH_METHOD = 404;
+    static final int RESPONSE_RESULE_ILLGEALACCESS = 403;
+    static final int RESPONSE_RESULE_SUCCESS = 200;
+
     static final String KEY_LENGTH = "key_length";
     static final String KEY_INDEX = "key_%s";
+    static final String KEY_RESPONSE = "key_response";
 
 
     private static final String TAG = PREFIX + PigeonEngine.class.getSimpleName();
@@ -99,10 +103,56 @@ public final class PigeonEngine {
                 Parcelable parcelable = bundle.getParcelable(String.format(key, i + ""));
                 Log.e(TAG, "parcelable:" + mGson.toJson(parcelable));
             }
-
         }
         bundle.putInt(KEY_LENGTH, types.length);
         bundle.putInt(KEY_LOOK_UP_APPROACH, APPROACH_METHOD);
+
+
+        // build response type;
+        String responseKey = KEY_RESPONSE;
+        Object EMPTY = new Object();
+        Type returnType = method.getGenericReturnType();
+        if (int.class.isAssignableFrom((Class<?>) returnType)) {
+            ParameterHandler.IntHandler handler = (ParameterHandler.IntHandler) map.get(int.class);
+            assert handler != null;
+            handler.apply(0, responseKey, bundle);
+        } else if (double.class.isAssignableFrom((Class<?>) returnType)) {
+            ParameterHandler.DoubleHandler handler = (ParameterHandler.DoubleHandler) map.get(double.class);
+            assert handler != null;
+            handler.apply(0D, responseKey, bundle);
+        } else if (long.class.isAssignableFrom((Class<?>) returnType)) {
+            ParameterHandler.LongHandler handler = (ParameterHandler.LongHandler) map.get(long.class);
+            assert handler != null;
+            handler.apply(0L, responseKey, bundle);
+        } else if (short.class.isAssignableFrom((Class<?>) returnType)) {
+            ParameterHandler.ShortHandler handler = (ParameterHandler.ShortHandler) map.get(short.class);
+            assert handler != null;
+            handler.apply((short) 0, responseKey, bundle);
+        } else if (float.class.isAssignableFrom((Class<?>) returnType)) {
+            ParameterHandler.FloatHandler handler = (ParameterHandler.FloatHandler) map.get(float.class);
+            assert handler != null;
+            handler.apply(0F, responseKey, bundle);
+        } else if (byte.class.isAssignableFrom((Class<?>) returnType)) {
+            ParameterHandler.ByteHandler handler = (ParameterHandler.ByteHandler) map.get(byte.class);
+            assert handler != null;
+            handler.apply((byte) 0, responseKey, bundle);
+        } else if (boolean.class.isAssignableFrom((Class<?>) returnType)) {
+            ParameterHandler.BooleanHandler handler = (ParameterHandler.BooleanHandler) map.get(boolean.class);
+            assert handler != null;
+            handler.apply(false, responseKey, bundle);
+        } else if (String.class.isAssignableFrom((Class<?>) returnType)) {
+            ParameterHandler.StringHandler handler = (ParameterHandler.StringHandler) map.get(String.class);
+            assert handler != null;
+            handler.apply("", responseKey, bundle);
+        } else if (Parcelable.class.isAssignableFrom(((Class<?>) returnType))) {
+            ParameterHandler.ParcelableHandler handler = (ParameterHandler.ParcelableHandler) map.get(Parcelable.class);
+            assert handler != null;
+            handler.apply(new Empty(), responseKey, bundle);
+        } else if (Serializable.class.isAssignableFrom(((Class<?>) returnType))) {
+            ParameterHandler.SerializableHandler handler = (ParameterHandler.SerializableHandler) map.get(Serializable.class);
+            assert handler != null;
+            handler.apply(new Empty(), responseKey, bundle);
+        }
         return bundle;
     }
 
@@ -209,14 +259,14 @@ public final class PigeonEngine {
                 e.printStackTrace();
                 return null;
             }
-        }  else if (parcelable instanceof com.flyingpigeon.library.Pair.PairSerializable) {
+        } else if (parcelable instanceof com.flyingpigeon.library.Pair.PairSerializable) {
             try {
                 return new android.util.Pair<Class<?>, Object>(Class.forName(((Pair.PairSerializable) parcelable).getKey()), ((Pair.PairSerializable) parcelable).getValue());
             } catch (ClassNotFoundException e) {
                 e.printStackTrace();
                 return null;
             }
-        }else {
+        } else {
             try {
                 return new android.util.Pair<Class<?>, Object>(Class.forName(((Pair.PairParcelable) parcelable).getKey()), ((Pair.PairParcelable) parcelable).getValue());
             } catch (ClassNotFoundException e) {
@@ -226,4 +276,75 @@ public final class PigeonEngine {
         }
     }
 
+    public Object parseReponse(Bundle response, Method method) throws CallRemoteException {
+        int responseCode = response.getInt(KEY_RESPONSE_CODE);
+        if (responseCode == RESPONSE_RESULE_NO_SUCH_METHOD) {
+            throw new CallRemoteException("404 , method not found ");
+        }
+
+        if (responseCode == RESPONSE_RESULE_SUCCESS) {
+            Parcelable parcelable = response.getParcelable(KEY_RESPONSE);
+            return parcelableValueOut(parcelable);
+        }
+        return null;
+    }
+
+    public void buildResponse(Bundle request, Bundle response, Object result) {
+        Parcelable parcelable = request.getParcelable(KEY_RESPONSE);
+        parcelableValueIn(parcelable, result);
+        response.putParcelable(KEY_RESPONSE, parcelable);
+    }
+
+
+    private void parcelableValueIn(Parcelable parcelable, Object value) {
+        if (parcelable instanceof com.flyingpigeon.library.Pair.PairInt) {
+            ((com.flyingpigeon.library.Pair.PairInt) parcelable).setValue((Integer) value);
+        } else if (parcelable instanceof com.flyingpigeon.library.Pair.PairDouble) {
+            ((com.flyingpigeon.library.Pair.PairDouble) parcelable).setValue((Double) value);
+        } else if (parcelable instanceof com.flyingpigeon.library.Pair.PairLong) {
+            ((com.flyingpigeon.library.Pair.PairLong) parcelable).setValue((Long) value);
+        } else if (parcelable instanceof com.flyingpigeon.library.Pair.PairShort) {
+            ((com.flyingpigeon.library.Pair.PairShort) parcelable).setValue((Short) value);
+        } else if (parcelable instanceof com.flyingpigeon.library.Pair.PairFloat) {
+            ((com.flyingpigeon.library.Pair.PairFloat) parcelable).setValue((Float) value);
+        } else if (parcelable instanceof com.flyingpigeon.library.Pair.PairByte) {
+            ((com.flyingpigeon.library.Pair.PairByte) parcelable).setValue((Byte) value);
+        } else if (parcelable instanceof com.flyingpigeon.library.Pair.PairBoolean) {
+            ((com.flyingpigeon.library.Pair.PairBoolean) parcelable).setValue((Boolean) value);
+        } else if (parcelable instanceof com.flyingpigeon.library.Pair.PairString) {
+            ((Pair.PairString) parcelable).setValue((String) value);
+            ((Pair.PairString) parcelable).setKey(value.getClass().getName());
+        } else if (parcelable instanceof com.flyingpigeon.library.Pair.PairSerializable) {
+            ((Pair.PairSerializable) parcelable).setValue((Serializable) value);
+            ((Pair.PairSerializable) parcelable).setKey(value.getClass().getName());
+        } else {
+            ((Pair.PairParcelable) parcelable).setValue((Parcelable) value);
+            ((Pair.PairParcelable) parcelable).setKey(value.getClass().getName());
+        }
+    }
+
+    private Object parcelableValueOut(Parcelable parcelable) {
+        if (parcelable instanceof com.flyingpigeon.library.Pair.PairInt) {
+            return ((com.flyingpigeon.library.Pair.PairInt) parcelable).getValue();
+        } else if (parcelable instanceof com.flyingpigeon.library.Pair.PairDouble) {
+            return ((com.flyingpigeon.library.Pair.PairDouble) parcelable).getValue();
+        } else if (parcelable instanceof com.flyingpigeon.library.Pair.PairLong) {
+            return ((com.flyingpigeon.library.Pair.PairLong) parcelable).getValue();
+        } else if (parcelable instanceof com.flyingpigeon.library.Pair.PairShort) {
+            return ((com.flyingpigeon.library.Pair.PairShort) parcelable).getValue();
+        } else if (parcelable instanceof com.flyingpigeon.library.Pair.PairFloat) {
+            return ((com.flyingpigeon.library.Pair.PairFloat) parcelable).getValue();
+        } else if (parcelable instanceof com.flyingpigeon.library.Pair.PairByte) {
+            return ((com.flyingpigeon.library.Pair.PairByte) parcelable).getValue();
+        } else if (parcelable instanceof com.flyingpigeon.library.Pair.PairBoolean) {
+            ((com.flyingpigeon.library.Pair.PairBoolean) parcelable).isValue();
+        } else if (parcelable instanceof com.flyingpigeon.library.Pair.PairString) {
+            return ((Pair.PairString) parcelable).getValue();
+        } else if (parcelable instanceof com.flyingpigeon.library.Pair.PairSerializable) {
+            return ((Pair.PairSerializable) parcelable).getValue();
+        } else {
+            return ((Pair.PairParcelable) parcelable).getValue();
+        }
+        return null;
+    }
 }
