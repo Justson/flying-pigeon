@@ -20,7 +20,7 @@
         </activity>
 
         <provider
-            android:name="com.flyingpigeon.sample.MyService"
+            android:name="com.flyingpigeon.sample.TestServiceApi"
             android:authorities="com.flyingpigeon.library"
             android:exported="true"
             android:grantUriPermissions="false"

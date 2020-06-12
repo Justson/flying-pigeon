@@ -8,7 +8,6 @@ import android.content.pm.ProviderInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.google.gson.Gson;
 
@@ -42,7 +41,6 @@ public final class Pigeon {
         return (T) Proxy.newProxyInstance(service.getClassLoader(), new Class[]{service}, new InvocationHandler() {
             @Override
             public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-                Log.e(TAG, " method:" + method + " args:" + new Gson().toJson(args) + " proxy:" + proxy.getClass());
                 return (T) call(proxy, method, args);
             }
         });
@@ -92,7 +90,7 @@ public final class Pigeon {
             return this;
         }
 
-        public Builder setService(Class<?> service) {
+        public Builder setServiceApi(Class<?> service) {
             PackageInfo packageInfos = null;
             try {
                 PackageManager mgr = mContext.getPackageManager();
@@ -111,7 +109,7 @@ public final class Pigeon {
                 }
             }
             if (TextUtils.isEmpty(this.authorities)) {
-                new IllegalArgumentException("server is not exists");
+                new IllegalArgumentException("ServiceApi is not exists");
             }
             return this;
         }
