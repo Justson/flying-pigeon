@@ -18,7 +18,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Pigeon pigeon = Pigeon.newBuilder(this).setServiceApi(TestServiceApi.class).build();
+        Pigeon pigeon = Pigeon.newBuilder(this).setAuthority(TestServiceApi.class).build();
         ServiceApi serviceApi = pigeon.create(ServiceApi.class);
 //        serviceApi.queryTest(1);
 //        Short aShort = 1;

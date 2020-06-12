@@ -72,25 +72,25 @@ public final class Pigeon {
     public static final class Builder {
 
         private Context mContext;
-        private String authorities;
+        private String authority;
 
         private Builder(Context context) {
             this.mContext = context;
         }
 
-        public Builder setAuthorities(String authorities) {
-            if (TextUtils.isEmpty(authorities)) {
+        public Builder setAuthority(String authority) {
+            if (TextUtils.isEmpty(authority)) {
                 throw new IllegalArgumentException("authorities error");
             }
-            if (authorities.startsWith(":")) {
-                this.authorities = mContext.getPackageName().concat(authorities.replace(":", ""));
+            if (authority.startsWith(":")) {
+                this.authority = mContext.getPackageName().concat(authority.replace(":", ""));
                 return this;
             }
-            this.authorities = authorities;
+            this.authority = authority;
             return this;
         }
 
-        public Builder setServiceApi(Class<?> service) {
+        public Builder setAuthority(Class<?> service) {
             PackageInfo packageInfos = null;
             try {
                 PackageManager mgr = mContext.getPackageManager();
@@ -104,11 +104,11 @@ public final class Pigeon {
             if (packageInfos != null && packageInfos.providers != null) {
                 for (ProviderInfo providerInfo : packageInfos.providers) {
                     if (providerInfo.name.equals(service.getName())) {
-                        authorities = providerInfo.authority;
+                        authority = providerInfo.authority;
                     }
                 }
             }
-            if (TextUtils.isEmpty(this.authorities)) {
+            if (TextUtils.isEmpty(this.authority)) {
                 new IllegalArgumentException("ServiceApi is not exists");
             }
             return this;
