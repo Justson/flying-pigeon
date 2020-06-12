@@ -2,6 +2,8 @@ package com.flyingpigeon.sample;
 
 import com.flyingpigeon.library.anotation.RequestLarge;
 
+import java.util.ArrayList;
+
 /**
  * @author xiaozhongcen
  * @date 20-6-8
@@ -35,4 +37,6 @@ public interface ServiceApi {
 
     @RequestLarge
     void testLargeBlock(String param, byte[] data);
+
+    void testArrayList(ArrayList<String> items);
 }

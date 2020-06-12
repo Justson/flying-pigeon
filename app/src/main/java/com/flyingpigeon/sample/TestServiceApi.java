@@ -4,6 +4,8 @@ import android.util.Log;
 
 import com.flyingpigeon.library.ServiceContentProvider;
 
+import java.util.ArrayList;
+
 import static com.flyingpigeon.library.Config.PREFIX;
 
 /**
@@ -75,5 +77,15 @@ public class TestServiceApi extends ServiceContentProvider implements ServiceApi
     public Information testParcelable() {
         Information information = new Information("Justson", "just", 110, (short) 1, 'c', 1.22F, (byte) 14, 8989123.111D, 100000L);
         return information;
+    }
+
+    @Override
+    public void testLargeBlock(String param, byte[] data) {
+
+    }
+
+    @Override
+    public void testArrayList(ArrayList<String> items) {
+        Log.e(TAG, "testArrayList:" + GsonUtils.toJson(items));
     }
 }

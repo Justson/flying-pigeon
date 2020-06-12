@@ -1,5 +1,6 @@
 package com.flyingpigeon.library;
 
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.util.Log;
@@ -13,6 +14,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 
 import static com.flyingpigeon.library.Config.PREFIX;
 
@@ -52,51 +54,53 @@ public final class PigeonEngine {
     }
 
 
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     Bundle buildRequest(Method method, Object[] args) {
         Bundle bundle = new Bundle();
         Type[] types = method.getGenericParameterTypes();
         String key = KEY_INDEX;
         for (int i = 0; i < types.length; i++) {
-            Log.e(TAG, "type name:" + types[i] + " method:" + method.getName() + " Parcelable.class.isAssignableFrom(((Class<?>) types[i])):" + Parcelable.class.isAssignableFrom(((Class<?>) types[i])) + " key:" + String.format(key, i + ""));
-            if (int.class.isAssignableFrom((Class<?>) types[i])) {
+            Log.e(TAG, "type name:" + types[i] + " method:" + method.getName());
+            Class<?> typeClazz = ClassUtil.getRawType(types[i]);
+            if (int.class.isAssignableFrom(typeClazz)) {
                 ParameterHandler.IntHandler handler = (ParameterHandler.IntHandler) map.get(int.class);
                 assert handler != null;
                 handler.apply((Integer) args[i], String.format(key, i + ""), bundle);
-            } else if (double.class.isAssignableFrom((Class<?>) types[i])) {
+            } else if (double.class.isAssignableFrom(typeClazz)) {
                 ParameterHandler.DoubleHandler handler = (ParameterHandler.DoubleHandler) map.get(double.class);
                 assert handler != null;
                 handler.apply((Double) args[i], String.format(key, i + ""), bundle);
-            } else if (long.class.isAssignableFrom((Class<?>) types[i])) {
+            } else if (long.class.isAssignableFrom(typeClazz)) {
                 ParameterHandler.LongHandler handler = (ParameterHandler.LongHandler) map.get(long.class);
                 assert handler != null;
                 handler.apply((Long) args[i], String.format(key, i + ""), bundle);
-            } else if (short.class.isAssignableFrom((Class<?>) types[i])) {
+            } else if (short.class.isAssignableFrom(typeClazz)) {
                 ParameterHandler.ShortHandler handler = (ParameterHandler.ShortHandler) map.get(short.class);
                 assert handler != null;
                 handler.apply((Short) args[i], String.format(key, i + ""), bundle);
-            } else if (float.class.isAssignableFrom((Class<?>) types[i])) {
+            } else if (float.class.isAssignableFrom(typeClazz)) {
                 ParameterHandler.FloatHandler handler = (ParameterHandler.FloatHandler) map.get(float.class);
                 assert handler != null;
                 handler.apply((Float) args[i], String.format(key, i + ""), bundle);
-            } else if (byte.class.isAssignableFrom((Class<?>) types[i])) {
+            } else if (byte.class.isAssignableFrom(typeClazz)) {
                 ParameterHandler.ByteHandler handler = (ParameterHandler.ByteHandler) map.get(byte.class);
                 assert handler != null;
                 handler.apply((Byte) args[i], String.format(key, i + ""), bundle);
-            } else if (boolean.class.isAssignableFrom((Class<?>) types[i])) {
+            } else if (boolean.class.isAssignableFrom(typeClazz)) {
                 ParameterHandler.BooleanHandler handler = (ParameterHandler.BooleanHandler) map.get(boolean.class);
                 assert handler != null;
                 handler.apply((Boolean) args[i], String.format(key, i + ""), bundle);
-            } else if (String.class.isAssignableFrom((Class<?>) types[i])) {
+            } else if (String.class.isAssignableFrom(typeClazz)) {
                 ParameterHandler.StringHandler handler = (ParameterHandler.StringHandler) map.get(String.class);
                 assert handler != null;
                 handler.apply((String) args[i], String.format(key, i + ""), bundle);
-            } else if (Parcelable.class.isAssignableFrom(((Class<?>) types[i]))) {
+            } else if (Parcelable.class.isAssignableFrom((typeClazz))) {
                 ParameterHandler.ParcelableHandler handler = (ParameterHandler.ParcelableHandler) map.get(Parcelable.class);
                 assert handler != null;
                 handler.apply((Parcelable) args[i], String.format(key, i + ""), bundle);
                 Parcelable parcelable = bundle.getParcelable(String.format(key, i + ""));
                 Log.e(TAG, "parcelable:" + mGson.toJson(parcelable));
-            } else if (Serializable.class.isAssignableFrom(((Class<?>) types[i]))) {
+            } else if (Serializable.class.isAssignableFrom((typeClazz))) {
                 ParameterHandler.SerializableHandler handler = (ParameterHandler.SerializableHandler) map.get(Serializable.class);
                 assert handler != null;
                 handler.apply((Serializable) args[i], String.format(key, i + ""), bundle);
