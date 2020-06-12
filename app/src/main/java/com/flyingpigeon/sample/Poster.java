@@ -3,7 +3,7 @@ package com.flyingpigeon.sample;
 import java.io.Serializable;
 
 /**
- * @author ringle-android
+ * @author xiaozhongcen
  * @date 20-6-11
  * @since 1.0.0
  */

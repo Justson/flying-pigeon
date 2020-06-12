@@ -17,7 +17,7 @@ import androidx.annotation.Nullable;
 import static com.flyingpigeon.library.Config.PREFIX;
 
 /**
- * @author ringle-android
+ * @author xiaozhongcen
  * @date 20-6-9
  * @since 1.0.0
  */
@@ -49,7 +49,7 @@ public class ServiceContentProvider extends ContentProvider {
         Log.e(TAG, "call extras:" + mGson.toJson(extras));
         Bundle response = new Bundle();
         try {
-            MethodCaller methodCaller = PigeonEngine.getInstance().parseRequest(method, arg, extras);
+            MethodCaller methodCaller = PigeonEngine.getInstance().parseRequest(method, arg, extras,this);
             Object result = methodCaller.call(PigeonEngine.getInstance().parseData(arg, extras));
             PigeonEngine.getInstance().buildResponse(extras, response, result);
             response.putInt(PigeonEngine.KEY_RESPONSE_CODE, PigeonEngine.RESPONSE_RESULE_SUCCESS);

@@ -17,7 +17,7 @@ import androidx.annotation.Nullable;
 import static com.flyingpigeon.library.Config.PREFIX;
 
 /**
- * @author ringle-android
+ * @author xiaozhongcen
  * @date 20-6-11
  * @since 1.0.0
  */
@@ -156,13 +156,13 @@ public final class PigeonEngine {
         return bundle;
     }
 
-    MethodCaller parseRequest(@NonNull String method, @Nullable String arg, @Nullable Bundle extras) throws NoSuchMethodException, IllegalAccessException {
+    MethodCaller parseRequest(@NonNull String method, @Nullable String arg, @Nullable Bundle extras, ServiceContentProvider serviceContentProvider) throws NoSuchMethodException, IllegalAccessException {
         Log.e(TAG, "call:" + method + " arg:" + mGson.toJson(arg) + " size:" + extras.size() + " ServiceContentProvider.serviceContext:" + ServiceContentProvider.serviceContext);
         MethodCaller methodCaller;
         int approach = extras.getInt(KEY_LOOK_UP_APPROACH);
         Object owner = null;
         if (approach == APPROACH_METHOD) {
-            owner = ServiceContentProvider.serviceContext;
+            owner = serviceContentProvider;
         }
         if (approach == APPROACH_METHOD && (methodCaller = lookupMethodByCache(method)) != null) {
             return methodCaller;

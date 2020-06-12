@@ -4,7 +4,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 /**
- * @author ringle-android
+ * @author xiaozhongcen
  * @date 20-6-11
  * @since 1.0.0
  */

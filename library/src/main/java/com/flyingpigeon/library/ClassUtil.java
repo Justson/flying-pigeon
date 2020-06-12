@@ -21,7 +21,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
 /**
- * @author ringle-android
+ * @author xiaozhongcen
  * @date 20-6-10
  * @since 1.0.0
  */

@@ -3,7 +3,7 @@ package com.flyingpigeon.library;
 import android.os.RemoteException;
 
 /**
- * @author ringle-android
+ * @author xiaozhongcen
  * @date 20-6-12
  * @since 1.0.0
  */
