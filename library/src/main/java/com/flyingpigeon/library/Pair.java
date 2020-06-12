@@ -464,12 +464,12 @@ public abstract class Pair implements Parcelable {
             dest.writeSerializable(value);
         }
 
-        public static final Creator<PairParcelable> CREATOR = new Creator<PairParcelable>() {
+        public static final Creator<PairSerializable> CREATOR = new Creator<PairSerializable>() {
             @Override
-            public PairParcelable createFromParcel(Parcel in) {
+            public PairSerializable createFromParcel(Parcel in) {
                 Log.e(TAG, "createFromParcel");
                 try {
-                    return new PairParcelable(in);
+                    return new PairSerializable(in);
                 } catch (ClassNotFoundException e) {
                     e.printStackTrace();
                     return null;
@@ -477,8 +477,8 @@ public abstract class Pair implements Parcelable {
             }
 
             @Override
-            public PairParcelable[] newArray(int size) {
-                return new PairParcelable[size];
+            public PairSerializable[] newArray(int size) {
+                return new PairSerializable[size];
             }
         };
 

@@ -23,7 +23,8 @@
             android:name="com.flyingpigeon.sample.MyService"
             android:authorities="com.flyingpigeon.library"
             android:exported="true"
-            android:grantUriPermissions="false"/>
+            android:grantUriPermissions="false"
+            android:process=":tools" />
 
     </application>
 

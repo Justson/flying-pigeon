@@ -2,6 +2,9 @@ package com.flyingpigeon.library;
 
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.ProviderInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -86,6 +89,30 @@ public final class Pigeon {
                 return this;
             }
             this.authorities = authorities;
+            return this;
+        }
+
+        public Builder setService(Class<?> service) {
+            PackageInfo packageInfos = null;
+            try {
+                PackageManager mgr = mContext.getPackageManager();
+                if (mgr != null) {
+                    packageInfos =
+                            mgr.getPackageInfo(mContext.getPackageName(), PackageManager.GET_PROVIDERS);
+                }
+            } catch (PackageManager.NameNotFoundException e) {
+                e.printStackTrace();
+            }
+            if (packageInfos != null && packageInfos.providers != null) {
+                for (ProviderInfo providerInfo : packageInfos.providers) {
+                    if (providerInfo.name.equals(service.getName())) {
+                        authorities = providerInfo.authority;
+                    }
+                }
+            }
+            if (TextUtils.isEmpty(this.authorities)) {
+                new IllegalArgumentException("server is not exists");
+            }
             return this;
         }
 

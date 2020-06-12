@@ -5,6 +5,8 @@ import android.util.Log;
 
 import com.flyingpigeon.library.Pigeon;
 
+import java.util.UUID;
+
 import androidx.appcompat.app.AppCompatActivity;
 
 public class MainActivity extends AppCompatActivity {
@@ -16,8 +18,9 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Pigeon pigeon = Pigeon.newBuilder(this).setAuthorities("com.flyingpigeon.library").build();
+        Pigeon pigeon = Pigeon.newBuilder(this).setService(MyService.class).build();
         MainService mainService = pigeon.create(MainService.class);
+//        mainService.queryTest(1);
 //        Short aShort = 1;
 //        byte aByte = 10;
 //        mainService.queryItems(UUID.randomUUID().hashCode(), 0.001D, SystemClock.elapsedRealtime(), aShort, 0.011F, aByte, true);
@@ -28,5 +31,16 @@ public class MainActivity extends AppCompatActivity {
         Poster poster = new Poster("Justson", "just", 119, 11111000L, (short) 23, 1.15646F, 'h', (byte) 4, 123456.415D);
         int posterId = mainService.createPoster(poster);
         Log.e(TAG, "posterId:" + posterId);
+
+        Poster resultPoster = mainService.queryPoster(UUID.randomUUID().toString());
+        Log.e(TAG, "resultPoster:" + GsonUtils.toJson(resultPoster));
+
+        testReturn(mainService);
+    }
+
+    private void testReturn(MainService mainService) {
+        Poster poster = new Poster("Justson", "just", 119, 11111000L, (short) 23, 1.15646F, 'h', (byte) 4, 123456.415D);
+
+        Log.e(TAG, "int:" + mainService.createPoster(poster) + " double:" + mainService.testDouble() + " long:" + mainService.testLong() + " short:" + mainService.testShort() + " float:" + mainService.testFloat() + " byte:" + mainService.testByte() + " boolean:" + mainService.testBoolean() + " testParcelable:" + GsonUtils.toJson(mainService.testParcelable()));
     }
 }

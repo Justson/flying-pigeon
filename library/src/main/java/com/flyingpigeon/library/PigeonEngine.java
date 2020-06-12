@@ -152,11 +152,13 @@ public final class PigeonEngine {
             ParameterHandler.SerializableHandler handler = (ParameterHandler.SerializableHandler) map.get(Serializable.class);
             assert handler != null;
             handler.apply(new Empty(), responseKey, bundle);
+        } else if (Void.class.isAssignableFrom(((Class<?>) returnType))) {
         }
         return bundle;
     }
 
     MethodCaller parseRequest(@NonNull String method, @Nullable String arg, @Nullable Bundle extras, ServiceContentProvider serviceContentProvider) throws NoSuchMethodException, IllegalAccessException {
+        extras.setClassLoader(Pair.class.getClassLoader());
         Log.e(TAG, "call:" + method + " arg:" + mGson.toJson(arg) + " size:" + extras.size() + " ServiceContentProvider.serviceContext:" + ServiceContentProvider.serviceContext);
         MethodCaller methodCaller;
         int approach = extras.getInt(KEY_LOOK_UP_APPROACH);
@@ -277,13 +279,14 @@ public final class PigeonEngine {
     }
 
     public Object parseReponse(Bundle response, Method method) throws CallRemoteException {
+        response.setClassLoader(Pair.class.getClassLoader());
         int responseCode = response.getInt(KEY_RESPONSE_CODE);
         if (responseCode == RESPONSE_RESULE_NO_SUCH_METHOD) {
             throw new CallRemoteException("404 , method not found ");
         }
 
-        if (responseCode == RESPONSE_RESULE_SUCCESS) {
-            Parcelable parcelable = response.getParcelable(KEY_RESPONSE);
+        Parcelable parcelable;
+        if (responseCode == RESPONSE_RESULE_SUCCESS && (parcelable = response.getParcelable(KEY_RESPONSE)) != null) {
             return parcelableValueOut(parcelable);
         }
         return null;
@@ -291,8 +294,10 @@ public final class PigeonEngine {
 
     public void buildResponse(Bundle request, Bundle response, Object result) {
         Parcelable parcelable = request.getParcelable(KEY_RESPONSE);
-        parcelableValueIn(parcelable, result);
-        response.putParcelable(KEY_RESPONSE, parcelable);
+        if (parcelable != null) {
+            parcelableValueIn(parcelable, result);
+            response.putParcelable(KEY_RESPONSE, parcelable);
+        }
     }
 
 
@@ -337,7 +342,7 @@ public final class PigeonEngine {
         } else if (parcelable instanceof com.flyingpigeon.library.Pair.PairByte) {
             return ((com.flyingpigeon.library.Pair.PairByte) parcelable).getValue();
         } else if (parcelable instanceof com.flyingpigeon.library.Pair.PairBoolean) {
-            ((com.flyingpigeon.library.Pair.PairBoolean) parcelable).isValue();
+            return ((com.flyingpigeon.library.Pair.PairBoolean) parcelable).isValue();
         } else if (parcelable instanceof com.flyingpigeon.library.Pair.PairString) {
             return ((Pair.PairString) parcelable).getValue();
         } else if (parcelable instanceof com.flyingpigeon.library.Pair.PairSerializable) {
@@ -345,6 +350,5 @@ public final class PigeonEngine {
         } else {
             return ((Pair.PairParcelable) parcelable).getValue();
         }
-        return null;
     }
 }
