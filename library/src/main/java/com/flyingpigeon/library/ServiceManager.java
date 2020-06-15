@@ -5,8 +5,6 @@ import android.os.Bundle;
 import android.os.Parcelable;
 import android.util.Log;
 
-import com.google.gson.Gson;
-
 import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
@@ -43,8 +41,9 @@ public final class ServiceManager implements IServiceManager {
 
 
 	private static final String TAG = PREFIX + ServiceManager.class.getSimpleName();
-	private Gson mGson = new Gson();
-	private ConcurrentHashMap<String, MethodCaller> callers = new ConcurrentHashMap<>();
+	private final ReentrantLock lock = new ReentrantLock();
+	private ConcurrentHashMap<Class<?>, BuketMethod> sCache = new ConcurrentHashMap<>();
+
 
 	private ServiceManager() {
 	}
@@ -101,13 +100,11 @@ public final class ServiceManager implements IServiceManager {
 				assert handler != null;
 				handler.apply((Parcelable) args[i], String.format(key, i + ""), bundle);
 				Parcelable parcelable = bundle.getParcelable(String.format(key, i + ""));
-				Log.e(TAG, "parcelable:" + mGson.toJson(parcelable));
 			} else if (Serializable.class.isAssignableFrom((typeClazz))) {
 				ParameterHandler.SerializableHandler handler = (ParameterHandler.SerializableHandler) map.get(Serializable.class);
 				assert handler != null;
 				handler.apply((Serializable) args[i], String.format(key, i + ""), bundle);
 				Parcelable parcelable = bundle.getParcelable(String.format(key, i + ""));
-				Log.e(TAG, "parcelable:" + mGson.toJson(parcelable));
 			}
 		}
 		bundle.putInt(KEY_LENGTH, types.length);
@@ -165,16 +162,8 @@ public final class ServiceManager implements IServiceManager {
 
 	MethodCaller parseRequest(@NonNull String method, @Nullable String arg, @Nullable Bundle extras, ServiceContentProvider serviceContentProvider) throws NoSuchMethodException, IllegalAccessException, ClassNotFoundException {
 		extras.setClassLoader(Pair.class.getClassLoader());
-		Log.e(TAG, "call:" + method + " arg:" + mGson.toJson(arg) + " size:" + extras.size() + " ServiceContentProvider.serviceContext:" + ServiceContentProvider.serviceContext);
 		MethodCaller methodCaller;
 		int approach = extras.getInt(KEY_LOOK_UP_APPROACH);
-		Object owner = null;
-//		if (approach == APPROACH_METHOD) {
-//			owner = serviceContentProvider;
-//		}
-//		if (approach == APPROACH_METHOD && (methodCaller = lookupMethodByCache(method)) != null) {
-//			return methodCaller;
-//		}
 		String key = KEY_INDEX;
 		int length = extras.getInt(KEY_LENGTH);
 		Class<?>[] clazzs = new Class[length];
@@ -219,7 +208,6 @@ public final class ServiceManager implements IServiceManager {
 			if (parcelable == null) {
 				break;
 			}
-			Log.e(TAG, "parcelable:" + mGson.toJson(parcelable) + " parcelable:" + parcelable);
 			android.util.Pair<Class<?>, Object> data = parcelableToClazz(parcelable);
 			clazzs[i] = data.first;
 			values[i] = data.second;
@@ -227,13 +215,6 @@ public final class ServiceManager implements IServiceManager {
 		return values;
 	}
 
-	private void cacheMethodToMemory(MethodCaller methodCaller) {
-		callers.put(methodCaller.callerId(), methodCaller);
-	}
-
-	private MethodCaller lookupMethodByCache(String method) {
-		return callers.get(PREXFIX_METHOD + method);
-	}
 
 	private static final ConcurrentHashMap<Class, ParameterHandler> map = new ConcurrentHashMap<Class, ParameterHandler>() {
 		{
@@ -362,10 +343,6 @@ public final class ServiceManager implements IServiceManager {
 			return ((Pair.PairParcelable) parcelable).getValue();
 		}
 	}
-
-	private final ReentrantLock lock = new ReentrantLock();
-	private ConcurrentHashMap<Class<?>, BuketMethod> sCache = new ConcurrentHashMap<>();
-
 
 	@Override
 	public void publish(Object service) {
