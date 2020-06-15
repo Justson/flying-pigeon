@@ -49,19 +49,21 @@ public class ServiceContentProvider extends ContentProvider {
         Log.e(TAG, "call extras:" + mGson.toJson(extras));
         Bundle response = new Bundle();
         try {
-            MethodCaller methodCaller = PigeonEngine.getInstance().parseRequest(method, arg, extras,this);
-            Object result = methodCaller.call(PigeonEngine.getInstance().parseData(arg, extras));
-            PigeonEngine.getInstance().buildResponse(extras, response, result);
-            response.putInt(PigeonEngine.KEY_RESPONSE_CODE, PigeonEngine.RESPONSE_RESULE_SUCCESS);
+            MethodCaller methodCaller = ServiceManager.getInstance().parseRequest(method, arg, extras,this);
+            Object result = methodCaller.call(ServiceManager.getInstance().parseData(arg, extras));
+            ServiceManager.getInstance().buildResponse(extras, response, result);
+            response.putInt(ServiceManager.KEY_RESPONSE_CODE, ServiceManager.RESPONSE_RESULE_SUCCESS);
         } catch (NoSuchMethodException e) {
             e.printStackTrace();
-            response.putInt(PigeonEngine.KEY_RESPONSE_CODE, PigeonEngine.RESPONSE_RESULE_NO_SUCH_METHOD);
+            response.putInt(ServiceManager.KEY_RESPONSE_CODE, ServiceManager.RESPONSE_RESULE_NO_SUCH_METHOD);
         } catch (IllegalAccessException e) {
             e.printStackTrace();
-            response.putInt(PigeonEngine.KEY_RESPONSE_CODE, PigeonEngine.RESPONSE_RESULE_ILLGEALACCESS);
+            response.putInt(ServiceManager.KEY_RESPONSE_CODE, ServiceManager.RESPONSE_RESULE_ILLGEALACCESS);
         } catch (InvocationTargetException e) {
             e.printStackTrace();
-            response.putInt(PigeonEngine.KEY_RESPONSE_CODE, PigeonEngine.RESPONSE_RESULE_NO_SUCH_METHOD);
+            response.putInt(ServiceManager.KEY_RESPONSE_CODE, ServiceManager.RESPONSE_RESULE_NO_SUCH_METHOD);
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
         }
         return response;
     }

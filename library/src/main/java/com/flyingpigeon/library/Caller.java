@@ -8,8 +8,8 @@ import java.lang.reflect.Method;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import static com.flyingpigeon.library.PigeonEngine.PREXFIX_METHOD;
-import static com.flyingpigeon.library.PigeonEngine.PREXFIX_ROUTE;
+import static com.flyingpigeon.library.ServiceManager.PREXFIX_METHOD;
+import static com.flyingpigeon.library.ServiceManager.PREXFIX_ROUTE;
 
 /**
  * @author xiaozhongcen

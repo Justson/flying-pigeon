@@ -25,6 +25,9 @@
             android:exported="true"
             android:grantUriPermissions="false"
             android:process=":tools" />
+        <service
+            android:name=".RemoteService"
+            android:process=":tools" />
 
     </application>
 

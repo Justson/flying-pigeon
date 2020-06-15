@@ -1,28 +1,29 @@
 package com.flyingpigeon.sample;
 
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.util.Log;
 
 import com.flyingpigeon.library.Pigeon;
 
-import java.util.ArrayList;
+import java.util.UUID;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final String TAG = MainActivity.class.getSimpleName();
+	private static final String TAG = MainActivity.class.getSimpleName();
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_main);
 
-        Pigeon pigeon = Pigeon.newBuilder(this).setAuthority(TestServiceApi.class).build();
-        ServiceApi serviceApi = pigeon.create(ServiceApi.class);
+		Pigeon pigeon = Pigeon.newBuilder(this).setAuthority(TestServiceApi.class).build();
+		ServiceApi serviceApi = pigeon.create(ServiceApi.class);
 //        serviceApi.queryTest(1);
-//        Short aShort = 1;
-//        byte aByte = 10;
+		Short aShort = 1;
+		byte aByte = 10;
 //        serviceApi.queryItems(UUID.randomUUID().hashCode(), 0.001D, SystemClock.elapsedRealtime(), aShort, 0.011F, aByte, true);
 //        Information information = new Information("Justson", "just", 110, (short) 1, 'c', 1.22F, (byte) 14, 8989123.111D, 100000L);
 //        serviceApi.submitInformation(UUID.randomUUID().toString(), 123144231, information);
@@ -36,15 +37,23 @@ public class MainActivity extends AppCompatActivity {
 //        Log.e(TAG, "resultPoster:" + GsonUtils.toJson(resultPoster));
 //
 //        testReturn(serviceApi);
-        ArrayList data = new ArrayList<String>();
-        data.add("test1");
-        data.add("test2");
-        serviceApi.testArrayList(data);
-    }
+//        ArrayList data = new ArrayList<String>();
+//        data.add("test1");
+//        data.add("test2");
+//        serviceApi.testArrayList(data);
+		RemoteService.startService(this);
 
-    private void testReturn(ServiceApi serviceApi) {
-        Poster poster = new Poster("Justson", "just", 119, 11111000L, (short) 23, 1.15646F, 'h', (byte) 4, 123456.415D);
+		RemoteServiceApi remoteServiceApi = pigeon.create(RemoteServiceApi.class);
+		remoteServiceApi.queryItems(UUID.randomUUID().hashCode(), 0.001D, SystemClock.elapsedRealtime(), aShort, 0.011F, aByte, true);
 
-        Log.e(TAG, "int:" + serviceApi.createPoster(poster) + " double:" + serviceApi.testDouble() + " long:" + serviceApi.testLong() + " short:" + serviceApi.testShort() + " float:" + serviceApi.testFloat() + " byte:" + serviceApi.testByte() + " boolean:" + serviceApi.testBoolean() + " testParcelable:" + GsonUtils.toJson(serviceApi.testParcelable()));
-    }
+		Api api = pigeon.create(Api.class);
+		Poster poster1 = new Poster("Justson", "just", 119, 11111000L, (short) 23, 1.15646F, 'h', (byte) 4, 123456.415D);
+		api.createPoster(poster1);
+	}
+
+	private void testReturn(ServiceApi serviceApi) {
+		Poster poster = new Poster("Justson", "just", 119, 11111000L, (short) 23, 1.15646F, 'h', (byte) 4, 123456.415D);
+
+		Log.e(TAG, "int:" + serviceApi.createPoster(poster) + " double:" + serviceApi.testDouble() + " long:" + serviceApi.testLong() + " short:" + serviceApi.testShort() + " float:" + serviceApi.testFloat() + " byte:" + serviceApi.testByte() + " boolean:" + serviceApi.testBoolean() + " testParcelable:" + GsonUtils.toJson(serviceApi.testParcelable()));
+	}
 }
