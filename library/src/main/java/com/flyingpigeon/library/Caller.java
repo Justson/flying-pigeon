@@ -1,15 +1,10 @@
 package com.flyingpigeon.library;
 
-import android.text.TextUtils;
-
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-
-import static com.flyingpigeon.library.ServiceManager.PREXFIX_METHOD;
-import static com.flyingpigeon.library.ServiceManager.PREXFIX_ROUTE;
 
 /**
  * @author xiaozhongcen
@@ -34,12 +29,4 @@ public class Caller implements MethodCaller {
         return target.invoke(owner, arg);
     }
 
-    @Override
-    public String callerId() {
-        if (!TextUtils.isEmpty(route)) {
-            return PREXFIX_ROUTE + route;
-        } else {
-            return PREXFIX_METHOD + target.getName();
-        }
-    }
 }

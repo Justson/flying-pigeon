@@ -364,7 +364,7 @@ public class ClassUtil {
 
 	public static Class<?>[] getValidInterface(Class<?> clazz) {
 		Class<?>[] interfaces = clazz.getInterfaces();
-		ArrayList<Class<?>> ifc = new ArrayList<>(interfaces.length);
+		ArrayList<Class<?>> interfaceArray = new ArrayList<>(interfaces.length);
 		for (int i = 0; i < interfaces.length; i++) {
 			Class<?> anInterface = interfaces[i];
 			if (Parcelable.class.isAssignableFrom(anInterface)
@@ -372,9 +372,9 @@ public class ClassUtil {
 					|| Serializable.class.isAssignableFrom(anInterface)) {
 				continue;
 			}
-			ifc.add(anInterface);
+			interfaceArray.add(anInterface);
 		}
-		return ifc.toArray(new Class<?>[]{});
+		return interfaceArray.toArray(new Class<?>[]{});
 	}
 
 	static final class ParameterizedTypeImpl implements ParameterizedType {

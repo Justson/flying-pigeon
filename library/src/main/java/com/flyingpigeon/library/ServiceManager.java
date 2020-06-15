@@ -31,7 +31,9 @@ public final class ServiceManager implements IServiceManager {
 	static final int APPROACH_ROUTE = 2;
 	static final String KEY_RESPONSE_CODE = "reponse_code";
 	static final int RESPONSE_RESULE_NO_SUCH_METHOD = 404;
-	static final int RESPONSE_RESULE_ILLGEALACCESS = 403;
+	static final int RESPONSE_RESULE_LOST_CLASS = 405;
+
+	static final int RESPONSE_RESULE_ILLEGALACCESS = 403;
 	static final int RESPONSE_RESULE_SUCCESS = 200;
 
 	static final String KEY_LENGTH = "key_length";
@@ -276,6 +278,13 @@ public final class ServiceManager implements IServiceManager {
 		if (responseCode == RESPONSE_RESULE_NO_SUCH_METHOD) {
 			throw new CallRemoteException("404 , method not found ");
 		}
+		if (responseCode == RESPONSE_RESULE_LOST_CLASS) {
+			throw new CallRemoteException("404 , class not found ");
+		}
+
+		if (responseCode == RESPONSE_RESULE_ILLEGALACCESS) {
+			throw new CallRemoteException("404 , illegal access ");
+		}
 
 		Parcelable parcelable;
 		if (responseCode == RESPONSE_RESULE_SUCCESS && (parcelable = response.getParcelable(KEY_RESPONSE)) != null) {
@@ -357,7 +366,7 @@ public final class ServiceManager implements IServiceManager {
 
 				BuketMethod buket = sCache.get(aInterface);
 				if (buket != null) {
-					Log.e(TAG, "please don't repeat publish same interface, publish failure ");
+					Log.e(TAG, " publish failure, " + "please don't repeat publish same api:" + aInterface.getName());
 					continue;
 				}
 				BuketMethod buketMethod = new BuketMethod();

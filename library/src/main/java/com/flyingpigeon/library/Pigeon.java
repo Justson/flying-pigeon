@@ -114,7 +114,7 @@ public final class Pigeon {
 				}
 			}
 			if (TextUtils.isEmpty(this.authority)) {
-				new IllegalArgumentException("ServiceApi is not exists");
+				new IllegalArgumentException("service is not exists");
 			}
 			return this;
 		}

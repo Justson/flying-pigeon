@@ -11,5 +11,4 @@ public interface MethodCaller {
 
     Object call(Object... arg) throws IllegalAccessException, InvocationTargetException;
 
-    String callerId();
 }
