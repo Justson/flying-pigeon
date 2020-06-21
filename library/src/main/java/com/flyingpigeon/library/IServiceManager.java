@@ -7,7 +7,12 @@ package com.flyingpigeon.library;
  */
 public interface IServiceManager {
 
+    void publish(Object service, Class<?>... interfaces);
+
     void publish(Object service);
 
     void abolition(Object service);
+
+    void abolition(Object service, Class<?>... interfaces);
+
 }

@@ -15,6 +15,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import static com.flyingpigeon.library.Config.PREFIX;
+import static com.flyingpigeon.library.ServiceManager.APPROACH_METHOD;
+import static com.flyingpigeon.library.ServiceManager.KEY_LOOK_UP_APPROACH;
 
 /**
  * @author xiaozhongcen
@@ -23,77 +25,84 @@ import static com.flyingpigeon.library.Config.PREFIX;
  */
 public class ServiceContentProvider extends ContentProvider {
 
-	public static final String TAG = PREFIX + ServiceContentProvider.class.getSimpleName();
-	private Gson mGson = new Gson();
+    public static final String TAG = PREFIX + ServiceContentProvider.class.getSimpleName();
+    private Gson mGson = new Gson();
 
 
-	static ServiceContentProvider serviceContext;
+    static ServiceContentProvider serviceContext;
 
-	@Override
-	public boolean onCreate() {
-		Log.e(TAG, "onCreate");
-		serviceContext = this;
-		return true;
-	}
+    @Override
+    public boolean onCreate() {
+        Log.e(TAG, "onCreate");
+        serviceContext = this;
+        return true;
+    }
 
-	@Nullable
-	@Override
-	public Cursor query(@NonNull Uri uri, @Nullable String[] projection, @Nullable String selection, @Nullable String[] selectionArgs, @Nullable String sortOrder) {
-		throw new UnsupportedOperationException();
-	}
+    @Nullable
+    @Override
+    public Cursor query(@NonNull Uri uri, @Nullable String[] projection, @Nullable String selection, @Nullable String[] selectionArgs, @Nullable String sortOrder) {
+        throw new UnsupportedOperationException();
+    }
 
 
-	@Nullable
-	@Override
-	public Bundle call(@NonNull String method, @Nullable String arg, @Nullable Bundle extras) {
-		Bundle response = new Bundle();
-		try {
-			MethodCaller methodCaller = ServiceManager.getInstance().parseRequest(method, arg, extras, this);
-			Object result = methodCaller.call(ServiceManager.getInstance().parseData(arg, extras));
-			ServiceManager.getInstance().buildResponse(extras, response, result);
-			response.putInt(ServiceManager.KEY_RESPONSE_CODE, ServiceManager.RESPONSE_RESULE_SUCCESS);
-		} catch (NoSuchMethodException e) {
-			e.printStackTrace();
-			response.putInt(ServiceManager.KEY_RESPONSE_CODE, ServiceManager.RESPONSE_RESULE_NO_SUCH_METHOD);
-		} catch (IllegalAccessException e) {
-			e.printStackTrace();
-			response.putInt(ServiceManager.KEY_RESPONSE_CODE, ServiceManager.RESPONSE_RESULE_ILLEGALACCESS);
-		} catch (InvocationTargetException e) {
-			e.printStackTrace();
-			response.putInt(ServiceManager.KEY_RESPONSE_CODE, ServiceManager.RESPONSE_RESULE_NO_SUCH_METHOD);
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-			response.putInt(ServiceManager.KEY_RESPONSE_CODE, ServiceManager.RESPONSE_RESULE_LOST_CLASS);
+    @Nullable
+    @Override
+    public Bundle call(@NonNull String method, @Nullable String arg, @Nullable Bundle extras) {
+        Bundle response = new Bundle();
+        try {
+            extras.setClassLoader(Pair.class.getClassLoader());
+            MethodCaller methodCaller;
+            int approach = extras.getInt(KEY_LOOK_UP_APPROACH);
+            if (approach == APPROACH_METHOD) {
+                methodCaller = ServiceManager.getInstance().approachByMethod(method, extras);
+                Object result = methodCaller.call(ServiceManager.getInstance().parseData(arg, extras));
+                ServiceManager.getInstance().buildResponse(extras, response, result);
+                response.putInt(ServiceManager.KEY_RESPONSE_CODE, ServiceManager.RESPONSE_RESULE_SUCCESS);
+            } else {
+                ServiceManager.getInstance().approachByRoute(method, extras, response);
+            }
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+            response.putInt(ServiceManager.KEY_RESPONSE_CODE, ServiceManager.RESPONSE_RESULE_NO_SUCH_METHOD);
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+            response.putInt(ServiceManager.KEY_RESPONSE_CODE, ServiceManager.RESPONSE_RESULE_ILLEGALACCESS);
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+            response.putInt(ServiceManager.KEY_RESPONSE_CODE, ServiceManager.RESPONSE_RESULE_NO_SUCH_METHOD);
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+            response.putInt(ServiceManager.KEY_RESPONSE_CODE, ServiceManager.RESPONSE_RESULE_LOST_CLASS);
+        }
+        return response;
+    }
 
-		}
-		return response;
-	}
 
-	@Nullable
-	@Override
-	public Bundle call(@NonNull String authority, @NonNull String method, @Nullable String arg, @Nullable Bundle extras) {
-		return super.call(authority, method, arg, extras);
-	}
+    @Nullable
+    @Override
+    public Bundle call(@NonNull String authority, @NonNull String method, @Nullable String arg, @Nullable Bundle extras) {
+        return super.call(authority, method, arg, extras);
+    }
 
-	@Nullable
-	@Override
-	public String getType(@NonNull Uri uri) {
-		throw new UnsupportedOperationException();
-	}
+    @Nullable
+    @Override
+    public String getType(@NonNull Uri uri) {
+        throw new UnsupportedOperationException();
+    }
 
-	@Nullable
-	@Override
-	public Uri insert(@NonNull Uri uri, @Nullable ContentValues values) {
-		throw new UnsupportedOperationException();
-	}
+    @Nullable
+    @Override
+    public Uri insert(@NonNull Uri uri, @Nullable ContentValues values) {
+        throw new UnsupportedOperationException();
+    }
 
-	@Override
-	public int delete(@NonNull Uri uri, @Nullable String selection, @Nullable String[] selectionArgs) {
-		throw new UnsupportedOperationException();
-	}
+    @Override
+    public int delete(@NonNull Uri uri, @Nullable String selection, @Nullable String[] selectionArgs) {
+        throw new UnsupportedOperationException();
+    }
 
-	@Override
-	public int update(@NonNull Uri uri, @Nullable ContentValues values, @Nullable String selection, @Nullable String[] selectionArgs) {
-		throw new UnsupportedOperationException();
-	}
+    @Override
+    public int update(@NonNull Uri uri, @Nullable ContentValues values, @Nullable String selection, @Nullable String[] selectionArgs) {
+        throw new UnsupportedOperationException();
+    }
 }
