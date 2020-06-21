@@ -50,8 +50,8 @@ public final class Pigeon {
         });
     }
 
-    public Router route(String route) {
-        return new Router(this, route);
+    public FlyPigeon route(String route) {
+        return new FlyPigeon(this, route);
     }
 
 

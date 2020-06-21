@@ -6,7 +6,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 /**
  * @author xiaozhongcen
@@ -19,11 +18,11 @@ public class RouteCaller implements MethodCaller {
     private final String route;
     private final Object owner;
 
-    private Boolean isMatchParamters;
+    private volatile Boolean isMatchParamters;
     private int parametersLength = -1;
     private int matchLength = -1;
 
-    public RouteCaller(@NonNull Method target, @NonNull String route, @Nullable Object owner) {
+    public RouteCaller(@NonNull Method target, @NonNull String route, @NonNull Object owner) {
         this.target = target;
         this.route = route;
         this.owner = owner;
@@ -32,13 +31,12 @@ public class RouteCaller implements MethodCaller {
     @Override
     public Object call(Object... args) throws IllegalAccessException, InvocationTargetException {
         target.setAccessible(true);
-
-        synchronized (route) {
-            if (isMatchParamters == null) {
-                Class<?>[] parameters = target.getParameterTypes();
-                parametersLength = parameters.length;
-                isMatchParamters = (parametersLength == 2);
-                if (isMatchParamters) {
+        if (isMatchParamters == null) {
+            synchronized (route) {
+                if (isMatchParamters == null) {
+                    Class<?>[] parameters = target.getParameterTypes();
+                    parametersLength = parameters.length;
+                    isMatchParamters = (parametersLength == 2);
                     for (int i = 0; i < parametersLength; i++) {
                         if (!parameters[i].isAssignableFrom(Bundle.class)) {
                             isMatchParamters = false;
@@ -53,12 +51,12 @@ public class RouteCaller implements MethodCaller {
         if (isMatchParamters) {
             return target.invoke(owner, args);
         } else {
+            Object[] parameters = new Object[parametersLength];
             if (matchLength > 0) {
-                Object[] parameters = new Object[parametersLength];
                 System.arraycopy(args, 0, parameters, 0, matchLength);
                 return target.invoke(owner, parameters);
             } else {
-                return target.invoke(owner, (Object[]) null);
+                return target.invoke(owner, parameters);
             }
         }
     }

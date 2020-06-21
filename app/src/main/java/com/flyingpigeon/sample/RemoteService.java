@@ -93,6 +93,11 @@ public class RemoteService extends Service implements RemoteServiceApi {
         Log.e(TAG, "IPC by route,hello");
     }
 
+    @route(value = "/world")
+    public void queryWords(Bundle in) {
+        Log.e(TAG, "IPC by route,world");
+    }
+
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
