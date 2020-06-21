@@ -10,8 +10,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 
-import com.google.gson.Gson;
-
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
@@ -54,10 +52,6 @@ public final class Pigeon {
         return new FlyPigeon(this, route);
     }
 
-
-    Gson mGson = new Gson();
-
-    private static final Object EMPTY = new Object();
 
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     private Object call(Class<?> service, Object proxy, Method method, Object[] args) {
@@ -109,10 +103,10 @@ public final class Pigeon {
         public Builder setAuthority(Class<?> service) {
             PackageInfo packageInfos = null;
             try {
-                PackageManager mgr = mContext.getPackageManager();
-                if (mgr != null) {
+                PackageManager packageManager = mContext.getPackageManager();
+                if (packageManager != null) {
                     packageInfos =
-                            mgr.getPackageInfo(mContext.getPackageName(), PackageManager.GET_PROVIDERS);
+                            packageManager.getPackageInfo(mContext.getPackageName(), PackageManager.GET_PROVIDERS);
                 }
             } catch (PackageManager.NameNotFoundException e) {
                 e.printStackTrace();

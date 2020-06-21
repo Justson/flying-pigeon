@@ -6,6 +6,8 @@ import android.os.Parcelable;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.flyingpigeon.library.anotation.RequestLarge;
+import com.flyingpigeon.library.anotation.ResponseLarge;
 import com.flyingpigeon.library.anotation.route;
 
 import java.io.Serializable;
@@ -165,6 +167,11 @@ public final class ServiceManager implements IServiceManager {
             handler.apply(new Empty(), responseKey, bundle);
         } else if (Void.class.isAssignableFrom(((Class<?>) returnType))) {
         }
+
+        // large
+        RequestLarge requestLarge = method.getAnnotation(RequestLarge.class);
+        ResponseLarge responseLarge = method.getAnnotation(ResponseLarge.class);
+
         return bundle;
     }
 
