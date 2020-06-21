@@ -50,8 +50,8 @@ public final class Pigeon {
         });
     }
 
-    public RouterClient route(String path) {
-        return new RouterClient(this, path);
+    public Router route(String route) {
+        return new Router(this, route);
     }
 
 
@@ -101,10 +101,6 @@ public final class Pigeon {
         public Builder setAuthority(String authority) {
             if (TextUtils.isEmpty(authority)) {
                 throw new IllegalArgumentException("authorities error");
-            }
-            if (authority.startsWith(":")) {
-                this.authority = mContext.getPackageName().concat(authority.replace(":", ""));
-                return this;
             }
             this.authority = authority;
             return this;

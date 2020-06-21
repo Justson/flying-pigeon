@@ -57,8 +57,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void run() {
                 test(pigeon);
-                pigeon.route("/words").fly(new Bundle());
-
+                pigeon.route("/words").withString("name","Justson").fly();
+                pigeon.route("/hello").with(new Bundle()).fly();
             }
         }, 400);
     }

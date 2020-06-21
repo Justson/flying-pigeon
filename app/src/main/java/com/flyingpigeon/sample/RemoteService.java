@@ -11,8 +11,9 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
 
+import com.flyingpigeon.library.Pigeon;
 import com.flyingpigeon.library.ServiceManager;
-import com.flyingpigeon.library.anotation.Path;
+import com.flyingpigeon.library.anotation.route;
 
 import androidx.annotation.Nullable;
 
@@ -59,11 +60,11 @@ public class RemoteService extends Service implements RemoteServiceApi {
         /**
          * There are three ways to publish your service . such as
          */
-        ServiceManager.getInstance().publish(this, RemoteServiceApi.class);
+//        ServiceManager.getInstance().publish(this, RemoteServiceApi.class); //This method does not support route forwarding
         /**
          * or
          */
-//        ServiceManager.getInstance().publish(this);
+        ServiceManager.getInstance().publish(this);
         /**
          * or
          */
@@ -75,13 +76,21 @@ public class RemoteService extends Service implements RemoteServiceApi {
         @Override
         public int createPoster(Poster poster) {
             Log.e(TAG, "poster:" + GsonUtils.toJson(poster));
+            Pigeon pigeon = Pigeon.newBuilder(RemoteService.this).setAuthority(MainProcessApi.class).build();
+            pigeon.create(MainProcessService.class).login("test", "test");
+//            pigeon.route("main/").fly();
             return 11;
         }
     };
 
-    @Path(value = "/words")
+    @route(value = "/words")
     public void queryWords(Bundle in, Bundle out) {
-        Log.e(TAG, "IPC by route");
+        Log.e(TAG, "IPC by route, parameter name:"+in.getString("name"));
+    }
+
+    @route(value = "/hello")
+    public void queryWords() {
+        Log.e(TAG, "IPC by route,hello");
     }
 
     @Nullable

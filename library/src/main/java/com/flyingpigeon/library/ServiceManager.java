@@ -6,7 +6,7 @@ import android.os.Parcelable;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.flyingpigeon.library.anotation.Path;
+import com.flyingpigeon.library.anotation.route;
 
 import java.io.Serializable;
 import java.lang.annotation.Annotation;
@@ -16,7 +16,6 @@ import java.lang.reflect.Type;
 import java.util.ArrayDeque;
 import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.locks.ReentrantLock;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -34,7 +33,7 @@ public final class ServiceManager implements IServiceManager {
     static final String PREXFIX_ROUTE = "route-";
     static final String PREXFIX_METHOD = "method-";
     static final String KEY_LOOK_UP_APPROACH = "key_look_up_approach";
-    static final String KEY_PATH = "key_path";
+    static final String KEY_ROUTE = "key_path";
     static final int APPROACH_METHOD = 1;
     static final int APPROACH_ROUTE = 2;
     static final String KEY_RESPONSE_CODE = "reponse_code";
@@ -49,11 +48,9 @@ public final class ServiceManager implements IServiceManager {
     static final String KEY_CLASS = "key_class";
     static final String KEY_RESPONSE = "key_response";
 
-
     private static final String TAG = PREFIX + ServiceManager.class.getSimpleName();
-    private final ReentrantLock lock = new ReentrantLock();
+    private final Object lock = new Object();
     private ConcurrentHashMap<Class<?>, BuketMethod> sCache = new ConcurrentHashMap<>();
-
     private ConcurrentHashMap<String, ArrayDeque<MethodCaller>> routers = new ConcurrentHashMap<>();
 
     private ServiceManager() {
@@ -173,13 +170,13 @@ public final class ServiceManager implements IServiceManager {
 
 
     void approachByRoute(String method, Bundle in, Bundle out) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-        String path = in.getString(KEY_PATH);
-        if (TextUtils.isEmpty(path)) {
+        String route = in.getString(KEY_ROUTE);
+        if (TextUtils.isEmpty(route)) {
             throw new NoSuchMethodException();
         }
-        ArrayDeque<MethodCaller> callers = routers.get(path);
+        ArrayDeque<MethodCaller> callers = routers.get(route);
         if (callers == null || callers.isEmpty()) {
-            throw new NoSuchMethodException();
+            throw new NoSuchMethodException(route);
         }
         Iterator<MethodCaller> iterators = callers.iterator();
         while (iterators.hasNext()) {
@@ -324,6 +321,7 @@ public final class ServiceManager implements IServiceManager {
         if (responseCode == RESPONSE_RESULE_ILLEGALACCESS) {
             throw new CallRemoteException("404 , illegal access ");
         }
+        response.remove(KEY_RESPONSE_CODE);
     }
 
     void buildResponse(Bundle request, Bundle response, Object result) {
@@ -420,15 +418,15 @@ public final class ServiceManager implements IServiceManager {
                 Annotation[] annotations = methods[i].getAnnotations();
                 for (int j = 0; j < annotations.length; j++) {
                     Annotation annotation = annotations[j];
-                    if (annotation instanceof Path) {
-                        String path = ((Path) annotation).value();
-                        boolean encode = ((Path) annotation).encoded();
+                    if (annotation instanceof route) {
+                        String path = ((route) annotation).value();
+                        boolean encode = ((route) annotation).encoded();
                         if (TextUtils.isEmpty(path)) {
                             Log.e(TAG, " the path enable to empty .");
                         } else {
                             Log.e(TAG, " publish path:" + path);
                             method.setAccessible(true);
-                            MethodCaller methodCaller = new Caller(method, path, service);
+                            MethodCaller methodCaller = new RouteCaller(method, path, service);
                             cacheMethodToRoute(path, methodCaller);
                         }
                         break;
@@ -472,9 +470,9 @@ public final class ServiceManager implements IServiceManager {
                 Annotation[] annotations = methods[i].getAnnotations();
                 for (int j = 0; j < annotations.length; j++) {
                     Annotation annotation = annotations[j];
-                    if (annotation instanceof Path) {
-                        String path = ((Path) annotation).value();
-                        boolean encode = ((Path) annotation).encoded();
+                    if (annotation instanceof route) {
+                        String path = ((route) annotation).value();
+                        boolean encode = ((route) annotation).encoded();
                         if (TextUtils.isEmpty(path)) {
                         } else {
                             routers.remove(path);

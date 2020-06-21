@@ -21,10 +21,16 @@
 
         <provider
             android:name="com.flyingpigeon.sample.TestServiceApi"
-            android:authorities="com.flyingpigeon.library"
+            android:authorities="com.flyingpigeon.sample.api"
             android:exported="true"
             android:grantUriPermissions="false"
             android:process=":tools" />
+        <provider
+            android:name="com.flyingpigeon.sample.MainProcessApi"
+            android:authorities="com.flyingpigeon.sample.main.api"
+            android:exported="true"
+            android:grantUriPermissions="false" />
+
         <service
             android:name=".RemoteService"
             android:process=":tools" />
