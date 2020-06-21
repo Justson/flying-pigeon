@@ -34,4 +34,25 @@ public class ParametersSpec {
     public static boolean isResponseParameterLarge(int flags) {
         return getResponseParameter(flags) == PIGEON_PARAMETER_RESPONSE_LARGE;
     }
+
+    private static synchronized int setFlag(int old, int flags, int mask) {
+        return old = (old & ~mask) | (flags & mask);
+    }
+
+    public static int setRequestLarge(int old) {
+        return setFlag(old, PIGEON_PARAMETER_REQUEST_LARGE, PIGEON_PARAMETER_REQUEST_MASK);
+    }
+
+    public static int setResponseLarge(int old) {
+        return setFlag(old, PIGEON_PARAMETER_RESPONSE_LARGE, PIGEON_PARAMETER_RESPONSE_MASK);
+    }
+
+
+    public static int setRequestNormal(int old) {
+        return setFlag(old, PIGEON_PARAMETER_REQUEST_NORMAL, PIGEON_PARAMETER_REQUEST_MASK);
+    }
+
+    public static int setResponseNormal(int old) {
+        return setFlag(old, PIGEON_PARAMETER_RESPONSE_NORMAL, PIGEON_PARAMETER_RESPONSE_MASK);
+    }
 }

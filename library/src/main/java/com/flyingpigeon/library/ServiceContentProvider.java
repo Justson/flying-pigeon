@@ -93,7 +93,24 @@ public class ServiceContentProvider extends ContentProvider {
     @Nullable
     @Override
     public Uri insert(@NonNull Uri uri, @Nullable ContentValues values) {
-        throw new UnsupportedOperationException();
+        Log.e(TAG, "insert:" + uri.toString() + " uri.getPath():" + uri.getPath());
+        try {
+            int approach = values.getAsInteger(KEY_LOOK_UP_APPROACH);
+            MethodCaller methodCaller;
+            if (approach == APPROACH_METHOD) {
+                methodCaller = ServiceManager.getInstance().approachByMethodInsert(uri, values, uri.getPath().replace("/pigeon/0/", ""));
+                Object result = methodCaller.call(ServiceManager.getInstance().parseDataInsert(uri, values));
+            }
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        }
+        return uri;
     }
 
     @Override

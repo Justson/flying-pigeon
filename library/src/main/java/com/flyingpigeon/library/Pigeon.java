@@ -1,6 +1,7 @@
 package com.flyingpigeon.library;
 
 import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -10,6 +11,9 @@ import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 
+import com.flyingpigeon.library.anotation.RequestLarge;
+import com.flyingpigeon.library.anotation.ResponseLarge;
+
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
@@ -17,6 +21,7 @@ import java.lang.reflect.Proxy;
 import androidx.annotation.RequiresApi;
 
 import static com.flyingpigeon.library.Config.PREFIX;
+import static com.flyingpigeon.library.ServiceManager.KEY_FLAGS;
 
 /**
  * @author xiaozhongcen
@@ -55,7 +60,28 @@ public final class Pigeon {
 
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     private Object call(Class<?> service, Object proxy, Method method, Object[] args) {
+        // large
+        RequestLarge requestLarge = method.getAnnotation(RequestLarge.class);
+        ResponseLarge responseLarge = method.getAnnotation(ResponseLarge.class);
+        int flags = 0;
+        if (requestLarge == null) {
+            flags = ParametersSpec.setRequestNormal(flags);
+        } else {
+            flags = ParametersSpec.setRequestLarge(flags);
+        }
+        if (responseLarge == null) {
+            flags = ParametersSpec.setResponseNormal(flags);
+        } else {
+            flags = ParametersSpec.setResponseLarge(flags);
+        }
+
+        boolean isRequestLarge = ParametersSpec.isRequestParameterLarge(flags);
+        if (isRequestLarge) {
+            return callByContentProvideInsert(service, proxy, method, args);
+        }
+
         Bundle bundle = ServiceManager.getInstance().buildRequest(service, proxy, method, args);
+        bundle.putInt(KEY_FLAGS, flags);
         ContentResolver contentResolver = mContext.getContentResolver();
         Bundle response = contentResolver.call(base, method.getName(), null, bundle);
         Object o = null;
@@ -65,6 +91,15 @@ public final class Pigeon {
             throw new RuntimeException(e);
         }
         return o;
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+    private Object callByContentProvideInsert(Class<?> service, Object proxy, Method method, Object[] args) {
+        ContentValues contentValues = ServiceManager.getInstance().buildRequestInsert(service, proxy, method, args);
+        ContentResolver contentResolver = mContext.getContentResolver();
+        Uri uri = base.buildUpon().appendPath("pigeon/0/" + method.getName()).build();
+        Uri result = contentResolver.insert(uri, contentValues);
+        return result.getQueryParameter("result");
     }
 
     Bundle fly(Bundle in) {

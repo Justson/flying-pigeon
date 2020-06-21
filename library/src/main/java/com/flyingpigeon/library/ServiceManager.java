@@ -1,13 +1,13 @@
 package com.flyingpigeon.library;
 
+import android.content.ContentValues;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.flyingpigeon.library.anotation.RequestLarge;
-import com.flyingpigeon.library.anotation.ResponseLarge;
 import com.flyingpigeon.library.anotation.route;
 
 import java.io.Serializable;
@@ -47,8 +47,10 @@ public final class ServiceManager implements IServiceManager {
 
     static final String KEY_LENGTH = "key_length";
     static final String KEY_INDEX = "key_%s";
+    static final String KEY_CLASS_INDEX = "key_class_%s";
     static final String KEY_CLASS = "key_class";
     static final String KEY_RESPONSE = "key_response";
+    static final String KEY_FLAGS = "key_flags";
 
     private static final String TAG = PREFIX + ServiceManager.class.getSimpleName();
     private final Object lock = new Object();
@@ -123,7 +125,6 @@ public final class ServiceManager implements IServiceManager {
 
         // build response type;
         String responseKey = KEY_RESPONSE;
-        Object EMPTY = new Object();
         Type returnType = method.getGenericReturnType();
         if (int.class.isAssignableFrom((Class<?>) returnType)) {
             ParameterHandler.IntHandler handler = (ParameterHandler.IntHandler) map.get(int.class);
@@ -168,10 +169,6 @@ public final class ServiceManager implements IServiceManager {
         } else if (Void.class.isAssignableFrom(((Class<?>) returnType))) {
         }
 
-        // large
-        RequestLarge requestLarge = method.getAnnotation(RequestLarge.class);
-        ResponseLarge responseLarge = method.getAnnotation(ResponseLarge.class);
-
         return bundle;
     }
 
@@ -191,6 +188,55 @@ public final class ServiceManager implements IServiceManager {
             methodCaller.call(in, out);
         }
     }
+
+
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+    ContentValues buildRequestInsert(Class<?> service, Object proxy, Method method, Object[] args) {
+        ContentValues contentValues = new ContentValues();
+        Type[] types = method.getGenericParameterTypes();
+        contentValues.put(KEY_LENGTH, types.length);
+        contentValues.put(KEY_LOOK_UP_APPROACH, APPROACH_METHOD);
+        contentValues.put(KEY_CLASS, service.getName());
+        String key = KEY_INDEX;
+        String keyClass = KEY_CLASS_INDEX;
+        for (int i = 0; i < args.length; i++) {
+            String index = String.format(key, i + "");
+            String indexClass = String.format(keyClass, i + "");
+            Class<?> typeClazz = ClassUtil.getRawType(types[i]);
+            Log.e(TAG, "typeClazz:" + typeClazz.getName() + " index:" + index + " indexClass:" + indexClass);
+
+            if (int.class.isAssignableFrom(typeClazz)) {
+                contentValues.put(index, (int) args[i]);
+                contentValues.put(indexClass, int.class.getName());
+            } else if (double.class.isAssignableFrom(typeClazz)) {
+                contentValues.put(index, (double) args[i]);
+                contentValues.put(indexClass, double.class.getName());
+            } else if (long.class.isAssignableFrom(typeClazz)) {
+                contentValues.put(index, (long) args[i]);
+                contentValues.put(indexClass, long.class.getName());
+            } else if (short.class.isAssignableFrom(typeClazz)) {
+                contentValues.put(index, (short) args[i]);
+                contentValues.put(indexClass, short.class.getName());
+            } else if (float.class.isAssignableFrom(typeClazz)) {
+                contentValues.put(index, (float) args[i]);
+                contentValues.put(indexClass, float.class.getName());
+            } else if (byte.class.isAssignableFrom(typeClazz)) {
+                contentValues.put(index, (byte) args[i]);
+                contentValues.put(indexClass, byte.class.getName());
+            } else if (boolean.class.isAssignableFrom(typeClazz)) {
+                contentValues.put(index, (boolean) args[i]);
+                contentValues.put(indexClass, boolean.class.getName());
+            } else if (String.class.isAssignableFrom(typeClazz)) {
+                contentValues.put(index, (String) args[i]);
+                contentValues.put(indexClass, String.class.getName());
+            } else if (byte[].class.isAssignableFrom(typeClazz)) {
+                contentValues.put(index, (byte[]) args[i]);
+                contentValues.put(indexClass, byte[].class.getName());
+            }
+        }
+        return contentValues;
+    }
+
 
     MethodCaller approachByMethod(@NonNull String method, @NonNull Bundle extras) throws ClassNotFoundException, NoSuchMethodException {
         MethodCaller methodCaller;
@@ -219,6 +265,65 @@ public final class ServiceManager implements IServiceManager {
         }
         methodCaller = buket.match(method, clazzs);
         return methodCaller;
+    }
+
+
+    MethodCaller approachByMethodInsert(Uri uri, ContentValues values, String method) throws ClassNotFoundException, NoSuchMethodException {
+        MethodCaller methodCaller;
+        String key = KEY_INDEX;
+        String keyClass = KEY_CLASS_INDEX;
+        int length = values.getAsInteger(KEY_LENGTH);
+        Class<?>[] clazzs = new Class[length];
+        for (int i = 0; i < length; i++) {
+            String clazz = values.getAsString(String.format(keyClass, i + ""));
+            Log.e(TAG, "approachByMethodInsert:" + clazz + "  index:" + String.format(keyClass, i + ""));
+            clazzs[i] = Class.forName(clazz);
+        }
+        for (int i = 0; i < length; i++) {
+            if (clazzs[i] == null) {
+                throw new IllegalArgumentException("arg error");
+            }
+        }
+        String clazz = values.getAsString(KEY_CLASS);
+        Log.e(TAG, "clazz:" + clazz);
+        BuketMethod buket = getMethods(Class.forName(clazz));
+        if (buket == null) {
+            throw new ClassNotFoundException();
+        }
+        methodCaller = buket.match(method, clazzs);
+        return methodCaller;
+    }
+
+    public Object[] parseDataInsert(Uri uri, ContentValues contentValues) {
+        int length = contentValues.getAsInteger(KEY_LENGTH);
+        Object[] values = new Object[length];
+        Class<?>[] clazzs = new Class[length];
+        String key = KEY_INDEX;
+        String keyClass = KEY_CLASS_INDEX;
+        for (int i = 0; i < length; i++) {
+            String clazz = contentValues.getAsString(String.format(keyClass, i + ""));
+            Log.e(TAG, "parseDataInsert clazz:" + clazz);
+            if (clazz.startsWith("int")) {
+                values[i] = contentValues.getAsInteger(String.format(key, i + ""));
+            } else if (clazz.startsWith("double")) {
+                values[i] = contentValues.getAsDouble(String.format(key, i + ""));
+            } else if (clazz.startsWith("long")) {
+                values[i] = contentValues.getAsLong(String.format(key, i + ""));
+            } else if (clazz.startsWith("short")) {
+                values[i] = contentValues.getAsShort(String.format(key, i + ""));
+            } else if (clazz.startsWith("float")) {
+                values[i] = contentValues.getAsFloat(String.format(key, i + ""));
+            } else if (clazz.startsWith("byte")) {
+                values[i] = contentValues.getAsByte(String.format(key, i + ""));
+            } else if (clazz.startsWith("boolean")) {
+                values[i] = contentValues.getAsBoolean(String.format(key, i + ""));
+            } else if ("java.lang.String".equals(clazz)) {
+                values[i] = contentValues.getAsString(String.format(key, i + ""));
+            } else if ("[B".equals(clazz)) {
+                values[i] = contentValues.getAsByteArray(String.format(key, i + ""));
+            }
+        }
+        return values;
     }
 
 
@@ -507,4 +612,6 @@ public final class ServiceManager implements IServiceManager {
     void buildRequestRoute(Bundle in) {
         in.putInt(KEY_LOOK_UP_APPROACH, APPROACH_ROUTE);
     }
+
+
 }

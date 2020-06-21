@@ -90,7 +90,7 @@ public class TestServiceApi extends ServiceContentProvider implements ServiceApi
 
     @Override
     public void testLargeBlock(String param, byte[] data) {
-
+        Log.e(TAG, "testLargeBlock , param:" + param + " data:" + new String(data));
     }
 
     @route(value = "/words")

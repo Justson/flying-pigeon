@@ -53,6 +53,8 @@ public class MainActivity extends AppCompatActivity {
         int posterId = serviceApi.createPoster(poster);
         Log.e(TAG, "posterId:" + posterId);
 
+
+        serviceApi.testLargeBlock("hello,worlds", " new byte[1000]".getBytes());
         mHandler.postDelayed(new Runnable() {
             @Override
             public void run() {
