@@ -36,7 +36,7 @@ public interface ServiceApi {
     Information testParcelable();
 
     @RequestLarge
-    void testLargeBlock(String param, byte[] data);
+    String testLargeBlock(String param, byte[] data);
 
     void testArrayList(ArrayList<String> items);
 }

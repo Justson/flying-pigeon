@@ -16,6 +16,7 @@ import androidx.annotation.Nullable;
 
 import static com.flyingpigeon.library.Config.PREFIX;
 import static com.flyingpigeon.library.ServiceManager.APPROACH_METHOD;
+import static com.flyingpigeon.library.ServiceManager.APPROACH_ROUTE;
 import static com.flyingpigeon.library.ServiceManager.KEY_LOOK_UP_APPROACH;
 
 /**
@@ -100,6 +101,21 @@ public class ServiceContentProvider extends ContentProvider {
             if (approach == APPROACH_METHOD) {
                 methodCaller = ServiceManager.getInstance().approachByMethodInsert(uri, values, uri.getPath().replace("/pigeon/0/", ""));
                 Object result = methodCaller.call(ServiceManager.getInstance().parseDataInsert(uri, values));
+                if (result instanceof String) {
+                    Uri returnUri = uri.buildUpon().appendQueryParameter("result", result.toString()).build();
+                    return returnUri;
+                } else {
+                    return uri;
+                }
+            } else if (approach == APPROACH_ROUTE) {
+                methodCaller = ServiceManager.getInstance().approachByRouteInsert(uri, values, uri.getPath().replace("/pigeon/1/", ""));
+                Object result = methodCaller.call(ServiceManager.getInstance().parseDataInsert(uri, values));
+                if (result instanceof String) {
+                    Uri returnUri = uri.buildUpon().appendQueryParameter("result", result.toString()).build();
+                    return returnUri;
+                } else {
+                    return uri;
+                }
             }
         } catch (ClassNotFoundException e) {
             e.printStackTrace();

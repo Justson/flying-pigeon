@@ -7,15 +7,18 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.AsyncTask;
 import android.os.Binder;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
 
 import com.flyingpigeon.library.Pigeon;
 import com.flyingpigeon.library.ServiceManager;
+import com.flyingpigeon.library.anotation.RequestLarge;
 import com.flyingpigeon.library.anotation.route;
 
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 
 import static com.flyingpigeon.library.Config.PREFIX;
 
@@ -73,6 +76,7 @@ public class RemoteService extends Service implements RemoteServiceApi {
     }
 
     Api mApi = new Api() {
+        @RequiresApi(api = Build.VERSION_CODES.KITKAT)
         @Override
         public int createPoster(Poster poster) {
             Log.e(TAG, "poster:" + GsonUtils.toJson(poster));
@@ -85,7 +89,7 @@ public class RemoteService extends Service implements RemoteServiceApi {
 
     @route(value = "/words")
     public void queryWords(Bundle in, Bundle out) {
-        Log.e(TAG, "IPC by route, parameter name:"+in.getString("name"));
+        Log.e(TAG, "IPC by route, parameter name:" + in.getString("name"));
     }
 
     @route(value = "/hello")
@@ -96,6 +100,12 @@ public class RemoteService extends Service implements RemoteServiceApi {
     @route(value = "/world")
     public void queryWords(Bundle in) {
         Log.e(TAG, "IPC by route,world");
+    }
+
+    @RequestLarge
+    @route(value = "/submit/bitmap")
+    public void submitBitmap(String key, byte[] data, int length) {
+        Log.e(TAG, "IPC by route,submitBitmap:" + key + " data length:" + data.length + " length:" + length);
     }
 
     @Nullable

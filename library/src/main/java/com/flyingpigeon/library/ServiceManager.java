@@ -8,6 +8,8 @@ import android.os.Parcelable;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.flyingpigeon.library.anotation.RequestLarge;
+import com.flyingpigeon.library.anotation.ResponseLarge;
 import com.flyingpigeon.library.anotation.route;
 
 import java.io.Serializable;
@@ -197,14 +199,24 @@ public final class ServiceManager implements IServiceManager {
         contentValues.put(KEY_LENGTH, types.length);
         contentValues.put(KEY_LOOK_UP_APPROACH, APPROACH_METHOD);
         contentValues.put(KEY_CLASS, service.getName());
+        settingValues(args, contentValues, types);
+        return contentValues;
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+    private void settingValues(Object[] args, ContentValues contentValues, Type[] types) {
         String key = KEY_INDEX;
         String keyClass = KEY_CLASS_INDEX;
         for (int i = 0; i < args.length; i++) {
             String index = String.format(key, i + "");
             String indexClass = String.format(keyClass, i + "");
+            if (types[i] == null) {
+                contentValues.put(index, "");
+                contentValues.put(indexClass, "null");
+                continue;
+            }
             Class<?> typeClazz = ClassUtil.getRawType(types[i]);
             Log.e(TAG, "typeClazz:" + typeClazz.getName() + " index:" + index + " indexClass:" + indexClass);
-
             if (int.class.isAssignableFrom(typeClazz)) {
                 contentValues.put(index, (int) args[i]);
                 contentValues.put(indexClass, int.class.getName());
@@ -232,9 +244,36 @@ public final class ServiceManager implements IServiceManager {
             } else if (byte[].class.isAssignableFrom(typeClazz)) {
                 contentValues.put(index, (byte[]) args[i]);
                 contentValues.put(indexClass, byte[].class.getName());
+            } else if (Integer.class.isAssignableFrom(typeClazz)) {
+                Integer v = (Integer) args[i];
+                contentValues.put(index, v.intValue());
+                contentValues.put(indexClass, int.class.getName());
+            } else if (Double.class.isAssignableFrom(typeClazz)) {
+                Double v = (Double) args[i];
+                contentValues.put(index, v.doubleValue());
+                contentValues.put(indexClass, double.class.getName());
+            } else if (Long.class.isAssignableFrom(typeClazz)) {
+                Long v = (Long) args[i];
+                contentValues.put(index, v.longValue());
+                contentValues.put(indexClass, long.class.getName());
+            } else if (Short.class.isAssignableFrom(typeClazz)) {
+                Short v = (Short) args[i];
+                contentValues.put(index, v.shortValue());
+                contentValues.put(indexClass, short.class.getName());
+            } else if (Float.class.isAssignableFrom(typeClazz)) {
+                Float v = (Float) args[i];
+                contentValues.put(index, v.floatValue());
+                contentValues.put(indexClass, float.class.getName());
+            } else if (Byte.class.isAssignableFrom(typeClazz)) {
+                Byte v = (Byte) args[i];
+                contentValues.put(index, v.byteValue());
+                contentValues.put(indexClass, byte.class.getName());
+            } else if (Byte[].class.isAssignableFrom(typeClazz)) {
+                Byte[] v = (Byte[]) args[i];
+                contentValues.put(index, Utils.toPrimitives(v));
+                contentValues.put(indexClass, byte[].class.getName());
             }
         }
-        return contentValues;
     }
 
 
@@ -294,6 +333,21 @@ public final class ServiceManager implements IServiceManager {
         return methodCaller;
     }
 
+    public MethodCaller approachByRouteInsert(Uri uri, ContentValues values, String route) throws ClassNotFoundException, NoSuchMethodException {
+        String key = KEY_INDEX;
+        String keyClass = KEY_CLASS_INDEX;
+        int length = values.getAsInteger(KEY_LENGTH);
+        for (int i = 0; i < length; i++) {
+            String clazz = values.getAsString(String.format(keyClass, i + ""));
+            Log.e(TAG, "approachByRouteInsert:" + clazz + "  index:" + String.format(keyClass, i + ""));
+        }
+        ArrayDeque<MethodCaller> callers = routers.get(route);
+        if (callers == null || callers.isEmpty()) {
+            throw new NoSuchMethodException(route);
+        }
+        return callers.getFirst();
+    }
+
     public Object[] parseDataInsert(Uri uri, ContentValues contentValues) {
         int length = contentValues.getAsInteger(KEY_LENGTH);
         Object[] values = new Object[length];
@@ -322,6 +376,7 @@ public final class ServiceManager implements IServiceManager {
             } else if ("[B".equals(clazz)) {
                 values[i] = contentValues.getAsByteArray(String.format(key, i + ""));
             }
+            Log.e(TAG, "values[i] :" + values[i]);
         }
         return values;
     }
@@ -529,17 +584,28 @@ public final class ServiceManager implements IServiceManager {
                 Method method = methods[i];
                 Annotation[] annotations = methods[i].getAnnotations();
                 for (int j = 0; j < annotations.length; j++) {
-                    Annotation annotation = annotations[j];
-                    if (annotation instanceof route) {
-                        String path = ((route) annotation).value();
-                        boolean encode = ((route) annotation).encoded();
+                    route route = method.getAnnotation(route.class);
+                    RequestLarge requestLarge = method.getAnnotation(RequestLarge.class);
+                    ResponseLarge responseLarge = method.getAnnotation(ResponseLarge.class);
+                    if (route != null) {
+                        String path = route.value();
+                        boolean encode = route.encoded();
                         if (TextUtils.isEmpty(path)) {
                             Log.e(TAG, " the path enable to empty .");
                         } else {
                             Log.e(TAG, " publish path:" + path);
                             method.setAccessible(true);
-                            MethodCaller methodCaller = new RouteCaller(method, path, service);
-                            cacheMethodToRoute(path, methodCaller);
+                            if (requestLarge == null && responseLarge == null) {
+                                MethodCaller methodCaller = new RouteCaller(method, path, service);
+                                cacheMethodToRoute(path, methodCaller);
+                            } else if (requestLarge != null) {
+                                MethodCaller methodCaller = new RouteRequestLargeCaller(method, path, service);
+                                cacheMethodToRoute(path, methodCaller);
+                            } else {
+                                MethodCaller methodCaller = new RouteResponseLargeCaller(method, path, service);
+                                cacheMethodToRoute(path, methodCaller);
+                            }
+
                         }
                         break;
                     }
@@ -611,6 +677,33 @@ public final class ServiceManager implements IServiceManager {
 
     void buildRequestRoute(Bundle in) {
         in.putInt(KEY_LOOK_UP_APPROACH, APPROACH_ROUTE);
+    }
+
+
+    String[] buildRequestQuery(String route, Object[] params) {
+        int length = params.length;
+        String[] data = new String[length * 2];
+        for (int i = 0; i < length; i++) {
+            data[i] = params[i].toString();
+            data[i + length] = params[i].getClass().getName();
+        }
+        return data;
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+    public ContentValues buildRouteRequestInsert(String route, Object[] params) {
+        Type[] types = new Type[params.length];
+        for (int i = 0; i < params.length; i++) {
+            if (params[i] == null) {
+                continue;
+            }
+            types[i] = params[i].getClass();
+        }
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(KEY_LENGTH, params.length);
+        contentValues.put(KEY_LOOK_UP_APPROACH, APPROACH_ROUTE);
+        settingValues(params, contentValues, types);
+        return contentValues;
     }
 
 

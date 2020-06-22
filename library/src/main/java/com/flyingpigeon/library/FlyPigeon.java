@@ -20,7 +20,6 @@ public class FlyPigeon {
 
     private String route;
     private Pigeon mPigeon;
-
     private Bundle mBundle;
 
     public FlyPigeon(Pigeon pigeon, String route) {

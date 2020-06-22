@@ -6,10 +6,12 @@ import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ProviderInfo;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.flyingpigeon.library.anotation.RequestLarge;
 import com.flyingpigeon.library.anotation.ResponseLarge;
@@ -17,7 +19,10 @@ import com.flyingpigeon.library.anotation.ResponseLarge;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.util.Objects;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
 import static com.flyingpigeon.library.Config.PREFIX;
@@ -34,7 +39,7 @@ public final class Pigeon {
 
     private String authority;
     private Context mContext;
-    private Uri base;
+    private final Uri base;
 
     private Pigeon(Builder builder) {
         authority = builder.authority;
@@ -57,6 +62,14 @@ public final class Pigeon {
         return new FlyPigeon(this, route);
     }
 
+    public LargeFlyPigeon route(String route, Object... params) {
+        return new LargeFlyPigeon(this, route, params);
+    }
+
+
+    String fly(String route, Object[] params) {
+        return null;
+    }
 
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     private Object call(Class<?> service, Object proxy, Method method, Object[] args) {
@@ -94,7 +107,8 @@ public final class Pigeon {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
-    private Object callByContentProvideInsert(Class<?> service, Object proxy, Method method, Object[] args) {
+    private @Nullable
+    Object callByContentProvideInsert(Class<?> service, Object proxy, Method method, Object[] args) {
         ContentValues contentValues = ServiceManager.getInstance().buildRequestInsert(service, proxy, method, args);
         ContentResolver contentResolver = mContext.getContentResolver();
         Uri uri = base.buildUpon().appendPath("pigeon/0/" + method.getName()).build();
@@ -102,7 +116,7 @@ public final class Pigeon {
         return result.getQueryParameter("result");
     }
 
-    Bundle fly(Bundle in) {
+    Bundle fly(@NonNull Bundle in) {
         ServiceManager.getInstance().buildRequestRoute(in);
         ContentResolver contentResolver = mContext.getContentResolver();
         Bundle response = contentResolver.call(base, "", null, in);
@@ -114,9 +128,37 @@ public final class Pigeon {
         return response;
     }
 
-    public static Pigeon.Builder newBuilder(Context context) {
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+    public static Pigeon.Builder newBuilder(@NonNull Context context) {
+        Objects.requireNonNull(context);
         return new Builder(context);
     }
+
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+    String routeLargeRequest(String route, Object[] params) {
+        ContentValues contentValues = ServiceManager.getInstance().buildRouteRequestInsert(route, params);
+        ContentResolver contentResolver = mContext.getContentResolver();
+        Uri uri = base.buildUpon().appendPath("pigeon/1").appendPath(route).build();
+        Log.e(TAG, "uri:" + uri.toString() + " contentValues:" + contentValues + " contentResolver:" + contentResolver);
+        Uri result = contentResolver.insert(uri, contentValues);
+        if (null == result) {
+            return "";
+        }
+        return result.getQueryParameter("result");
+    }
+
+    String routeLargeResponse(String route, Object[] params) {
+        String[] args = ServiceManager.getInstance().buildRequestQuery(route, params);
+        ContentResolver contentResolver = mContext.getContentResolver();
+        Uri uri = base.buildUpon().appendPath("pigeon/10/" + route).build();
+        Cursor result = contentResolver.query(uri, new String[]{}, "", args, "");
+
+        if (null != result) {
+            result.close();
+        }
+        return null;
+    }
+
 
     public static final class Builder {
 
@@ -127,7 +169,7 @@ public final class Pigeon {
             this.mContext = context;
         }
 
-        public Builder setAuthority(String authority) {
+        public Builder setAuthority(@NonNull String authority) {
             if (TextUtils.isEmpty(authority)) {
                 throw new IllegalArgumentException("authorities error");
             }
@@ -135,7 +177,7 @@ public final class Pigeon {
             return this;
         }
 
-        public Builder setAuthority(Class<?> service) {
+        public Builder setAuthority(@NonNull Class<?> service) {
             PackageInfo packageInfos = null;
             try {
                 PackageManager packageManager = mContext.getPackageManager();

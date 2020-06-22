@@ -54,7 +54,8 @@ public class MainActivity extends AppCompatActivity {
         Log.e(TAG, "posterId:" + posterId);
 
 
-        serviceApi.testLargeBlock("hello,worlds", " new byte[1000]".getBytes());
+        String returnResult = serviceApi.testLargeBlock("hello,worlds", " new byte[1000]".getBytes());
+        Log.e(TAG, "returnResult:" + returnResult);
         mHandler.postDelayed(new Runnable() {
             @Override
             public void run() {
@@ -62,6 +63,8 @@ public class MainActivity extends AppCompatActivity {
                 pigeon.route("/words").withString("name", "Justson").fly();
                 pigeon.route("/hello").with(new Bundle()).fly();
                 pigeon.route("/world").fly();
+
+                pigeon.route("/submit/bitmap", UUID.randomUUID().toString(), "new byte[150000]".getBytes(), 1200).resquestLarge().fly();
             }
         }, 400);
     }
