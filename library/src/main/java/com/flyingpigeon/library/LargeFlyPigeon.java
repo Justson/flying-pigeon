@@ -5,7 +5,7 @@ package com.flyingpigeon.library;
  * @date 20-6-22
  * @since 1.0.0
  */
-public class LargeFlyPigeon {
+public final class LargeFlyPigeon {
 
     private String route;
     private Object[] params;
@@ -25,7 +25,7 @@ public class LargeFlyPigeon {
         return new Reponse(this);
     }
 
-    public static interface Fly {
+    public interface Fly {
         String fly();
     }
 

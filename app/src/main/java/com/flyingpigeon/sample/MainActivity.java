@@ -63,7 +63,6 @@ public class MainActivity extends AppCompatActivity {
                 pigeon.route("/words").withString("name", "Justson").fly();
                 pigeon.route("/hello").with(new Bundle()).fly();
                 pigeon.route("/world").fly();
-
                 pigeon.route("/submit/bitmap", UUID.randomUUID().toString(), "new byte[150000]".getBytes(), 1200).resquestLarge().fly();
             }
         }, 400);

@@ -1,7 +1,5 @@
 package com.flyingpigeon.library;
 
-import android.util.Log;
-
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
@@ -49,8 +47,6 @@ public class RouteRequestLargeCaller implements MethodCaller {
             if (args[i] == null || !Utils.isAssignableFrom(parameters[i], args[i])) {
                 Object o = Utils.getBasedata(parameters[i]);
                 args[i] = o;
-                Log.e(TAG, "args[i]:" + args[i] + " repair:" + o);
-                continue;
             }
         }
         return target.invoke(owner, args);
