@@ -30,7 +30,6 @@ public final class LargeFlyPigeon {
     }
 
     public interface Fly0 {
-
         <T> T fly();
     }
 

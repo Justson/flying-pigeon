@@ -16,7 +16,7 @@ import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_ROUTE;
  * @date 2020/6/21
  * @since 1.0.0
  */
-public class FlyPigeon {
+public final class FlyPigeon {
 
     private String route;
     private Pigeon mPigeon;
