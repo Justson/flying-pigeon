@@ -13,10 +13,13 @@ import com.flyingpigeon.library.anotation.ResponseLarge;
 import com.flyingpigeon.library.anotation.route;
 
 import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayDeque;
 import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
@@ -573,6 +576,7 @@ public final class ServiceManager implements IServiceManager {
         }
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Override
     public void publish(Object service) {
         synchronized (lock) {
@@ -582,32 +586,34 @@ public final class ServiceManager implements IServiceManager {
             Method[] methods = clazz.getDeclaredMethods();
             for (int i = 0; i < methods.length; i++) {
                 Method method = methods[i];
-                Annotation[] annotations = methods[i].getAnnotations();
-                for (int j = 0; j < annotations.length; j++) {
-                    route route = method.getAnnotation(route.class);
+                route route = method.getAnnotation(route.class);
+                if (route != null) {
+                    String path = route.value();
+                    boolean encode = route.encoded();
+                    if (TextUtils.isEmpty(path)) {
+                        Log.e(TAG, " the path enable to empty .");
+                        continue;
+                    }
+                    if (encode) {
+                        try {
+                            path = URLDecoder.decode(path, StandardCharsets.UTF_8.name());
+                        } catch (UnsupportedEncodingException e) {
+                            e.printStackTrace();
+                        }
+                    }
                     RequestLarge requestLarge = method.getAnnotation(RequestLarge.class);
                     ResponseLarge responseLarge = method.getAnnotation(ResponseLarge.class);
-                    if (route != null) {
-                        String path = route.value();
-                        boolean encode = route.encoded();
-                        if (TextUtils.isEmpty(path)) {
-                            Log.e(TAG, " the path enable to empty .");
-                        } else {
-                            Log.e(TAG, " publish path:" + path);
-                            method.setAccessible(true);
-                            if (requestLarge == null && responseLarge == null) {
-                                MethodCaller methodCaller = new RouteCaller(method, path, service);
-                                cacheMethodToRoute(path, methodCaller);
-                            } else if (requestLarge != null) {
-                                MethodCaller methodCaller = new RouteRequestLargeCaller(method, path, service);
-                                cacheMethodToRoute(path, methodCaller);
-                            } else {
-                                MethodCaller methodCaller = new RouteResponseLargeCaller(method, path, service);
-                                cacheMethodToRoute(path, methodCaller);
-                            }
-
-                        }
-                        break;
+                    Log.e(TAG, " publish path:" + path);
+                    method.setAccessible(true);
+                    if (requestLarge == null && responseLarge == null) {
+                        MethodCaller methodCaller = new RouteCaller(method, path, service);
+                        cacheMethodToRoute(path, methodCaller);
+                    } else if (requestLarge != null) {
+                        MethodCaller methodCaller = new RouteRequestLargeCaller(method, path, service);
+                        cacheMethodToRoute(path, methodCaller);
+                    } else {
+                        MethodCaller methodCaller = new RouteResponseLargeCaller(method, path, service);
+                        cacheMethodToRoute(path, methodCaller);
                     }
                 }
             }
