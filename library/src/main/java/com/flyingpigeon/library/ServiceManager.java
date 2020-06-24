@@ -27,6 +27,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import static com.flyingpigeon.library.Config.PREFIX;
+import static com.flyingpigeon.library.PigeonConstant.*;
 
 /**
  * @author xiaozhongcen
@@ -35,23 +36,6 @@ import static com.flyingpigeon.library.Config.PREFIX;
  */
 public final class ServiceManager implements IServiceManager {
 
-    static final String PIGEON_KEY_LOOK_UP_APPROACH = "key_look_up_approach";
-    static final String PIGEON_KEY_ROUTE = "key_path";
-    static final int PIGEON_APPROACH_METHOD = 1;
-    static final int PIGEON_APPROACH_ROUTE = 2;
-    static final String PIGEON_KEY_RESPONSE_CODE = "reponse_code";
-    static final int PIGEON_RESPONSE_RESULE_NO_SUCH_METHOD = 404;
-    static final int PIGEON_RESPONSE_RESULE_LOST_CLASS = 405;
-    static final int PIGEON_RESPONSE_RESULE_ILLEGALACCESS = 403;
-    static final int PIGEON_RESPONSE_RESULE_SUCCESS = 200;
-
-    static final String PIGEON_KEY_LENGTH = "key_length";
-    static final String PIGEON_KEY_INDEX = "key_%s";
-    static final String PIGEON_KEY_CLASS_INDEX = "key_class_%s";
-    static final String PIGEON_KEY_CLASS = "key_class";
-    static final String PIGEON_KEY_TYPE = "key_type";
-    static final String PIGEON_KEY_RESPONSE = "key_response";
-    static final String PIGEON_KEY_FLAGS = "key_flags";
     private static final String TAG = PREFIX + ServiceManager.class.getSimpleName();
     private final Object lock = new Object();
     private ConcurrentHashMap<Class<?>, BuketMethod> sCache = new ConcurrentHashMap<>();
@@ -65,7 +49,6 @@ public final class ServiceManager implements IServiceManager {
     public static ServiceManager getInstance() {
         return sInstance;
     }
-
 
     Bundle buildRequest(Class<?> service, Object proxy, Method method, Object[] args) {
         Bundle bundle = new Bundle();
