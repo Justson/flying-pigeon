@@ -1,6 +1,7 @@
 package com.flyingpigeon.sample;
 
 import com.flyingpigeon.library.anotation.RequestLarge;
+import com.flyingpigeon.library.anotation.ResponseLarge;
 
 import java.util.ArrayList;
 
@@ -37,6 +38,9 @@ public interface ServiceApi {
 
     @RequestLarge
     String testLargeBlock(String param, byte[] data);
+
+    @ResponseLarge
+    byte[] testLargeBlock(String param, int hash);
 
     void testArrayList(ArrayList<String> items);
 }

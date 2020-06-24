@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.util.Log;
 
 import com.flyingpigeon.library.ServiceContentProvider;
-import com.flyingpigeon.library.ServiceManager;
 import com.flyingpigeon.library.anotation.route;
 
 import java.util.ArrayList;
@@ -92,6 +91,13 @@ public class TestServiceApi extends ServiceContentProvider implements ServiceApi
         Log.e(TAG, "testLargeBlock , param:" + param + " data:" + new String(data));
         Information information = new Information("Justson", "just", 110, (short) 1, 'c', 1.22F, (byte) 14, 8989123.111D, 100000L);
         return GsonUtils.toJson(information);
+    }
+
+    int testSize = 1024 * 20;
+
+    @Override
+    public byte[] testLargeBlock(String param, int hash) {
+        return new byte[testSize];
     }
 
     @route(value = "/words")

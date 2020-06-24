@@ -1,6 +1,7 @@
 package com.flyingpigeon.library;
 
 import android.content.ContentValues;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -53,6 +54,7 @@ public final class ServiceManager implements IServiceManager {
     static final String KEY_INDEX = "key_%s";
     static final String KEY_CLASS_INDEX = "key_class_%s";
     static final String KEY_CLASS = "key_class";
+    static final String KEY_TYPE = "key_type";
     static final String KEY_RESPONSE = "key_response";
     static final String KEY_FLAGS = "key_flags";
 
@@ -335,7 +337,7 @@ public final class ServiceManager implements IServiceManager {
         return methodCaller;
     }
 
-    public MethodCaller approachByRouteInsert(Uri uri, ContentValues values, String route) throws ClassNotFoundException, NoSuchMethodException {
+    MethodCaller approachByRouteInsert(Uri uri, ContentValues values, String route) throws ClassNotFoundException, NoSuchMethodException {
         String key = KEY_INDEX;
         String keyClass = KEY_CLASS_INDEX;
         int length = values.getAsInteger(KEY_LENGTH);
@@ -402,7 +404,7 @@ public final class ServiceManager implements IServiceManager {
     }
 
 
-    private static final ConcurrentHashMap<Class, ParameterHandler> map = new ConcurrentHashMap<Class, ParameterHandler>() {
+    static final ConcurrentHashMap<Class, ParameterHandler> map = new ConcurrentHashMap<Class, ParameterHandler>() {
         {
             put(int.class, new ParameterHandler.IntHandler());
             put(double.class, new ParameterHandler.DoubleHandler());
@@ -529,7 +531,7 @@ public final class ServiceManager implements IServiceManager {
         }
     }
 
-    private Object parcelableValueOut(Parcelable parcelable) {
+    Object parcelableValueOut(Parcelable parcelable) {
         if (parcelable instanceof com.flyingpigeon.library.Pair.PairInt) {
             return ((com.flyingpigeon.library.Pair.PairInt) parcelable).getValue();
         } else if (parcelable instanceof com.flyingpigeon.library.Pair.PairDouble) {
@@ -601,6 +603,9 @@ public final class ServiceManager implements IServiceManager {
                     }
                     RequestLarge requestLarge = method.getAnnotation(RequestLarge.class);
                     ResponseLarge responseLarge = method.getAnnotation(ResponseLarge.class);
+                    if (requestLarge != null && responseLarge != null) {
+                        throw new IllegalArgumentException("framework unsupport RequestLarge and ResponseLarge together");
+                    }
                     Log.e(TAG, " publish path:" + path);
                     method.setAccessible(true);
                     if (requestLarge == null && responseLarge == null) {
@@ -692,10 +697,10 @@ public final class ServiceManager implements IServiceManager {
 
     String[] buildRequestQuery(String route, Object[] params) {
         int length = params.length;
-        String[] data = new String[length * 2];
+        String[] data = new String[length * 2 + 2];
         for (int i = 0; i < length; i++) {
             data[i] = params[i].toString();
-            data[i + length] = params[i].getClass().getName();
+            data[i + length + 2] = params[i].getClass().getName();
         }
         return data;
     }
@@ -717,4 +722,40 @@ public final class ServiceManager implements IServiceManager {
     }
 
 
+    Cursor matchQuery(Uri uri, String[] arg, String route) throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+        int pLength = (arg.length - 2) / 2;
+        String[] params = new String[pLength];
+        String[] types = new String[pLength];
+        System.arraycopy(arg, 0, params, 0, pLength);
+        System.arraycopy(arg, pLength + 2, types, 0, pLength);
+        Object[] values = Utils.getValues(types, params);
+        ArrayDeque<MethodCaller> callers = routers.get(route);
+        if (callers == null || callers.isEmpty()) {
+            throw new NoSuchMethodException(route);
+        }
+        MethodCaller methodCaller = callers.getFirst();
+        Object o = methodCaller.call(values);
+        if (o == null) {
+            return null;
+        }
+        Bundle bundle = new Bundle();
+        BundleCursor bundleCursor = new BundleCursor(bundle, new String[]{"result"});
+        ;
+        if (o instanceof String) {
+            bundle.putString(KEY_TYPE, "String");
+            bundleCursor.addRow(new Object[]{o.toString()});
+        } else if (o instanceof Byte[]) {
+            bundle.putString(KEY_TYPE, "[B");
+            bundleCursor.addRow(new Object[]{Utils.toPrimitives((Byte[]) o)});
+        } else if (o instanceof byte[]) {
+            bundle.putString(KEY_TYPE, "[B");
+            bundleCursor.addRow(new Object[]{o});
+        } else {
+            RouteResponseLargeCaller routeResponseLargeCaller = (RouteResponseLargeCaller) methodCaller;
+            Method target = routeResponseLargeCaller.target;
+            Type returnType = target.getGenericReturnType();
+            Utils.parcel(returnType, bundle, "result");
+        }
+        return bundleCursor;
+    }
 }

@@ -10,6 +10,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -27,6 +28,7 @@ import androidx.annotation.RequiresApi;
 
 import static com.flyingpigeon.library.Config.PREFIX;
 import static com.flyingpigeon.library.ServiceManager.KEY_FLAGS;
+import static com.flyingpigeon.library.ServiceManager.KEY_TYPE;
 
 /**
  * @author xiaozhongcen
@@ -147,14 +149,31 @@ public final class Pigeon {
         return result.getQueryParameter("result");
     }
 
-    String routeLargeResponse(String route, Object[] params) {
+    <T> T routeLargeResponse(String route, Object[] params) {
         String[] args = ServiceManager.getInstance().buildRequestQuery(route, params);
         ContentResolver contentResolver = mContext.getContentResolver();
         Uri uri = base.buildUpon().appendPath("pigeon/10/" + route).build();
-        Cursor result = contentResolver.query(uri, new String[]{}, "", args, "");
-        if (null != result) {
-            result.close();
+        Cursor cursor = contentResolver.query(uri, new String[]{}, "", args, "");
+        if (null == cursor) {
+            return null;
         }
+        try {
+            Bundle bundle = cursor.getExtras();
+            Parcelable parcelable = bundle.getParcelable("result");
+            if (parcelable != null) {
+                return (T) ServiceManager.getInstance().parcelableValueOut(parcelable);
+            } else if (cursor.moveToFirst()) {
+                String clazz = bundle.getString(KEY_TYPE);
+                if ("String".equalsIgnoreCase(clazz)) {
+                    return (T) cursor.getString(0);
+                } else if ("[B".equalsIgnoreCase(clazz)) {
+                    return (T) cursor.getBlob(0);
+                }
+            }
+        } finally {
+            cursor.close();
+        }
+
         return null;
     }
 

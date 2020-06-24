@@ -5,6 +5,7 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.google.gson.Gson;
@@ -30,7 +31,6 @@ public class ServiceContentProvider extends ContentProvider {
     private Gson mGson = new Gson();
 
 
-
     @Override
     public boolean onCreate() {
         Log.e(TAG, "onCreate");
@@ -41,7 +41,26 @@ public class ServiceContentProvider extends ContentProvider {
     @Nullable
     @Override
     public Cursor query(@NonNull Uri uri, @Nullable String[] projection, @Nullable String selection, @Nullable String[] selectionArgs, @Nullable String sortOrder) {
-        throw new UnsupportedOperationException();
+        Cursor cursor = null;
+        String path = uri.getPath();
+        if (TextUtils.isEmpty(path)) {
+            return null;
+        }
+        if (!path.startsWith("/pigeon")) {
+            return null;
+        }
+        try {
+            cursor = ServiceManager.getInstance().matchQuery(uri, selectionArgs, uri.getPath().replace("/pigeon/10/", ""));
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
+        return cursor;
     }
 
 

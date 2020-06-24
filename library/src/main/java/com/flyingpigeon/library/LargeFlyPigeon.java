@@ -29,6 +29,11 @@ public final class LargeFlyPigeon {
         String fly();
     }
 
+    public interface Fly0 {
+
+        <T> T fly();
+    }
+
     public static final class Request implements Fly {
 
 
@@ -44,7 +49,7 @@ public final class LargeFlyPigeon {
         }
     }
 
-    public static final class Reponse implements Fly {
+    public static final class Reponse implements Fly0 {
 
         private LargeFlyPigeon mLargeFlyPigeon;
 
@@ -54,7 +59,7 @@ public final class LargeFlyPigeon {
         }
 
         @Override
-        public String fly() {
+        public <T> T fly() {
             return mLargeFlyPigeon.pigeon.routeLargeResponse(mLargeFlyPigeon.route, mLargeFlyPigeon.params);
         }
     }

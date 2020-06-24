@@ -64,6 +64,13 @@ public class MainActivity extends AppCompatActivity {
                 pigeon.route("/hello").with(new Bundle()).fly();
                 pigeon.route("/world").fly();
                 pigeon.route("/submit/bitmap", UUID.randomUUID().toString(), "new byte[150000]".getBytes(), 1200).resquestLarge().fly();
+                byte[] data = pigeon.route("/query/bitmap", "girl.jpg", 5555).responseLarge().fly();
+                if (null != data) {
+                    //Arrays.toString(data)
+                    Log.e(TAG, "data length:" + data.length);
+                } else {
+                    Log.e(TAG, "data is null.");
+                }
             }
         }, 400);
     }

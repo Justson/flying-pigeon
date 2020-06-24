@@ -1,7 +1,5 @@
 package com.flyingpigeon.library;
 
-import android.os.Bundle;
-
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
@@ -14,13 +12,12 @@ import androidx.annotation.NonNull;
  */
 public class RouteResponseLargeCaller implements MethodCaller {
 
-    private final Method target;
+
+    final Method target;
     private final String route;
     private final Object owner;
-
-    private volatile Boolean isMatchParamters;
     private int parametersLength = -1;
-    private int matchLength = -1;
+    private static final String TAG = Config.PREFIX + RouteRequestLargeCaller.class.getSimpleName();
 
     public RouteResponseLargeCaller(@NonNull Method target, @NonNull String route, @NonNull Object owner) {
         this.target = target;
@@ -31,34 +28,30 @@ public class RouteResponseLargeCaller implements MethodCaller {
     @Override
     public Object call(Object... args) throws IllegalAccessException, InvocationTargetException {
         target.setAccessible(true);
-        if (isMatchParamters == null) {
-            synchronized (route) {
-                if (isMatchParamters == null) {
-                    Class<?>[] parameters = target.getParameterTypes();
-                    parametersLength = parameters.length;
-                    isMatchParamters = (parametersLength == 2);
-                    for (int i = 0; i < parametersLength; i++) {
-                        if (!parameters[i].isAssignableFrom(Bundle.class)) {
-                            isMatchParamters = false;
-                            break;
-                        } else {
-                            matchLength += 1;
-                        }
-                    }
-                }
-            }
+        boolean isMatchParamters = false;
+        Class<?>[] parameters = target.getParameterTypes();
+        if (parametersLength == -1) {
+            parametersLength = parameters.length;
         }
-        if (isMatchParamters) {
-            return target.invoke(owner, args);
+        if (args == null) {
+            args = new Object[parametersLength];
         } else {
-            Object[] parameters = new Object[parametersLength];
-            if (matchLength > 0) {
-                System.arraycopy(args, 0, parameters, 0, matchLength);
-                return target.invoke(owner, parameters);
-            } else {
-                return target.invoke(owner, parameters);
+            isMatchParamters = (parametersLength == args.length);
+            if (!isMatchParamters) {
+                Object[] p = new Object[parametersLength];
+                System.arraycopy(args, 0, p, 0, Math.min(parametersLength, args.length));
+                args = p;
             }
         }
+
+        for (int i = 0; i < parametersLength; i++) {
+            if (args[i] == null || !Utils.isAssignableFrom(parameters[i], args[i])) {
+                Object o = Utils.getBasedata(parameters[i]);
+                args[i] = o;
+            }
+        }
+        return target.invoke(owner, args);
     }
+
 
 }

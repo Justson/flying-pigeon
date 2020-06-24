@@ -15,6 +15,7 @@ import android.util.Log;
 import com.flyingpigeon.library.Pigeon;
 import com.flyingpigeon.library.ServiceManager;
 import com.flyingpigeon.library.anotation.RequestLarge;
+import com.flyingpigeon.library.anotation.ResponseLarge;
 import com.flyingpigeon.library.anotation.route;
 
 import androidx.annotation.Nullable;
@@ -106,6 +107,13 @@ public class RemoteService extends Service implements RemoteServiceApi {
     @route(value = "/submit/bitmap")
     public void submitBitmap(String key, byte[] data, int length) {
         Log.e(TAG, "IPC by route,submitBitmap:" + key + " data length:" + data.length + " length:" + length);
+    }
+
+    @ResponseLarge
+    @route(value = "/query/bitmap")
+    public byte[] queryBitmap(String key) {
+        Log.e(TAG, "queryBitmap:" + key);
+        return new byte[20 * 1024];
     }
 
     @Nullable
