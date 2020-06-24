@@ -13,8 +13,8 @@ import android.os.Parcelable;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.flyingpigeon.library.anotation.RequestLarge;
-import com.flyingpigeon.library.anotation.ResponseLarge;
+import com.flyingpigeon.library.annotations.RequestLarge;
+import com.flyingpigeon.library.annotations.ResponseLarge;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;

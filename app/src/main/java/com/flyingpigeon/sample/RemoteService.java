@@ -13,9 +13,9 @@ import android.util.Log;
 
 import com.flyingpigeon.library.Pigeon;
 import com.flyingpigeon.library.ServiceManager;
-import com.flyingpigeon.library.anotation.RequestLarge;
-import com.flyingpigeon.library.anotation.ResponseLarge;
-import com.flyingpigeon.library.anotation.route;
+import com.flyingpigeon.library.annotations.RequestLarge;
+import com.flyingpigeon.library.annotations.ResponseLarge;
+import com.flyingpigeon.library.annotations.route;
 
 import androidx.annotation.Nullable;
 

@@ -1,7 +1,7 @@
 package com.flyingpigeon.sample;
 
-import com.flyingpigeon.library.anotation.RequestLarge;
-import com.flyingpigeon.library.anotation.ResponseLarge;
+import com.flyingpigeon.library.annotations.RequestLarge;
+import com.flyingpigeon.library.annotations.ResponseLarge;
 
 import java.util.ArrayList;
 

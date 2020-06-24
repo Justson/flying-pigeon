@@ -4,7 +4,7 @@ import android.os.Bundle;
 import android.util.Log;
 
 import com.flyingpigeon.library.ServiceContentProvider;
-import com.flyingpigeon.library.anotation.route;
+import com.flyingpigeon.library.annotations.route;
 
 import java.util.ArrayList;
 

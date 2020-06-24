@@ -6,5 +6,5 @@ package com.flyingpigeon.library;
  * @since 1.0.0
  */
 public class Config {
-    public static final String PREFIX = "Pigeon-";
+    static final String PREFIX = "Pigeon-";
 }

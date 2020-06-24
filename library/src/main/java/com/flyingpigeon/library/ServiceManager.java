@@ -8,9 +8,9 @@ import android.os.Parcelable;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.flyingpigeon.library.anotation.RequestLarge;
-import com.flyingpigeon.library.anotation.ResponseLarge;
-import com.flyingpigeon.library.anotation.route;
+import com.flyingpigeon.library.annotations.RequestLarge;
+import com.flyingpigeon.library.annotations.ResponseLarge;
+import com.flyingpigeon.library.annotations.route;
 
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
