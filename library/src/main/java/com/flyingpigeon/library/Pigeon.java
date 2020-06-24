@@ -94,6 +94,10 @@ public final class Pigeon {
         if (isRequestLarge) {
             return callByContentProvideInsert(service, proxy, method, args);
         }
+        boolean isResponseLarge = ParametersSpec.isResponseParameterLarge(flags);
+        if (isResponseLarge) {
+            return callByResponseLarge(service, proxy, method, args);
+        }
 
         Bundle bundle = ServiceManager.getInstance().buildRequest(service, proxy, method, args);
         bundle.putInt(KEY_FLAGS, flags);
@@ -106,6 +110,30 @@ public final class Pigeon {
             throw new RuntimeException(e);
         }
         return o;
+    }
+
+    private Object callByResponseLarge(Class<?> service, Object proxy, Method method, Object[] args) {
+        String[] contentValues = ServiceManager.getInstance().buildRequestQuery(service, proxy, method, args);
+        ContentResolver contentResolver = mContext.getContentResolver();
+        Uri uri = base.buildUpon().appendPath("pigeon/11/" + method.getName()).build();
+        Cursor cursor = contentResolver.query(uri, new String[]{}, "", contentValues, "");
+        try {
+            Bundle bundle = cursor.getExtras();
+            Parcelable parcelable = bundle.getParcelable("result");
+            if (parcelable != null) {
+                return ServiceManager.getInstance().parcelableValueOut(parcelable);
+            } else if (cursor.moveToFirst()) {
+                String clazz = bundle.getString(KEY_TYPE);
+                if ("String".equalsIgnoreCase(clazz)) {
+                    return cursor.getString(0);
+                } else if ("[B".equalsIgnoreCase(clazz)) {
+                    return cursor.getBlob(0);
+                }
+            }
+        } finally {
+            cursor.close();
+        }
+        return null;
     }
 
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)

@@ -208,6 +208,81 @@ public final class ServiceManager implements IServiceManager {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+    String[] buildRequestQuery(Class<?> service, Object proxy, Method method, Object[] args) {
+        Type[] types = method.getGenericParameterTypes();
+        String[] values = settingValues(args, types);
+        return values;
+    }
+
+
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+    private String[] settingValues(Object[] args, Type[] types) {
+        int pLength = types.length;
+        String[] params = new String[pLength * 2 + 2];
+        for (int i = 0; i < args.length; i++) {
+            if (types[i] == null) {
+                params[i] = "";
+                params[i + pLength + 2] = "null";
+                continue;
+            }
+            Class<?> typeClazz = ClassUtil.getRawType(types[i]);
+            if (int.class.isAssignableFrom(typeClazz)) {
+                params[i] = args[i] + "";
+                params[i + pLength + 2] = int.class.getName();
+            } else if (double.class.isAssignableFrom(typeClazz)) {
+                params[i] = args[i] + "";
+                params[i + pLength + 2] = double.class.getName();
+            } else if (long.class.isAssignableFrom(typeClazz)) {
+                params[i] = args[i] + "";
+                params[i + pLength + 2] = long.class.getName();
+            } else if (short.class.isAssignableFrom(typeClazz)) {
+
+                params[i] = args[i] + "";
+                params[i + pLength + 2] = short.class.getName();
+            } else if (float.class.isAssignableFrom(typeClazz)) {
+                params[i] = args[i] + "";
+                params[i + pLength + 2] = float.class.getName();
+            } else if (byte.class.isAssignableFrom(typeClazz)) {
+                params[i] = args[i] + "";
+                params[i + pLength + 2] = byte.class.getName();
+            } else if (boolean.class.isAssignableFrom(typeClazz)) {
+
+                params[i] = args[i] + "";
+                params[i + pLength + 2] = boolean.class.getName();
+            } else if (String.class.isAssignableFrom(typeClazz)) {
+
+                params[i] = args[i] + "";
+                params[i + pLength + 2] = String.class.getName();
+            } else if (Integer.class.isAssignableFrom(typeClazz)) {
+                Integer v = (Integer) args[i];
+                params[i] = v.intValue() + "";
+                params[i + pLength + 2] = int.class.getName();
+            } else if (Double.class.isAssignableFrom(typeClazz)) {
+                Double v = (Double) args[i];
+                params[i] = v.doubleValue() + "";
+                params[i + pLength + 2] = double.class.getName();
+            } else if (Long.class.isAssignableFrom(typeClazz)) {
+                Long v = (Long) args[i];
+                params[i] = v.longValue() + "";
+                params[i + pLength + 2] = long.class.getName();
+            } else if (Short.class.isAssignableFrom(typeClazz)) {
+                Short v = (Short) args[i];
+                params[i] = v.shortValue() + "";
+                params[i + pLength + 2] = short.class.getName();
+            } else if (Float.class.isAssignableFrom(typeClazz)) {
+                Float v = (Float) args[i];
+                params[i] = v.floatValue() + "";
+                params[i + pLength + 2] = float.class.getName();
+            } else if (Byte.class.isAssignableFrom(typeClazz)) {
+                Byte v = (Byte) args[i];
+                params[i] = v.byteValue() + "";
+                params[i + pLength + 2] = byte.class.getName();
+            }
+        }
+        return params;
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     private void settingValues(Object[] args, ContentValues contentValues, Type[] types) {
         String key = KEY_INDEX;
         String keyClass = KEY_CLASS_INDEX;
@@ -732,6 +807,43 @@ public final class ServiceManager implements IServiceManager {
         ArrayDeque<MethodCaller> callers = routers.get(route);
         if (callers == null || callers.isEmpty()) {
             throw new NoSuchMethodException(route);
+        }
+        MethodCaller methodCaller = callers.getFirst();
+        Object o = methodCaller.call(values);
+        if (o == null) {
+            return null;
+        }
+        Bundle bundle = new Bundle();
+        BundleCursor bundleCursor = new BundleCursor(bundle, new String[]{"result"});
+        ;
+        if (o instanceof String) {
+            bundle.putString(KEY_TYPE, "String");
+            bundleCursor.addRow(new Object[]{o.toString()});
+        } else if (o instanceof Byte[]) {
+            bundle.putString(KEY_TYPE, "[B");
+            bundleCursor.addRow(new Object[]{Utils.toPrimitives((Byte[]) o)});
+        } else if (o instanceof byte[]) {
+            bundle.putString(KEY_TYPE, "[B");
+            bundleCursor.addRow(new Object[]{o});
+        } else {
+            RouteResponseLargeCaller routeResponseLargeCaller = (RouteResponseLargeCaller) methodCaller;
+            Method target = routeResponseLargeCaller.target;
+            Type returnType = target.getGenericReturnType();
+            Utils.parcel(returnType, bundle, "result");
+        }
+        return bundleCursor;
+    }
+
+    Cursor matchQuery0(Uri uri, String[] arg, String method) throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+        int pLength = (arg.length - 2) / 2;
+        String[] params = new String[pLength];
+        String[] types = new String[pLength];
+        System.arraycopy(arg, 0, params, 0, pLength);
+        System.arraycopy(arg, pLength + 2, types, 0, pLength);
+        Object[] values = Utils.getValues(types, params);
+        ArrayDeque<MethodCaller> callers = routers.get(method);
+        if (callers == null || callers.isEmpty()) {
+            throw new NoSuchMethodException(method);
         }
         MethodCaller methodCaller = callers.getFirst();
         Object o = methodCaller.call(values);

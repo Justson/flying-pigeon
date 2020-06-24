@@ -50,7 +50,12 @@ public class ServiceContentProvider extends ContentProvider {
             return null;
         }
         try {
-            cursor = ServiceManager.getInstance().matchQuery(uri, selectionArgs, uri.getPath().replace("/pigeon/10/", ""));
+            if (path.startsWith("pigeon/10")) {
+                cursor = ServiceManager.getInstance().matchQuery(uri, selectionArgs, path.replace("/pigeon/10/", ""));
+            } else if (path.startsWith("pigeon/11")) {
+                cursor = ServiceManager.getInstance().matchQuery(uri, selectionArgs, path.replace("/pigeon/11/", ""));
+
+            }
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         } catch (NoSuchMethodException e) {
