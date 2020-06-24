@@ -60,17 +60,17 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void run() {
                 test(pigeon);
-                pigeon.route("/words").withString("name", "Justson").fly();
-                pigeon.route("/hello").with(new Bundle()).fly();
-                pigeon.route("/world").fly();
-                pigeon.route("/submit/bitmap", UUID.randomUUID().toString(), "new byte[150000]".getBytes(), 1200).resquestLarge().fly();
-                byte[] data = pigeon.route("/query/bitmap", "girl.jpg", 5555).responseLarge().fly();
-                if (null != data) {
-                    //Arrays.toString(data)
-                    Log.e(TAG, "data length:" + data.length);
-                } else {
-                    Log.e(TAG, "data is null.");
-                }
+//                pigeon.route("/words").withString("name", "Justson").fly();
+//                pigeon.route("/hello").with(new Bundle()).fly();
+//                pigeon.route("/world").fly();
+//                pigeon.route("/submit/bitmap", UUID.randomUUID().toString(), "new byte[150000]".getBytes(), 1200).resquestLarge().fly();
+//                byte[] data = pigeon.route("/query/bitmap", "girl.jpg", 5555).responseLarge().fly();
+//                if (null != data) {
+//                    //Arrays.toString(data)
+//                    Log.e(TAG, "data length:" + data.length);
+//                } else {
+//                    Log.e(TAG, "data is null.");
+//                }
             }
         }, 400);
     }
@@ -84,6 +84,13 @@ public class MainActivity extends AppCompatActivity {
 
         RemoteServiceApi remoteServiceApi = pigeon.create(RemoteServiceApi.class);
         remoteServiceApi.queryItems(UUID.randomUUID().hashCode(), 0.001D, SystemClock.elapsedRealtime(), aShort, 0.011F, aByte, true);
+
+        byte[] bitmapData = remoteServiceApi.testLargeResponse("query Bitmap");
+        if (bitmapData != null) {
+            Log.e(TAG, "bitmapData:" + bitmapData.length);
+        } else {
+            Log.e(TAG, "bitmapData is null");
+        }
 
     }
 

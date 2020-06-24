@@ -27,6 +27,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
 import static com.flyingpigeon.library.Config.PREFIX;
+import static com.flyingpigeon.library.ServiceManager.KEY_CLASS;
 import static com.flyingpigeon.library.ServiceManager.KEY_FLAGS;
 import static com.flyingpigeon.library.ServiceManager.KEY_TYPE;
 
@@ -115,7 +116,7 @@ public final class Pigeon {
     private Object callByResponseLarge(Class<?> service, Object proxy, Method method, Object[] args) {
         String[] contentValues = ServiceManager.getInstance().buildRequestQuery(service, proxy, method, args);
         ContentResolver contentResolver = mContext.getContentResolver();
-        Uri uri = base.buildUpon().appendPath("pigeon/11/" + method.getName()).build();
+        Uri uri = base.buildUpon().appendPath("pigeon/11/" + method.getName()).appendQueryParameter(KEY_CLASS, service.getName()).build();
         Cursor cursor = contentResolver.query(uri, new String[]{}, "", contentValues, "");
         try {
             Bundle bundle = cursor.getExtras();

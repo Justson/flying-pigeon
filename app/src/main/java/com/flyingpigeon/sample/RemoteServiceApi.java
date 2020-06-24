@@ -7,6 +7,8 @@ package com.flyingpigeon.sample;
  */
 public interface RemoteServiceApi {
 
-	void queryItems(int id, double score, long timestamp, short gender, float ring, byte b, boolean isABoy);
+    void queryItems(int id, double score, long timestamp, short gender, float ring, byte b, boolean isABoy);
 
+
+    byte[] testLargeResponse(String key);
 }

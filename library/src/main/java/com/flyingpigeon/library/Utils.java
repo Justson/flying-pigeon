@@ -165,6 +165,17 @@ public class Utils {
         return values;
     }
 
+    static Class<?>[] getClazz(String[] types, String[] params) throws ClassNotFoundException {
+        Class<?>[] values = new Class<?>[params.length];
+        for (int i = 0; i < types.length; i++) {
+            String type = types[i];
+            String param = params[i];
+            Pair<Class<?>, Object> pair = getValue(type, param);
+            values[i] = pair.first;
+        }
+        return values;
+    }
+
     static void parcel(Type returnType, Bundle bundle, String key) {
         if (int.class.isAssignableFrom((Class<?>) returnType)) {
             ParameterHandler.IntHandler handler = (ParameterHandler.IntHandler) map.get(int.class);

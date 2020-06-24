@@ -220,9 +220,9 @@ public final class ServiceManager implements IServiceManager {
         int pLength = types.length;
         String[] params = new String[pLength * 2 + 2];
         for (int i = 0; i < args.length; i++) {
-            if (types[i] == null) {
+            if (args[i] == null) {
                 params[i] = "";
-                params[i + pLength + 2] = "null";
+                params[i + pLength + 2] = ClassUtil.getRawType(types[i]).getName();
                 continue;
             }
             Class<?> typeClazz = ClassUtil.getRawType(types[i]);
@@ -840,16 +840,19 @@ public final class ServiceManager implements IServiceManager {
         String[] types = new String[pLength];
         System.arraycopy(arg, 0, params, 0, pLength);
         System.arraycopy(arg, pLength + 2, types, 0, pLength);
-        Object[] values = Utils.getValues(types, params);
-        ArrayDeque<MethodCaller> callers = routers.get(method);
-        if (callers == null || callers.isEmpty()) {
+        Class<?>[] classes = Utils.getClazz(types, params);
+        String clazz = uri.getQueryParameter(KEY_CLASS);
+        BuketMethod buketMethod = getMethods(Class.forName(clazz));
+        if (buketMethod == null) {
             throw new NoSuchMethodException(method);
         }
-        MethodCaller methodCaller = callers.getFirst();
+        MethodCaller methodCaller = buketMethod.match(method, classes);
+        Object[] values = Utils.getValues(types, params);
         Object o = methodCaller.call(values);
         if (o == null) {
             return null;
         }
+
         Bundle bundle = new Bundle();
         BundleCursor bundleCursor = new BundleCursor(bundle, new String[]{"result"});
         ;

@@ -53,7 +53,7 @@ public class ServiceContentProvider extends ContentProvider {
             if (path.startsWith("pigeon/10")) {
                 cursor = ServiceManager.getInstance().matchQuery(uri, selectionArgs, path.replace("/pigeon/10/", ""));
             } else if (path.startsWith("pigeon/11")) {
-                cursor = ServiceManager.getInstance().matchQuery(uri, selectionArgs, path.replace("/pigeon/11/", ""));
+                cursor = ServiceManager.getInstance().matchQuery0(uri, selectionArgs, path.replace("/pigeon/11/", ""));
 
             }
         } catch (ClassNotFoundException e) {

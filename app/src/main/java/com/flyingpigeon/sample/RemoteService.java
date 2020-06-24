@@ -128,6 +128,12 @@ public class RemoteService extends Service implements RemoteServiceApi {
     }
 
     @Override
+    public byte[] testLargeResponse(String key) {
+        Log.e(TAG, "testLargeResponse:" + key);
+        return new byte[1024 * 20];
+    }
+
+    @Override
     public void onDestroy() {
         super.onDestroy();
         ServiceManager.getInstance().abolition(this, RemoteServiceApi.class);

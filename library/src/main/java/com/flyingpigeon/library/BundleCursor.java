@@ -2,9 +2,6 @@ package com.flyingpigeon.library;
 
 import android.database.MatrixCursor;
 import android.os.Bundle;
-import android.util.Log;
-
-import static com.flyingpigeon.library.ServiceManager.KEY_TYPE;
 
 /**
  * @author xiaozhongcen
@@ -22,7 +19,6 @@ public final class BundleCursor extends MatrixCursor {
 
     @Override
     public Bundle getExtras() {
-        Log.e(TAG, "getExtras:" + mBundle.getString(KEY_TYPE));
         return mBundle;
     }
 

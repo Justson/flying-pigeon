@@ -461,7 +461,6 @@ public abstract class Pair implements Parcelable {
         @Override
         public void writeToParcel(Parcel dest, int flags) {
             super.writeToParcel(dest, flags);
-            Log.e(TAG, "value:" + value);
             dest.writeSerializable(value);
         }
 
