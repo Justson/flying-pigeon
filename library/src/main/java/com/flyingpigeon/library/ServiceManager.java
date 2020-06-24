@@ -555,12 +555,11 @@ public final class ServiceManager implements IServiceManager {
 
     @Override
     public void publish(Object service, Class<?>... interfaces) {
+        if (interfaces.length == 0) {
+            Log.e(TAG, "without interfaces ");
+        }
         synchronized (lock) {
-            if (interfaces.length == 0) {
-                throw new RuntimeException("interfaces error");
-            }
-            for (int i = 0; i < interfaces.length; i++) {
-                Class<?> aInterface = interfaces[i];
+            for (Class<?> aInterface : interfaces) {
                 BuketMethod buket = sCache.get(aInterface);
                 if (buket != null) {
                     Log.e(TAG, " publish failure, " + "please don't repeat publish same api:" + aInterface.getName());
