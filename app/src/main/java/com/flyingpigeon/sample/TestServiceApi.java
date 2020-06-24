@@ -21,7 +21,6 @@ public class TestServiceApi extends ServiceContentProvider implements ServiceApi
 
     @Override
     public boolean onCreate() {
-        ServiceManager.getInstance().publish(this);
         return super.onCreate();
     }
 

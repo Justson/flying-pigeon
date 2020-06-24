@@ -39,9 +39,6 @@ public class FlyPigeon {
     }
 
 
-    /**
-     * BE ATTENTION TO THIS METHOD WAS <P>SET, NOT ADD!</P>
-     */
     public FlyPigeon with(Bundle bundle) {
         if (null != bundle) {
             mBundle = bundle;

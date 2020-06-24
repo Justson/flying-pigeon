@@ -152,7 +152,6 @@ public final class Pigeon {
         ContentResolver contentResolver = mContext.getContentResolver();
         Uri uri = base.buildUpon().appendPath("pigeon/10/" + route).build();
         Cursor result = contentResolver.query(uri, new String[]{}, "", args, "");
-
         if (null != result) {
             result.close();
         }

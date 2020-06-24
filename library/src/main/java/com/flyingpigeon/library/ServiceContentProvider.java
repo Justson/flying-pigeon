@@ -30,12 +30,11 @@ public class ServiceContentProvider extends ContentProvider {
     private Gson mGson = new Gson();
 
 
-    static ServiceContentProvider serviceContext;
 
     @Override
     public boolean onCreate() {
         Log.e(TAG, "onCreate");
-        serviceContext = this;
+        ServiceManager.getInstance().publish(this);
         return true;
     }
 
