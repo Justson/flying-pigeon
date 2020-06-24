@@ -35,8 +35,6 @@ import static com.flyingpigeon.library.Config.PREFIX;
  */
 public final class ServiceManager implements IServiceManager {
 
-    static final String PREXFIX_ROUTE = "route-";
-    static final String PREXFIX_METHOD = "method-";
     static final String KEY_LOOK_UP_APPROACH = "key_look_up_approach";
     static final String KEY_ROUTE = "key_path";
     static final int APPROACH_METHOD = 1;
