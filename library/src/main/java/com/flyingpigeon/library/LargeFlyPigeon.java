@@ -21,8 +21,8 @@ public final class LargeFlyPigeon {
         return new Request(this);
     }
 
-    public Reponse responseLarge() {
-        return new Reponse(this);
+    public Response responseLarge() {
+        return new Response(this);
     }
 
     public interface Fly {
@@ -49,12 +49,12 @@ public final class LargeFlyPigeon {
         }
     }
 
-    public static final class Reponse implements Fly0 {
+    public static final class Response implements Fly0 {
 
         private LargeFlyPigeon mLargeFlyPigeon;
 
 
-        Reponse(LargeFlyPigeon largeFlyPigeon) {
+        Response(LargeFlyPigeon largeFlyPigeon) {
             this.mLargeFlyPigeon = largeFlyPigeon;
         }
 

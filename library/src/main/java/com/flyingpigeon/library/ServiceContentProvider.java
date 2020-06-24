@@ -14,9 +14,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import static com.flyingpigeon.library.Config.PREFIX;
-import static com.flyingpigeon.library.ServiceManager.PIGEON_APPROACH_METHOD;
-import static com.flyingpigeon.library.ServiceManager.PIGEON_APPROACH_ROUTE;
-import static com.flyingpigeon.library.ServiceManager.PIGEON_KEY_LOOK_UP_APPROACH;
+import static com.flyingpigeon.library.PigeonConstant.*;
 
 /**
  * @author xiaozhongcen
@@ -77,22 +75,22 @@ public class ServiceContentProvider extends ContentProvider {
                 methodCaller = ServiceManager.getInstance().approachByMethod(method, extras);
                 Object result = methodCaller.call(ServiceManager.getInstance().parseData(arg, extras));
                 ServiceManager.getInstance().buildResponse(extras, response, result);
-                response.putInt(ServiceManager.PIGEON_KEY_RESPONSE_CODE, ServiceManager.PIGEON_RESPONSE_RESULE_SUCCESS);
+                response.putInt(PIGEON_KEY_RESPONSE_CODE, PIGEON_RESPONSE_RESULE_SUCCESS);
             } else {
                 ServiceManager.getInstance().approachByRoute(method, extras, response);
             }
         } catch (NoSuchMethodException e) {
             e.printStackTrace();
-            response.putInt(ServiceManager.PIGEON_KEY_RESPONSE_CODE, ServiceManager.PIGEON_RESPONSE_RESULE_NO_SUCH_METHOD);
+            response.putInt(PIGEON_KEY_RESPONSE_CODE, PIGEON_RESPONSE_RESULE_NO_SUCH_METHOD);
         } catch (IllegalAccessException e) {
             e.printStackTrace();
-            response.putInt(ServiceManager.PIGEON_KEY_RESPONSE_CODE, ServiceManager.PIGEON_RESPONSE_RESULE_ILLEGALACCESS);
+            response.putInt(PIGEON_KEY_RESPONSE_CODE, PIGEON_RESPONSE_RESULE_ILLEGALACCESS);
         } catch (InvocationTargetException e) {
             e.printStackTrace();
-            response.putInt(ServiceManager.PIGEON_KEY_RESPONSE_CODE, ServiceManager.PIGEON_RESPONSE_RESULE_NO_SUCH_METHOD);
+            response.putInt(PIGEON_KEY_RESPONSE_CODE, PIGEON_RESPONSE_RESULE_NO_SUCH_METHOD);
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
-            response.putInt(ServiceManager.PIGEON_KEY_RESPONSE_CODE, ServiceManager.PIGEON_RESPONSE_RESULE_LOST_CLASS);
+            response.putInt(PIGEON_KEY_RESPONSE_CODE, PIGEON_RESPONSE_RESULE_LOST_CLASS);
         }
         return response;
     }

@@ -25,9 +25,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import static com.flyingpigeon.library.Config.PREFIX;
-import static com.flyingpigeon.library.ServiceManager.PIGEON_KEY_CLASS;
-import static com.flyingpigeon.library.ServiceManager.PIGEON_KEY_FLAGS;
-import static com.flyingpigeon.library.ServiceManager.PIGEON_KEY_TYPE;
+import static com.flyingpigeon.library.PigeonConstant.*;
 
 /**
  * @author xiaozhongcen
