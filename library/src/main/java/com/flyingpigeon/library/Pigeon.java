@@ -8,7 +8,6 @@ import android.content.pm.PackageManager;
 import android.content.pm.ProviderInfo;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.text.TextUtils;
@@ -24,7 +23,6 @@ import java.util.Objects;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 
 import static com.flyingpigeon.library.Config.PREFIX;
 import static com.flyingpigeon.library.ServiceManager.KEY_CLASS;
@@ -53,7 +51,6 @@ public final class Pigeon {
 
     public <T> T create(final Class<T> service) {
         return (T) Proxy.newProxyInstance(service.getClassLoader(), new Class[]{service}, new InvocationHandler() {
-            @RequiresApi(api = Build.VERSION_CODES.KITKAT)
             @Override
             public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
                 return (T) call(service, proxy, method, args);
@@ -74,7 +71,6 @@ public final class Pigeon {
         return null;
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     private Object call(Class<?> service, Object proxy, Method method, Object[] args) {
         // large
         RequestLarge requestLarge = method.getAnnotation(RequestLarge.class);
@@ -137,7 +133,6 @@ public final class Pigeon {
         return null;
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     private @Nullable
     Object callByContentProvideInsert(Class<?> service, Object proxy, Method method, Object[] args) {
         ContentValues contentValues = ServiceManager.getInstance().buildRequestInsert(service, proxy, method, args);
@@ -159,13 +154,11 @@ public final class Pigeon {
         return response;
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     public static Pigeon.Builder newBuilder(@NonNull Context context) {
         Objects.requireNonNull(context);
         return new Builder(context);
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     String routeLargeRequest(String route, Object[] params) {
         ContentValues contentValues = ServiceManager.getInstance().buildRouteRequestInsert(route, params);
         ContentResolver contentResolver = mContext.getContentResolver();

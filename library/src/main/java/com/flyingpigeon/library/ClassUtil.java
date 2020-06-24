@@ -1,6 +1,5 @@
 package com.flyingpigeon.library;
 
-import android.os.Build;
 import android.os.Parcelable;
 
 import java.io.Serializable;
@@ -19,7 +18,6 @@ import java.util.NoSuchElementException;
 import java.util.Objects;
 
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 
 /**
  * @author xiaozhongcen
@@ -57,7 +55,6 @@ public class ClassUtil {
 		return methodError(method, message + " (parameter #" + (p + 1) + ")", args);
 	}
 
-	@RequiresApi(api = Build.VERSION_CODES.KITKAT)
 	static Class<?> getRawType(Type type) {
 		Objects.requireNonNull(type, "type == null");
 
@@ -191,14 +188,12 @@ public class ClassUtil {
 	 *
 	 * @param supertype a superclass of, or interface implemented by, this.
 	 */
-	@RequiresApi(api = Build.VERSION_CODES.KITKAT)
 	static Type getSupertype(Type context, Class<?> contextRawType, Class<?> supertype) {
 		if (!supertype.isAssignableFrom(contextRawType)) throw new IllegalArgumentException();
 		return resolve(context, contextRawType,
 				getGenericSupertype(context, contextRawType, supertype));
 	}
 
-	@RequiresApi(api = Build.VERSION_CODES.KITKAT)
 	static Type resolve(Type context, Class<?> contextRawType, Type toResolve) {
 		// This implementation is made a little more complicated in an attempt to avoid object-creation.
 		while (true) {
@@ -383,7 +378,6 @@ public class ClassUtil {
 		private final Type rawType;
 		private final Type[] typeArguments;
 
-		@RequiresApi(api = Build.VERSION_CODES.KITKAT)
 		ParameterizedTypeImpl(@Nullable Type ownerType, Type rawType, Type... typeArguments) {
 			// Require an owner type if the raw type needs it.
 			if (rawType instanceof Class<?>

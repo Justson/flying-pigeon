@@ -3,7 +3,6 @@ package com.flyingpigeon.library;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.text.TextUtils;
@@ -26,7 +25,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 
 import static com.flyingpigeon.library.Config.PREFIX;
 
@@ -73,7 +71,6 @@ public final class ServiceManager implements IServiceManager {
     }
 
 
-    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     Bundle buildRequest(Class<?> service, Object proxy, Method method, Object[] args) {
         Bundle bundle = new Bundle();
         Type[] types = method.getGenericParameterTypes();
@@ -196,7 +193,6 @@ public final class ServiceManager implements IServiceManager {
     }
 
 
-    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     ContentValues buildRequestInsert(Class<?> service, Object proxy, Method method, Object[] args) {
         ContentValues contentValues = new ContentValues();
         Type[] types = method.getGenericParameterTypes();
@@ -207,7 +203,6 @@ public final class ServiceManager implements IServiceManager {
         return contentValues;
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     String[] buildRequestQuery(Class<?> service, Object proxy, Method method, Object[] args) {
         Type[] types = method.getGenericParameterTypes();
         String[] values = settingValues(args, types);
@@ -215,7 +210,6 @@ public final class ServiceManager implements IServiceManager {
     }
 
 
-    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     private String[] settingValues(Object[] args, Type[] types) {
         int pLength = types.length;
         String[] params = new String[pLength * 2 + 2];
@@ -282,7 +276,6 @@ public final class ServiceManager implements IServiceManager {
         return params;
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     private void settingValues(Object[] args, ContentValues contentValues, Type[] types) {
         String key = KEY_INDEX;
         String keyClass = KEY_CLASS_INDEX;
@@ -427,7 +420,7 @@ public final class ServiceManager implements IServiceManager {
         return callers.getFirst();
     }
 
-    public Object[] parseDataInsert(Uri uri, ContentValues contentValues) {
+    Object[] parseDataInsert(Uri uri, ContentValues contentValues) {
         int length = contentValues.getAsInteger(KEY_LENGTH);
         Object[] values = new Object[length];
         Class<?>[] clazzs = new Class[length];
@@ -651,7 +644,6 @@ public final class ServiceManager implements IServiceManager {
         }
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Override
     public void publish(Object service) {
         synchronized (lock) {
@@ -715,7 +707,6 @@ public final class ServiceManager implements IServiceManager {
         }
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Override
     public void abolition(Object service) {
         synchronized (lock) {
@@ -780,8 +771,7 @@ public final class ServiceManager implements IServiceManager {
         return data;
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
-    public ContentValues buildRouteRequestInsert(String route, Object[] params) {
+    ContentValues buildRouteRequestInsert(String route, Object[] params) {
         Type[] types = new Type[params.length];
         for (int i = 0; i < params.length; i++) {
             if (params[i] == null) {

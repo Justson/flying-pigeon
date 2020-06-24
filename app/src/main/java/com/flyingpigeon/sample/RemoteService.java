@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.AsyncTask;
 import android.os.Binder;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
@@ -19,7 +18,6 @@ import com.flyingpigeon.library.anotation.ResponseLarge;
 import com.flyingpigeon.library.anotation.route;
 
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 
 import static com.flyingpigeon.library.Config.PREFIX;
 
@@ -77,7 +75,6 @@ public class RemoteService extends Service implements RemoteServiceApi {
     }
 
     Api mApi = new Api() {
-        @RequiresApi(api = Build.VERSION_CODES.KITKAT)
         @Override
         public int createPoster(Poster poster) {
             Log.e(TAG, "poster:" + GsonUtils.toJson(poster));
