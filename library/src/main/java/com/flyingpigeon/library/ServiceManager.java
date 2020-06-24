@@ -35,25 +35,23 @@ import static com.flyingpigeon.library.Config.PREFIX;
  */
 public final class ServiceManager implements IServiceManager {
 
-    static final String KEY_LOOK_UP_APPROACH = "key_look_up_approach";
-    static final String KEY_ROUTE = "key_path";
-    static final int APPROACH_METHOD = 1;
-    static final int APPROACH_ROUTE = 2;
-    static final String KEY_RESPONSE_CODE = "reponse_code";
-    static final int RESPONSE_RESULE_NO_SUCH_METHOD = 404;
-    static final int RESPONSE_RESULE_LOST_CLASS = 405;
+    static final String PIGEON_KEY_LOOK_UP_APPROACH = "key_look_up_approach";
+    static final String PIGEON_KEY_ROUTE = "key_path";
+    static final int PIGEON_APPROACH_METHOD = 1;
+    static final int PIGEON_APPROACH_ROUTE = 2;
+    static final String PIGEON_KEY_RESPONSE_CODE = "reponse_code";
+    static final int PIGEON_RESPONSE_RESULE_NO_SUCH_METHOD = 404;
+    static final int PIGEON_RESPONSE_RESULE_LOST_CLASS = 405;
+    static final int PIGEON_RESPONSE_RESULE_ILLEGALACCESS = 403;
+    static final int PIGEON_RESPONSE_RESULE_SUCCESS = 200;
 
-    static final int RESPONSE_RESULE_ILLEGALACCESS = 403;
-    static final int RESPONSE_RESULE_SUCCESS = 200;
-
-    static final String KEY_LENGTH = "key_length";
-    static final String KEY_INDEX = "key_%s";
-    static final String KEY_CLASS_INDEX = "key_class_%s";
-    static final String KEY_CLASS = "key_class";
-    static final String KEY_TYPE = "key_type";
-    static final String KEY_RESPONSE = "key_response";
-    static final String KEY_FLAGS = "key_flags";
-
+    static final String PIGEON_KEY_LENGTH = "key_length";
+    static final String PIGEON_KEY_INDEX = "key_%s";
+    static final String PIGEON_KEY_CLASS_INDEX = "key_class_%s";
+    static final String PIGEON_KEY_CLASS = "key_class";
+    static final String PIGEON_KEY_TYPE = "key_type";
+    static final String PIGEON_KEY_RESPONSE = "key_response";
+    static final String PIGEON_KEY_FLAGS = "key_flags";
     private static final String TAG = PREFIX + ServiceManager.class.getSimpleName();
     private final Object lock = new Object();
     private ConcurrentHashMap<Class<?>, BuketMethod> sCache = new ConcurrentHashMap<>();
@@ -72,7 +70,7 @@ public final class ServiceManager implements IServiceManager {
     Bundle buildRequest(Class<?> service, Object proxy, Method method, Object[] args) {
         Bundle bundle = new Bundle();
         Type[] types = method.getGenericParameterTypes();
-        String key = KEY_INDEX;
+        String key = PIGEON_KEY_INDEX;
         for (int i = 0; i < types.length; i++) {
             Log.e(TAG, "type name:" + types[i] + " method:" + method.getName() + " service:" + service);
             Class<?> typeClazz = ClassUtil.getRawType(types[i]);
@@ -120,12 +118,12 @@ public final class ServiceManager implements IServiceManager {
                 Parcelable parcelable = bundle.getParcelable(String.format(key, i + ""));
             }
         }
-        bundle.putInt(KEY_LENGTH, types.length);
-        bundle.putInt(KEY_LOOK_UP_APPROACH, APPROACH_METHOD);
-        bundle.putString(KEY_CLASS, service.getName());
+        bundle.putInt(PIGEON_KEY_LENGTH, types.length);
+        bundle.putInt(PIGEON_KEY_LOOK_UP_APPROACH, PIGEON_APPROACH_METHOD);
+        bundle.putString(PIGEON_KEY_CLASS, service.getName());
 
         // build response type;
-        String responseKey = KEY_RESPONSE;
+        String responseKey = PIGEON_KEY_RESPONSE;
         Type returnType = method.getGenericReturnType();
         if (int.class.isAssignableFrom((Class<?>) returnType)) {
             ParameterHandler.IntHandler handler = (ParameterHandler.IntHandler) map.get(int.class);
@@ -175,7 +173,7 @@ public final class ServiceManager implements IServiceManager {
 
 
     void approachByRoute(String method, Bundle in, Bundle out) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-        String route = in.getString(KEY_ROUTE);
+        String route = in.getString(PIGEON_KEY_ROUTE);
         if (TextUtils.isEmpty(route)) {
             throw new NoSuchMethodException();
         }
@@ -194,9 +192,9 @@ public final class ServiceManager implements IServiceManager {
     ContentValues buildRequestInsert(Class<?> service, Object proxy, Method method, Object[] args) {
         ContentValues contentValues = new ContentValues();
         Type[] types = method.getGenericParameterTypes();
-        contentValues.put(KEY_LENGTH, types.length);
-        contentValues.put(KEY_LOOK_UP_APPROACH, APPROACH_METHOD);
-        contentValues.put(KEY_CLASS, service.getName());
+        contentValues.put(PIGEON_KEY_LENGTH, types.length);
+        contentValues.put(PIGEON_KEY_LOOK_UP_APPROACH, PIGEON_APPROACH_METHOD);
+        contentValues.put(PIGEON_KEY_CLASS, service.getName());
         settingValues(args, contentValues, types);
         return contentValues;
     }
@@ -275,8 +273,8 @@ public final class ServiceManager implements IServiceManager {
     }
 
     private void settingValues(Object[] args, ContentValues contentValues, Type[] types) {
-        String key = KEY_INDEX;
-        String keyClass = KEY_CLASS_INDEX;
+        String key = PIGEON_KEY_INDEX;
+        String keyClass = PIGEON_KEY_CLASS_INDEX;
         for (int i = 0; i < args.length; i++) {
             String index = String.format(key, i + "");
             String indexClass = String.format(keyClass, i + "");
@@ -349,8 +347,8 @@ public final class ServiceManager implements IServiceManager {
 
     MethodCaller approachByMethod(@NonNull String method, @NonNull Bundle extras) throws ClassNotFoundException, NoSuchMethodException {
         MethodCaller methodCaller;
-        String key = KEY_INDEX;
-        int length = extras.getInt(KEY_LENGTH);
+        String key = PIGEON_KEY_INDEX;
+        int length = extras.getInt(PIGEON_KEY_LENGTH);
         Class<?>[] clazzs = new Class[length];
         for (int i = 0; i < length; i++) {
             Parcelable parcelable = extras.getParcelable(String.format(key, i + ""));
@@ -366,7 +364,7 @@ public final class ServiceManager implements IServiceManager {
             }
         }
 
-        String clazz = extras.getString(KEY_CLASS);
+        String clazz = extras.getString(PIGEON_KEY_CLASS);
         Log.e(TAG, "clazz:" + clazz);
         BuketMethod buket = getMethods(Class.forName(clazz));
         if (buket == null) {
@@ -379,9 +377,9 @@ public final class ServiceManager implements IServiceManager {
 
     MethodCaller approachByMethodInsert(Uri uri, ContentValues values, String method) throws ClassNotFoundException, NoSuchMethodException {
         MethodCaller methodCaller;
-        String key = KEY_INDEX;
-        String keyClass = KEY_CLASS_INDEX;
-        int length = values.getAsInteger(KEY_LENGTH);
+        String key = PIGEON_KEY_INDEX;
+        String keyClass = PIGEON_KEY_CLASS_INDEX;
+        int length = values.getAsInteger(PIGEON_KEY_LENGTH);
         Class<?>[] clazzs = new Class[length];
         for (int i = 0; i < length; i++) {
             String clazz = values.getAsString(String.format(keyClass, i + ""));
@@ -393,7 +391,7 @@ public final class ServiceManager implements IServiceManager {
                 throw new IllegalArgumentException("arg error");
             }
         }
-        String clazz = values.getAsString(KEY_CLASS);
+        String clazz = values.getAsString(PIGEON_KEY_CLASS);
         Log.e(TAG, "clazz:" + clazz);
         BuketMethod buket = getMethods(Class.forName(clazz));
         if (buket == null) {
@@ -404,9 +402,9 @@ public final class ServiceManager implements IServiceManager {
     }
 
     MethodCaller approachByRouteInsert(Uri uri, ContentValues values, String route) throws ClassNotFoundException, NoSuchMethodException {
-        String key = KEY_INDEX;
-        String keyClass = KEY_CLASS_INDEX;
-        int length = values.getAsInteger(KEY_LENGTH);
+        String key = PIGEON_KEY_INDEX;
+        String keyClass = PIGEON_KEY_CLASS_INDEX;
+        int length = values.getAsInteger(PIGEON_KEY_LENGTH);
         for (int i = 0; i < length; i++) {
             String clazz = values.getAsString(String.format(keyClass, i + ""));
             Log.e(TAG, "approachByRouteInsert:" + clazz + "  index:" + String.format(keyClass, i + ""));
@@ -419,11 +417,11 @@ public final class ServiceManager implements IServiceManager {
     }
 
     Object[] parseDataInsert(Uri uri, ContentValues contentValues) {
-        int length = contentValues.getAsInteger(KEY_LENGTH);
+        int length = contentValues.getAsInteger(PIGEON_KEY_LENGTH);
         Object[] values = new Object[length];
         Class<?>[] clazzs = new Class[length];
-        String key = KEY_INDEX;
-        String keyClass = KEY_CLASS_INDEX;
+        String key = PIGEON_KEY_INDEX;
+        String keyClass = PIGEON_KEY_CLASS_INDEX;
         for (int i = 0; i < length; i++) {
             String clazz = contentValues.getAsString(String.format(keyClass, i + ""));
             Log.e(TAG, "parseDataInsert clazz:" + clazz);
@@ -453,8 +451,8 @@ public final class ServiceManager implements IServiceManager {
 
 
     Object[] parseData(@Nullable String arg, @Nullable Bundle extras) {
-        String key = KEY_INDEX;
-        int length = extras.getInt(KEY_LENGTH);
+        String key = PIGEON_KEY_INDEX;
+        int length = extras.getInt(PIGEON_KEY_LENGTH);
         Object[] values = new Object[length];
         Class<?>[] clazzs = new Class[length];
         for (int i = 0; i < length; i++) {
@@ -526,20 +524,20 @@ public final class ServiceManager implements IServiceManager {
 
     Object parseReponse(Bundle response, Method method) throws CallRemoteException {
         response.setClassLoader(Pair.class.getClassLoader());
-        int responseCode = response.getInt(KEY_RESPONSE_CODE);
-        if (responseCode == RESPONSE_RESULE_NO_SUCH_METHOD) {
+        int responseCode = response.getInt(PIGEON_KEY_RESPONSE_CODE);
+        if (responseCode == PIGEON_RESPONSE_RESULE_NO_SUCH_METHOD) {
             throw new CallRemoteException("404 , method not found ");
         }
-        if (responseCode == RESPONSE_RESULE_LOST_CLASS) {
+        if (responseCode == PIGEON_RESPONSE_RESULE_LOST_CLASS) {
             throw new CallRemoteException("404 , class not found ");
         }
 
-        if (responseCode == RESPONSE_RESULE_ILLEGALACCESS) {
+        if (responseCode == PIGEON_RESPONSE_RESULE_ILLEGALACCESS) {
             throw new CallRemoteException("404 , illegal access ");
         }
 
         Parcelable parcelable;
-        if (responseCode == RESPONSE_RESULE_SUCCESS && (parcelable = response.getParcelable(KEY_RESPONSE)) != null) {
+        if (responseCode == PIGEON_RESPONSE_RESULE_SUCCESS && (parcelable = response.getParcelable(PIGEON_KEY_RESPONSE)) != null) {
             return parcelableValueOut(parcelable);
         }
         return null;
@@ -547,25 +545,25 @@ public final class ServiceManager implements IServiceManager {
 
     void parseReponse(Bundle response) throws CallRemoteException {
         response.setClassLoader(Pair.class.getClassLoader());
-        int responseCode = response.getInt(KEY_RESPONSE_CODE);
-        if (responseCode == RESPONSE_RESULE_NO_SUCH_METHOD) {
+        int responseCode = response.getInt(PIGEON_KEY_RESPONSE_CODE);
+        if (responseCode == PIGEON_RESPONSE_RESULE_NO_SUCH_METHOD) {
             throw new CallRemoteException("404 , method not found ");
         }
-        if (responseCode == RESPONSE_RESULE_LOST_CLASS) {
+        if (responseCode == PIGEON_RESPONSE_RESULE_LOST_CLASS) {
             throw new CallRemoteException("404 , class not found ");
         }
 
-        if (responseCode == RESPONSE_RESULE_ILLEGALACCESS) {
+        if (responseCode == PIGEON_RESPONSE_RESULE_ILLEGALACCESS) {
             throw new CallRemoteException("404 , illegal access ");
         }
-        response.remove(KEY_RESPONSE_CODE);
+        response.remove(PIGEON_KEY_RESPONSE_CODE);
     }
 
     void buildResponse(Bundle request, Bundle response, Object result) {
-        Parcelable parcelable = request.getParcelable(KEY_RESPONSE);
+        Parcelable parcelable = request.getParcelable(PIGEON_KEY_RESPONSE);
         if (parcelable != null) {
             parcelableValueIn(parcelable, result);
-            response.putParcelable(KEY_RESPONSE, parcelable);
+            response.putParcelable(PIGEON_KEY_RESPONSE, parcelable);
         }
     }
 
@@ -755,7 +753,7 @@ public final class ServiceManager implements IServiceManager {
     }
 
     void buildRequestRoute(Bundle in) {
-        in.putInt(KEY_LOOK_UP_APPROACH, APPROACH_ROUTE);
+        in.putInt(PIGEON_KEY_LOOK_UP_APPROACH, PIGEON_APPROACH_ROUTE);
     }
 
 
@@ -778,8 +776,8 @@ public final class ServiceManager implements IServiceManager {
             types[i] = params[i].getClass();
         }
         ContentValues contentValues = new ContentValues();
-        contentValues.put(KEY_LENGTH, params.length);
-        contentValues.put(KEY_LOOK_UP_APPROACH, APPROACH_ROUTE);
+        contentValues.put(PIGEON_KEY_LENGTH, params.length);
+        contentValues.put(PIGEON_KEY_LOOK_UP_APPROACH, PIGEON_APPROACH_ROUTE);
         settingValues(params, contentValues, types);
         return contentValues;
     }
@@ -805,13 +803,13 @@ public final class ServiceManager implements IServiceManager {
         BundleCursor bundleCursor = new BundleCursor(bundle, new String[]{"result"});
         ;
         if (o instanceof String) {
-            bundle.putString(KEY_TYPE, "String");
+            bundle.putString(PIGEON_KEY_TYPE, "String");
             bundleCursor.addRow(new Object[]{o.toString()});
         } else if (o instanceof Byte[]) {
-            bundle.putString(KEY_TYPE, "[B");
+            bundle.putString(PIGEON_KEY_TYPE, "[B");
             bundleCursor.addRow(new Object[]{Utils.toPrimitives((Byte[]) o)});
         } else if (o instanceof byte[]) {
-            bundle.putString(KEY_TYPE, "[B");
+            bundle.putString(PIGEON_KEY_TYPE, "[B");
             bundleCursor.addRow(new Object[]{o});
         } else {
             RouteResponseLargeCaller routeResponseLargeCaller = (RouteResponseLargeCaller) methodCaller;
@@ -829,7 +827,7 @@ public final class ServiceManager implements IServiceManager {
         System.arraycopy(arg, 0, params, 0, pLength);
         System.arraycopy(arg, pLength + 2, types, 0, pLength);
         Class<?>[] classes = Utils.getClazz(types, params);
-        String clazz = uri.getQueryParameter(KEY_CLASS);
+        String clazz = uri.getQueryParameter(PIGEON_KEY_CLASS);
         BuketMethod buketMethod = getMethods(Class.forName(clazz));
         if (buketMethod == null) {
             throw new NoSuchMethodException(method);
@@ -845,13 +843,13 @@ public final class ServiceManager implements IServiceManager {
         BundleCursor bundleCursor = new BundleCursor(bundle, new String[]{"result"});
         ;
         if (o instanceof String) {
-            bundle.putString(KEY_TYPE, "String");
+            bundle.putString(PIGEON_KEY_TYPE, "String");
             bundleCursor.addRow(new Object[]{o.toString()});
         } else if (o instanceof Byte[]) {
-            bundle.putString(KEY_TYPE, "[B");
+            bundle.putString(PIGEON_KEY_TYPE, "[B");
             bundleCursor.addRow(new Object[]{Utils.toPrimitives((Byte[]) o)});
         } else if (o instanceof byte[]) {
-            bundle.putString(KEY_TYPE, "[B");
+            bundle.putString(PIGEON_KEY_TYPE, "[B");
             bundleCursor.addRow(new Object[]{o});
         } else {
             RouteResponseLargeCaller routeResponseLargeCaller = (RouteResponseLargeCaller) methodCaller;

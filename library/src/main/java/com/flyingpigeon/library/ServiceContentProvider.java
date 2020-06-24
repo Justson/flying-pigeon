@@ -8,17 +8,15 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.google.gson.Gson;
-
 import java.lang.reflect.InvocationTargetException;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import static com.flyingpigeon.library.Config.PREFIX;
-import static com.flyingpigeon.library.ServiceManager.APPROACH_METHOD;
-import static com.flyingpigeon.library.ServiceManager.APPROACH_ROUTE;
-import static com.flyingpigeon.library.ServiceManager.KEY_LOOK_UP_APPROACH;
+import static com.flyingpigeon.library.ServiceManager.PIGEON_APPROACH_METHOD;
+import static com.flyingpigeon.library.ServiceManager.PIGEON_APPROACH_ROUTE;
+import static com.flyingpigeon.library.ServiceManager.PIGEON_KEY_LOOK_UP_APPROACH;
 
 /**
  * @author xiaozhongcen
@@ -28,12 +26,10 @@ import static com.flyingpigeon.library.ServiceManager.KEY_LOOK_UP_APPROACH;
 public class ServiceContentProvider extends ContentProvider {
 
     public static final String TAG = PREFIX + ServiceContentProvider.class.getSimpleName();
-    private Gson mGson = new Gson();
 
 
     @Override
     public boolean onCreate() {
-        Log.e(TAG, "onCreate");
         ServiceManager.getInstance().publish(this);
         return true;
     }
@@ -76,27 +72,27 @@ public class ServiceContentProvider extends ContentProvider {
         try {
             extras.setClassLoader(Pair.class.getClassLoader());
             MethodCaller methodCaller;
-            int approach = extras.getInt(KEY_LOOK_UP_APPROACH);
-            if (approach == APPROACH_METHOD) {
+            int approach = extras.getInt(PIGEON_KEY_LOOK_UP_APPROACH);
+            if (approach == PIGEON_APPROACH_METHOD) {
                 methodCaller = ServiceManager.getInstance().approachByMethod(method, extras);
                 Object result = methodCaller.call(ServiceManager.getInstance().parseData(arg, extras));
                 ServiceManager.getInstance().buildResponse(extras, response, result);
-                response.putInt(ServiceManager.KEY_RESPONSE_CODE, ServiceManager.RESPONSE_RESULE_SUCCESS);
+                response.putInt(ServiceManager.PIGEON_KEY_RESPONSE_CODE, ServiceManager.PIGEON_RESPONSE_RESULE_SUCCESS);
             } else {
                 ServiceManager.getInstance().approachByRoute(method, extras, response);
             }
         } catch (NoSuchMethodException e) {
             e.printStackTrace();
-            response.putInt(ServiceManager.KEY_RESPONSE_CODE, ServiceManager.RESPONSE_RESULE_NO_SUCH_METHOD);
+            response.putInt(ServiceManager.PIGEON_KEY_RESPONSE_CODE, ServiceManager.PIGEON_RESPONSE_RESULE_NO_SUCH_METHOD);
         } catch (IllegalAccessException e) {
             e.printStackTrace();
-            response.putInt(ServiceManager.KEY_RESPONSE_CODE, ServiceManager.RESPONSE_RESULE_ILLEGALACCESS);
+            response.putInt(ServiceManager.PIGEON_KEY_RESPONSE_CODE, ServiceManager.PIGEON_RESPONSE_RESULE_ILLEGALACCESS);
         } catch (InvocationTargetException e) {
             e.printStackTrace();
-            response.putInt(ServiceManager.KEY_RESPONSE_CODE, ServiceManager.RESPONSE_RESULE_NO_SUCH_METHOD);
+            response.putInt(ServiceManager.PIGEON_KEY_RESPONSE_CODE, ServiceManager.PIGEON_RESPONSE_RESULE_NO_SUCH_METHOD);
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
-            response.putInt(ServiceManager.KEY_RESPONSE_CODE, ServiceManager.RESPONSE_RESULE_LOST_CLASS);
+            response.putInt(ServiceManager.PIGEON_KEY_RESPONSE_CODE, ServiceManager.PIGEON_RESPONSE_RESULE_LOST_CLASS);
         }
         return response;
     }
@@ -119,9 +115,9 @@ public class ServiceContentProvider extends ContentProvider {
     public Uri insert(@NonNull Uri uri, @Nullable ContentValues values) {
         Log.e(TAG, "insert:" + uri.toString() + " uri.getPath():" + uri.getPath());
         try {
-            int approach = values.getAsInteger(KEY_LOOK_UP_APPROACH);
+            int approach = values.getAsInteger(PIGEON_KEY_LOOK_UP_APPROACH);
             MethodCaller methodCaller;
-            if (approach == APPROACH_METHOD) {
+            if (approach == PIGEON_APPROACH_METHOD) {
                 methodCaller = ServiceManager.getInstance().approachByMethodInsert(uri, values, uri.getPath().replace("/pigeon/0/", ""));
                 Object result = methodCaller.call(ServiceManager.getInstance().parseDataInsert(uri, values));
                 if (result instanceof String) {
@@ -130,7 +126,7 @@ public class ServiceContentProvider extends ContentProvider {
                 } else {
                     return uri;
                 }
-            } else if (approach == APPROACH_ROUTE) {
+            } else if (approach == PIGEON_APPROACH_ROUTE) {
                 methodCaller = ServiceManager.getInstance().approachByRouteInsert(uri, values, uri.getPath().replace("/pigeon/1/", ""));
                 Object result = methodCaller.call(ServiceManager.getInstance().parseDataInsert(uri, values));
                 if (result instanceof String) {

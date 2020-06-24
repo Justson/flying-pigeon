@@ -9,7 +9,7 @@ import java.util.ArrayList;
 
 import androidx.annotation.Nullable;
 
-import static com.flyingpigeon.library.ServiceManager.KEY_ROUTE;
+import static com.flyingpigeon.library.ServiceManager.PIGEON_KEY_ROUTE;
 
 /**
  * @author cenxiaozhong
@@ -34,7 +34,7 @@ public class FlyPigeon {
         if (in == null) {
             in = new Bundle();
         }
-        in.putString(KEY_ROUTE, route);
+        in.putString(PIGEON_KEY_ROUTE, route);
         return mPigeon.fly(in);
     }
 

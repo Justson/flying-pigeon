@@ -25,9 +25,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import static com.flyingpigeon.library.Config.PREFIX;
-import static com.flyingpigeon.library.ServiceManager.KEY_CLASS;
-import static com.flyingpigeon.library.ServiceManager.KEY_FLAGS;
-import static com.flyingpigeon.library.ServiceManager.KEY_TYPE;
+import static com.flyingpigeon.library.ServiceManager.PIGEON_KEY_CLASS;
+import static com.flyingpigeon.library.ServiceManager.PIGEON_KEY_FLAGS;
+import static com.flyingpigeon.library.ServiceManager.PIGEON_KEY_TYPE;
 
 /**
  * @author xiaozhongcen
@@ -97,7 +97,7 @@ public final class Pigeon {
         }
 
         Bundle bundle = ServiceManager.getInstance().buildRequest(service, proxy, method, args);
-        bundle.putInt(KEY_FLAGS, flags);
+        bundle.putInt(PIGEON_KEY_FLAGS, flags);
         ContentResolver contentResolver = mContext.getContentResolver();
         Bundle response = contentResolver.call(base, method.getName(), null, bundle);
         Object o = null;
@@ -112,7 +112,7 @@ public final class Pigeon {
     private Object callByResponseLarge(Class<?> service, Object proxy, Method method, Object[] args) {
         String[] contentValues = ServiceManager.getInstance().buildRequestQuery(service, proxy, method, args);
         ContentResolver contentResolver = mContext.getContentResolver();
-        Uri uri = base.buildUpon().appendPath("pigeon/11/" + method.getName()).appendQueryParameter(KEY_CLASS, service.getName()).build();
+        Uri uri = base.buildUpon().appendPath("pigeon/11/" + method.getName()).appendQueryParameter(PIGEON_KEY_CLASS, service.getName()).build();
         Cursor cursor = contentResolver.query(uri, new String[]{}, "", contentValues, "");
         try {
             Bundle bundle = cursor.getExtras();
@@ -120,7 +120,7 @@ public final class Pigeon {
             if (parcelable != null) {
                 return ServiceManager.getInstance().parcelableValueOut(parcelable);
             } else if (cursor.moveToFirst()) {
-                String clazz = bundle.getString(KEY_TYPE);
+                String clazz = bundle.getString(PIGEON_KEY_TYPE);
                 if ("String".equalsIgnoreCase(clazz)) {
                     return cursor.getString(0);
                 } else if ("[B".equalsIgnoreCase(clazz)) {
@@ -185,7 +185,7 @@ public final class Pigeon {
             if (parcelable != null) {
                 return (T) ServiceManager.getInstance().parcelableValueOut(parcelable);
             } else if (cursor.moveToFirst()) {
-                String clazz = bundle.getString(KEY_TYPE);
+                String clazz = bundle.getString(PIGEON_KEY_TYPE);
                 if ("String".equalsIgnoreCase(clazz)) {
                     return (T) cursor.getString(0);
                 } else if ("[B".equalsIgnoreCase(clazz)) {
