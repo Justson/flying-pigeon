@@ -14,7 +14,6 @@ import com.flyingpigeon.library.anotation.route;
 
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
@@ -637,6 +636,7 @@ public final class ServiceManager implements IServiceManager {
         }
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Override
     public void abolition(Object service) {
         synchronized (lock) {
@@ -651,18 +651,23 @@ public final class ServiceManager implements IServiceManager {
 
             Method[] methods = service.getClass().getDeclaredMethods();
             for (int i = 0; i < methods.length; i++) {
-                Annotation[] annotations = methods[i].getAnnotations();
-                for (int j = 0; j < annotations.length; j++) {
-                    Annotation annotation = annotations[j];
-                    if (annotation instanceof route) {
-                        String path = ((route) annotation).value();
-                        boolean encode = ((route) annotation).encoded();
-                        if (TextUtils.isEmpty(path)) {
-                        } else {
-                            routers.remove(path);
-                        }
-                        break;
+                Method method = methods[i];
+                route route = method.getAnnotation(route.class);
+                if (route != null) {
+                    String path = route.value();
+                    boolean encode = route.encoded();
+                    if (TextUtils.isEmpty(path)) {
+                        continue;
                     }
+                    if (encode) {
+                        try {
+                            path = URLDecoder.decode(path, StandardCharsets.UTF_8.name());
+                        } catch (UnsupportedEncodingException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    routers.remove(path);
+                    break;
                 }
             }
         }
