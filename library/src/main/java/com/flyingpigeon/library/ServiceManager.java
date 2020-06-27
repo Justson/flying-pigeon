@@ -767,6 +767,7 @@ public final class ServiceManager implements IServiceManager {
 
 
     Cursor matchQuery(Uri uri, String[] arg, String route) throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+        Log.e(TAG, "matchQuery:" + route);
         int pLength = (arg.length - 2) / 2;
         String[] params = new String[pLength];
         String[] types = new String[pLength];

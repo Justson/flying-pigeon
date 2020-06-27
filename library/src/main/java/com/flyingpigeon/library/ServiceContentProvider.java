@@ -5,9 +5,11 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.ParcelFileDescriptor;
 import android.text.TextUtils;
 import android.util.Log;
 
+import java.io.FileNotFoundException;
 import java.lang.reflect.InvocationTargetException;
 
 import androidx.annotation.NonNull;
@@ -40,13 +42,14 @@ public class ServiceContentProvider extends ContentProvider {
         if (TextUtils.isEmpty(path)) {
             return null;
         }
+        Log.e(TAG, "path:" + path);
         if (!path.startsWith("/pigeon")) {
             return null;
         }
         try {
-            if (path.startsWith("pigeon/10")) {
+            if (path.startsWith("/pigeon/10")) {
                 cursor = ServiceManager.getInstance().matchQuery(uri, selectionArgs, path.replace("/pigeon/10/", ""));
-            } else if (path.startsWith("pigeon/11")) {
+            } else if (path.startsWith("/pigeon/11")) {
                 cursor = ServiceManager.getInstance().matchQuery0(uri, selectionArgs, path.replace("/pigeon/11/", ""));
 
             }
@@ -149,6 +152,13 @@ public class ServiceContentProvider extends ContentProvider {
     @Override
     public int delete(@NonNull Uri uri, @Nullable String selection, @Nullable String[] selectionArgs) {
         throw new UnsupportedOperationException();
+    }
+
+
+    @NonNull
+    @Override
+    public <T> ParcelFileDescriptor openPipeHelper(@NonNull Uri uri, @NonNull String mimeType, @Nullable Bundle opts, @Nullable T args, @NonNull PipeDataWriter<T> func) throws FileNotFoundException {
+        return super.openPipeHelper(uri, mimeType, opts, args, func);
     }
 
     @Override

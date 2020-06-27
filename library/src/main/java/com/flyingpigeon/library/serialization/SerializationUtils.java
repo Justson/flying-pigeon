@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.flyingpigeon.library.seria;
+package com.flyingpigeon.library.serialization;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -27,6 +27,7 @@ import java.io.OutputStream;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * <p>Assists with the serialization process and performs additional functionality based
@@ -133,7 +134,7 @@ public class SerializationUtils {
      * @throws SerializationException (runtime) if the serialization fails
      */
     public static void serialize(final Serializable obj, final OutputStream outputStream) {
-        Validate.notNull(outputStream, "The OutputStream must not be null");
+        Objects.requireNonNull(outputStream, "The OutputStream must not be null");
         try (ObjectOutputStream out = new ObjectOutputStream(outputStream)) {
             out.writeObject(obj);
         } catch (final IOException ex) {
@@ -188,7 +189,6 @@ public class SerializationUtils {
      *             (runtime) if the serialization fails
      */
     public static <T> T deserialize(final InputStream inputStream) {
-        Validate.notNull(inputStream, "The InputStream must not be null");
         try (ObjectInputStream in = new ObjectInputStream(inputStream)) {
             @SuppressWarnings("unchecked")
             final T obj = (T) in.readObject();
@@ -219,7 +219,6 @@ public class SerializationUtils {
      *             (runtime) if the serialization fails
      */
     public static <T> T deserialize(final byte[] objectData) {
-        Validate.notNull(objectData, "The byte[] must not be null");
         return deserialize(new ByteArrayInputStream(objectData));
     }
 

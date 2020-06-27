@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.flyingpigeon.library.seria;
+package com.flyingpigeon.library.serialization;
 
 /**
  * <p>Exception thrown when the Serialization process fails.</p>

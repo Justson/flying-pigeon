@@ -110,7 +110,7 @@ public class RemoteService extends Service implements RemoteServiceApi {
     @route(value = "/query/bitmap")
     public byte[] queryBitmap(String key) {
         Log.e(TAG, "queryBitmap:" + key);
-        return new byte[20 * 1024];
+        return new byte[(int) (1.8 * 1024 * 1024)];
     }
 
     @Nullable

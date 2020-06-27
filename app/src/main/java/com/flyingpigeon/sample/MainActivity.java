@@ -8,7 +8,6 @@ import android.util.Log;
 
 import com.flyingpigeon.library.Config;
 import com.flyingpigeon.library.Pigeon;
-import com.flyingpigeon.library.ServiceManager;
 
 import java.util.ArrayList;
 import java.util.UUID;
@@ -56,16 +55,16 @@ public class MainActivity extends AppCompatActivity {
         Log.e(TAG, "posterId:" + posterId);
 
 
-        String returnResult = serviceApi.testLargeBlock("hello,worlds", " new byte[1000]".getBytes());
-        Log.e(TAG, "returnResult:" + returnResult);
+//        String returnResult = serviceApi.testLargeBlock("hello,worlds", " new byte[1000]".getBytes());
+//        Log.e(TAG, "returnResult:" + returnResult);
         mHandler.postDelayed(new Runnable() {
             @Override
             public void run() {
                 test(pigeon);
-                pigeon.route("/words").withString("name", "Justson").fly();
-                pigeon.route("/hello").with(new Bundle()).fly();
-                pigeon.route("/world").fly();
-                pigeon.route("/submit/bitmap", UUID.randomUUID().toString(), "new byte[150000]".getBytes(), 1200).resquestLarge().fly();
+//                pigeon.route("/words").withString("name", "Justson").fly();
+//                pigeon.route("/hello").with(new Bundle()).fly();
+//                pigeon.route("/world").fly();
+                pigeon.route("/submit/bitmap", UUID.randomUUID().toString(), new byte[1024 * 500], 1200).resquestLarge().fly();
                 byte[] data = pigeon.route("/query/bitmap", "girl.jpg", 5555).responseLarge().fly();
                 if (null != data) {
                     //Arrays.toString(data)
