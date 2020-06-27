@@ -2,7 +2,6 @@ package com.flyingpigeon.library.ashmem;
 
 import android.os.MemoryFile;
 import android.os.ParcelFileDescriptor;
-import android.os.SharedMemory;
 
 import java.io.FileDescriptor;
 import java.io.IOException;
@@ -23,8 +22,6 @@ public class Ashmem {
             memoryFile.writeBytes(array, 0, 0, array.length);
             Method method = MemoryFile.class.getDeclaredMethod("getFileDescriptor");
             FileDescriptor fd = (FileDescriptor) method.invoke(memoryFile);
-
-            SharedMemory sharedMemory;
             return ParcelFileDescriptor.dup(fd);
         } catch (IOException e) {
             e.printStackTrace();
