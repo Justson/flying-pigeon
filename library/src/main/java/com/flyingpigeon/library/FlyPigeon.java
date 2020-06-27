@@ -9,6 +9,7 @@ import java.util.ArrayList;
 
 import androidx.annotation.Nullable;
 
+import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_FLAGS;
 import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_ROUTE;
 
 /**
@@ -16,11 +17,11 @@ import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_ROUTE;
  * @date 2020/6/21
  * @since 1.0.0
  */
-public final class FlyPigeon {
+public class FlyPigeon {
 
-    private String route;
-    private Pigeon mPigeon;
-    private Bundle mBundle;
+    protected String route;
+    protected Pigeon mPigeon;
+    protected Bundle mBundle;
 
     public FlyPigeon(Pigeon pigeon, String route) {
         this.route = route;
@@ -35,6 +36,9 @@ public final class FlyPigeon {
             in = new Bundle();
         }
         in.putString(PIGEON_KEY_ROUTE, route);
+        int flags = 0;
+        flags = ParametersSpec.setParamParcel(flags, true);
+        in.putInt(PIGEON_KEY_FLAGS, flags);
         return mPigeon.fly(in);
     }
 

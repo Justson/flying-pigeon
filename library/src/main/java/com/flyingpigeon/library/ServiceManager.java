@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.ParcelFileDescriptor;
 import android.os.Parcelable;
 import android.text.TextUtils;
 import android.util.Log;
@@ -11,7 +12,11 @@ import android.util.Log;
 import com.flyingpigeon.library.annotations.RequestLarge;
 import com.flyingpigeon.library.annotations.ResponseLarge;
 import com.flyingpigeon.library.annotations.route;
+import com.flyingpigeon.library.serialization.ParcelableUtils;
 
+import java.io.FileDescriptor;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
@@ -27,7 +32,21 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import static com.flyingpigeon.library.Config.PREFIX;
-import static com.flyingpigeon.library.PigeonConstant.*;
+import static com.flyingpigeon.library.PigeonConstant.PIGEON_APPROACH_METHOD;
+import static com.flyingpigeon.library.PigeonConstant.PIGEON_APPROACH_ROUTE;
+import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_CLASS;
+import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_CLASS_INDEX;
+import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_INDEX;
+import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_LENGTH;
+import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_LOOK_UP_APPROACH;
+import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_RESPONSE;
+import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_RESPONSE_CODE;
+import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_ROUTE;
+import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_TYPE;
+import static com.flyingpigeon.library.PigeonConstant.PIGEON_RESPONSE_RESULE_ILLEGALACCESS;
+import static com.flyingpigeon.library.PigeonConstant.PIGEON_RESPONSE_RESULE_LOST_CLASS;
+import static com.flyingpigeon.library.PigeonConstant.PIGEON_RESPONSE_RESULE_NO_SUCH_METHOD;
+import static com.flyingpigeon.library.PigeonConstant.PIGEON_RESPONSE_RESULE_SUCCESS;
 
 /**
  * @author xiaozhongcen
@@ -101,6 +120,7 @@ public final class ServiceManager implements IServiceManager {
                 Parcelable parcelable = bundle.getParcelable(String.format(key, i + ""));
             }
         }
+
         bundle.putInt(PIGEON_KEY_LENGTH, types.length);
         bundle.putInt(PIGEON_KEY_LOOK_UP_APPROACH, PIGEON_APPROACH_METHOD);
         bundle.putString(PIGEON_KEY_CLASS, service.getName());
@@ -255,6 +275,24 @@ public final class ServiceManager implements IServiceManager {
         return params;
     }
 
+
+    private void settingValues0(Object[] args, Bundle bundle, Type[] types) {
+        String key = PIGEON_KEY_INDEX;
+        String keyClass = PIGEON_KEY_CLASS_INDEX;
+        for (int i = 0; i < args.length; i++) {
+            String index = String.format(key, i + "");
+            String indexClass = String.format(keyClass, i + "");
+            if (types[i] == null) {
+                bundle.putString(index, "");
+                bundle.putString(indexClass, "null");
+                continue;
+            }
+            Class<?> typeClazz = ClassUtil.getRawType(types[i]);
+            Utils.convert(index, bundle, typeClazz, args[i]);
+        }
+    }
+
+
     private void settingValues(Object[] args, ContentValues contentValues, Type[] types) {
         String key = PIGEON_KEY_INDEX;
         String keyClass = PIGEON_KEY_CLASS_INDEX;
@@ -293,7 +331,8 @@ public final class ServiceManager implements IServiceManager {
                 contentValues.put(index, (String) args[i]);
                 contentValues.put(indexClass, String.class.getName());
             } else if (byte[].class.isAssignableFrom(typeClazz)) {
-                contentValues.put(index, (byte[]) args[i]);
+                byte[] array = (byte[]) args[i];
+                contentValues.put(index, array);
                 contentValues.put(indexClass, byte[].class.getName());
             } else if (Integer.class.isAssignableFrom(typeClazz)) {
                 Integer v = (Integer) args[i];
@@ -321,7 +360,8 @@ public final class ServiceManager implements IServiceManager {
                 contentValues.put(indexClass, byte.class.getName());
             } else if (Byte[].class.isAssignableFrom(typeClazz)) {
                 Byte[] v = (Byte[]) args[i];
-                contentValues.put(index, Utils.toPrimitives(v));
+                byte[] array = Utils.toPrimitives(v);
+                contentValues.put(index, array);
                 contentValues.put(indexClass, byte[].class.getName());
             }
         }
@@ -334,11 +374,12 @@ public final class ServiceManager implements IServiceManager {
         int length = extras.getInt(PIGEON_KEY_LENGTH);
         Class<?>[] clazzs = new Class[length];
         for (int i = 0; i < length; i++) {
-            Parcelable parcelable = extras.getParcelable(String.format(key, i + ""));
+            String index = String.format(key, i + "");
+            Parcelable parcelable = extras.getParcelable(index);
             if (parcelable == null) {
                 break;
             }
-            android.util.Pair<Class<?>, Object> data = parcelableToClazz(parcelable);
+            android.util.Pair<Class<?>, Object> data = parcelableToClazz(parcelable, index, extras);
             clazzs[i] = data.first;
         }
         for (int i = 0; i < length; i++) {
@@ -426,6 +467,25 @@ public final class ServiceManager implements IServiceManager {
                 values[i] = contentValues.getAsString(String.format(key, i + ""));
             } else if ("[B".equals(clazz)) {
                 values[i] = contentValues.getAsByteArray(String.format(key, i + ""));
+            } else if (clazz.equals(ParcelFileDescriptor.class.getName())) {
+                String parcelFile = contentValues.getAsString(String.format(key, i + ""));
+                int arrayLength = contentValues.getAsInteger("key_array_length");
+                ParcelFileDescriptor parcelFileDescriptor = ParcelableUtils.string2Parcelable(parcelFile, ParcelFileDescriptor.CREATOR);
+                FileDescriptor fileDescriptor = parcelFileDescriptor.getFileDescriptor();
+                FileInputStream fileInputStream = new FileInputStream(fileDescriptor);
+                byte[] bytes = new byte[arrayLength];
+                try {
+                    fileInputStream.read(bytes);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } finally {
+                    try {
+                        fileInputStream.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+                values[i] = bytes;
             }
             Log.e(TAG, "values[i] :" + values[i]);
         }
@@ -439,11 +499,12 @@ public final class ServiceManager implements IServiceManager {
         Object[] values = new Object[length];
         Class<?>[] clazzs = new Class[length];
         for (int i = 0; i < length; i++) {
-            Parcelable parcelable = extras.getParcelable(String.format(key, i + ""));
+            String index = String.format(key, i + "");
+            Parcelable parcelable = extras.getParcelable(index);
             if (parcelable == null) {
                 break;
             }
-            android.util.Pair<Class<?>, Object> data = parcelableToClazz(parcelable);
+            android.util.Pair<Class<?>, Object> data = parcelableToClazz(parcelable, index, extras);
             clazzs[i] = data.first;
             values[i] = data.second;
         }
@@ -459,6 +520,7 @@ public final class ServiceManager implements IServiceManager {
             put(short.class, new ParameterHandler.ShortHandler());
             put(float.class, new ParameterHandler.FloatHandler());
             put(byte.class, new ParameterHandler.ByteHandler());
+            put(byte[].class, new ParameterHandler.ByteArrayHandler());
             put(boolean.class, new ParameterHandler.BooleanHandler());
             put(Parcelable.class, new ParameterHandler.ParcelableHandler());
             put(Serializable.class, new ParameterHandler.SerializableHandler());
@@ -466,7 +528,7 @@ public final class ServiceManager implements IServiceManager {
         }
     };
 
-    private android.util.Pair<Class<?>, Object> parcelableToClazz(Parcelable parcelable) {
+    private android.util.Pair<Class<?>, Object> parcelableToClazz(Parcelable parcelable, String index, Bundle extras) {
         if (parcelable instanceof com.flyingpigeon.library.Pair.PairInt) {
             return new android.util.Pair<Class<?>, Object>(int.class, ((com.flyingpigeon.library.Pair.PairInt) parcelable).getValue());
         } else if (parcelable instanceof com.flyingpigeon.library.Pair.PairDouble) {
@@ -488,6 +550,8 @@ public final class ServiceManager implements IServiceManager {
                 e.printStackTrace();
                 return null;
             }
+        } else if (parcelable instanceof com.flyingpigeon.library.Pair.PairByteArray) {
+            return new android.util.Pair<Class<?>, Object>(byte[].class, ((Pair.PairByteArray) parcelable).getValue());
         } else if (parcelable instanceof com.flyingpigeon.library.Pair.PairSerializable) {
             try {
                 return new android.util.Pair<Class<?>, Object>(Class.forName(((Pair.PairSerializable) parcelable).getKey()), ((Pair.PairSerializable) parcelable).getValue());
@@ -497,7 +561,28 @@ public final class ServiceManager implements IServiceManager {
             }
         } else {
             try {
-                return new android.util.Pair<Class<?>, Object>(Class.forName(((Pair.PairParcelable) parcelable).getKey()), ((Pair.PairParcelable) parcelable).getValue());
+                Parcelable value = ((Pair.PairParcelable) parcelable).getValue();
+                if (value instanceof ParcelFileDescriptor) {
+                    int arrayLength = extras.getInt(index + "key_array_length");
+                    ParcelFileDescriptor parcelFileDescriptor = (ParcelFileDescriptor) value;
+                    FileDescriptor fileDescriptor = parcelFileDescriptor.getFileDescriptor();
+                    FileInputStream fileInputStream = new FileInputStream(fileDescriptor);
+                    byte[] bytes = new byte[arrayLength];
+                    try {
+                        fileInputStream.read(bytes);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    } finally {
+                        try {
+                            fileInputStream.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    return new android.util.Pair<Class<?>, Object>(byte[].class, bytes);
+                } else {
+                    return new android.util.Pair<Class<?>, Object>(Class.forName(((Pair.PairParcelable) parcelable).getKey()), ((Pair.PairParcelable) parcelable).getValue());
+                }
             } catch (ClassNotFoundException e) {
                 e.printStackTrace();
                 return null;
@@ -750,7 +835,7 @@ public final class ServiceManager implements IServiceManager {
         return data;
     }
 
-    ContentValues buildRouteRequestInsert(String route, Object[] params) {
+    Bundle buildRouteRequestInsert(String route, Object[] params) {
         Type[] types = new Type[params.length];
         for (int i = 0; i < params.length; i++) {
             if (params[i] == null) {
@@ -758,11 +843,12 @@ public final class ServiceManager implements IServiceManager {
             }
             types[i] = params[i].getClass();
         }
-        ContentValues contentValues = new ContentValues();
-        contentValues.put(PIGEON_KEY_LENGTH, params.length);
-        contentValues.put(PIGEON_KEY_LOOK_UP_APPROACH, PIGEON_APPROACH_ROUTE);
-        settingValues(params, contentValues, types);
-        return contentValues;
+        Bundle bundle = new Bundle();
+        bundle.putInt(PIGEON_KEY_LENGTH, params.length);
+        bundle.putString(PIGEON_KEY_ROUTE, route);
+        bundle.putInt(PIGEON_KEY_LOOK_UP_APPROACH, PIGEON_APPROACH_ROUTE);
+        settingValues0(params, bundle, types);
+        return bundle;
     }
 
 
@@ -799,7 +885,7 @@ public final class ServiceManager implements IServiceManager {
             RouteResponseLargeCaller routeResponseLargeCaller = (RouteResponseLargeCaller) methodCaller;
             Method target = routeResponseLargeCaller.target;
             Type returnType = target.getGenericReturnType();
-            Utils.parcel(returnType, bundle, "result");
+            Utils.typeConvert(returnType, bundle, "result");
         }
         return bundleCursor;
     }
@@ -825,7 +911,6 @@ public final class ServiceManager implements IServiceManager {
 
         Bundle bundle = new Bundle();
         BundleCursor bundleCursor = new BundleCursor(bundle, new String[]{"result"});
-        ;
         if (o instanceof String) {
             bundle.putString(PIGEON_KEY_TYPE, "String");
             bundleCursor.addRow(new Object[]{o.toString()});
@@ -839,8 +924,27 @@ public final class ServiceManager implements IServiceManager {
             RouteResponseLargeCaller routeResponseLargeCaller = (RouteResponseLargeCaller) methodCaller;
             Method target = routeResponseLargeCaller.target;
             Type returnType = target.getGenericReturnType();
-            Utils.parcel(returnType, bundle, "result");
+            Utils.typeConvert(returnType, bundle, "result");
         }
         return bundleCursor;
     }
+
+    public Object routeQuery(String method, Bundle in) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+        String route = in.getString(PIGEON_KEY_ROUTE);
+        if (TextUtils.isEmpty(route)) {
+            throw new NoSuchMethodException();
+        }
+        ArrayDeque<MethodCaller> callers = routers.get(route);
+        if (callers == null || callers.isEmpty()) {
+            throw new NoSuchMethodException(route);
+        }
+        Iterator<MethodCaller> iterators = callers.iterator();
+        if (iterators.hasNext()) {
+            MethodCaller methodCaller = iterators.next();
+            Object[] params = ServiceManager.getInstance().parseData("", in);
+            return methodCaller.call(params);
+        }
+        return null;
+    }
+
 }

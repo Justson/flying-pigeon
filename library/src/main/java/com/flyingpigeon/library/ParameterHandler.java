@@ -1,6 +1,7 @@
 package com.flyingpigeon.library;
 
 import android.os.Bundle;
+import android.os.ParcelFileDescriptor;
 import android.os.Parcelable;
 
 import java.io.Serializable;
@@ -55,6 +56,14 @@ public abstract class ParameterHandler<T> {
         }
     }
 
+    public static class ByteArrayHandler extends ParameterHandler<byte[]> {
+
+        @Override
+        void apply(byte[] value, String key, Bundle bundle) {
+            bundle.putParcelable(key, new Pair.PairByteArray(byte[].class.getName(), value));
+        }
+    }
+
     public static class BooleanHandler extends ParameterHandler<Boolean> {
         @Override
         void apply(Boolean value, String key, Bundle bundle) {
@@ -73,6 +82,14 @@ public abstract class ParameterHandler<T> {
         @Override
         void apply(Parcelable value, String key, Bundle bundle) {
             bundle.putParcelable(key, new Pair.PairParcelable(value.getClass().getName(), value));
+        }
+    }
+
+    public static class ParcelFileDescriptorHandler extends ParameterHandler<ParcelFileDescriptor> {
+
+        @Override
+        void apply(ParcelFileDescriptor value, String key, Bundle bundle) {
+
         }
     }
 

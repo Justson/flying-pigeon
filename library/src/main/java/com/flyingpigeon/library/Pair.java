@@ -290,6 +290,46 @@ public abstract class Pair implements Parcelable {
     }
 
 
+    public static class PairByteArray extends Pair {
+        private byte[] value;
+
+        public PairByteArray(String key, byte[] value) {
+            super(key);
+            this.value = value;
+        }
+
+        protected PairByteArray(Parcel in) {
+            super(in);
+            in.readByteArray(value);
+        }
+
+        @Override
+        public void writeToParcel(Parcel dest, int flags) {
+            super.writeToParcel(dest, flags);
+            dest.writeByteArray(value);
+        }
+
+        public static final Creator<PairByteArray> CREATOR = new Creator<PairByteArray>() {
+            @Override
+            public PairByteArray createFromParcel(Parcel in) {
+                return new PairByteArray(in);
+            }
+
+            @Override
+            public PairByteArray[] newArray(int size) {
+                return new PairByteArray[size];
+            }
+        };
+
+        public byte[] getValue() {
+            return value;
+        }
+
+        public void setValue(byte[] value) {
+            this.value = value;
+        }
+    }
+
     public static class PairBoolean extends Pair {
         private boolean value;
 

@@ -17,12 +17,12 @@ public final class LargeFlyPigeon {
         this.pigeon = pigeon;
     }
 
-    public Request resquestLarge() {
-        return new Request(this);
+    public RequestLargeFlyPigeon resquestLarge() {
+        return new RequestLargeFlyPigeon(this);
     }
 
-    public Response responseLarge() {
-        return new Response(this);
+    public ResponseLargeFlyPigeon responseLarge() {
+        return new ResponseLargeFlyPigeon(this);
     }
 
     public interface Fly {
@@ -33,12 +33,11 @@ public final class LargeFlyPigeon {
         <T> T fly();
     }
 
-    public static final class Request implements Fly {
-
+    public static final class RequestLargeFlyPigeon implements Fly {
 
         private LargeFlyPigeon mLargeFlyPigeon;
 
-        Request(LargeFlyPigeon largeFlyPigeon) {
+        RequestLargeFlyPigeon(LargeFlyPigeon largeFlyPigeon) {
             this.mLargeFlyPigeon = largeFlyPigeon;
         }
 
@@ -48,12 +47,12 @@ public final class LargeFlyPigeon {
         }
     }
 
-    public static final class Response implements Fly0 {
+    public static final class ResponseLargeFlyPigeon implements Fly0 {
 
         private LargeFlyPigeon mLargeFlyPigeon;
 
 
-        Response(LargeFlyPigeon largeFlyPigeon) {
+        ResponseLargeFlyPigeon(LargeFlyPigeon largeFlyPigeon) {
             this.mLargeFlyPigeon = largeFlyPigeon;
         }
 

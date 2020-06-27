@@ -80,7 +80,14 @@ public class ServiceContentProvider extends ContentProvider {
                 ServiceManager.getInstance().buildResponse(extras, response, result);
                 response.putInt(PIGEON_KEY_RESPONSE_CODE, PIGEON_RESPONSE_RESULE_SUCCESS);
             } else {
-                ServiceManager.getInstance().approachByRoute(method, extras, response);
+                String route = extras.getString(PIGEON_KEY_ROUTE);
+                int flags = extras.getInt(PIGEON_KEY_FLAGS);
+                Log.e(TAG, "call route:" + route + " isParamParcel:" + ParametersSpec.isParamParcel(flags));
+                if (ParametersSpec.isParamParcel(flags)) {
+                    ServiceManager.getInstance().approachByRoute(method, extras, response);
+                } else {
+                    ServiceManager.getInstance().routeQuery(method, extras);
+                }
             }
         } catch (NoSuchMethodException e) {
             e.printStackTrace();

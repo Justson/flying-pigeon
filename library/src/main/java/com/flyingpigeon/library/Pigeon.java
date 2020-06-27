@@ -93,6 +93,7 @@ public final class Pigeon {
         if (isResponseLarge) {
             return callByResponseLarge(service, proxy, method, args);
         }
+        flags = ParametersSpec.setParamParcel(flags, false);
 
         Bundle bundle = ServiceManager.getInstance().buildRequest(service, proxy, method, args);
         bundle.putInt(PIGEON_KEY_FLAGS, flags);
@@ -158,15 +159,18 @@ public final class Pigeon {
     }
 
     String routeLargeRequest(String route, Object[] params) {
-        ContentValues contentValues = ServiceManager.getInstance().buildRouteRequestInsert(route, params);
+        Bundle bundle = ServiceManager.getInstance().buildRouteRequestInsert(route, params);
         ContentResolver contentResolver = mContext.getContentResolver();
         Uri uri = base.buildUpon().appendPath("pigeon/1").appendPath(route).build();
-        Log.e(TAG, "uri:" + uri.toString() + " contentValues:" + contentValues + " contentResolver:" + contentResolver);
-        Uri result = contentResolver.insert(uri, contentValues);
+        int flags = 0;
+        flags = ParametersSpec.setParamParcel(flags, false);
+        bundle.putInt(PIGEON_KEY_FLAGS, flags);
+        Log.e(TAG, "uri:" + uri.toString() + " contentValues:" + bundle + " contentResolver:" + contentResolver);
+        Bundle result = contentResolver.call(uri, "", "", bundle);
         if (null == result) {
             return "";
         }
-        return result.getQueryParameter("result");
+        return result.getString("result");
     }
 
     <T> T routeLargeResponse(String route, Object[] params) {
