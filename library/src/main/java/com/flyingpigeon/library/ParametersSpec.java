@@ -6,18 +6,32 @@ package com.flyingpigeon.library;
  * @since 1.0.0
  */
 public class ParametersSpec {
-    public static final int PIGEON_PARAMETER_REQUEST_MASK = 0x0000000C;
 
-    public static final int PIGEON_PARAMETER_RESPONSE_MASK = 0x000000F0;
+    /**
+     * request large block params mask
+     */
+    static final int PIGEON_PARAMETER_REQUEST_MASK = 0x0000000C;
 
-    public static final int PIGEON_PARAMETER_REQUEST_NORMAL = 0x00000000;
+    static final int PIGEON_PARAMETER_RESPONSE_MASK = 0x000000F0;
 
-    public static final int PIGEON_PARAMETER_REQUEST_LARGE = 0x00000004;
+    static final int PIGEON_PARAMETER_IS_PARCE_MASK = 0x00000300;
 
-    public static final int PIGEON_PARAMETER_RESPONSE_NORMAL = 0x00000040;
+    static final int PIGEON_PARAMETER_IS_PARCE_TRUE = 0x00000100;
 
-    public static final int PIGEON_PARAMETER_RESPONSE_LARGE = 0x00000080;
+    static final int PIGEON_PARAMETER_IS_PARCE_FALSE = 0x00000200;
 
+    static final int PIGEON_PARAMETER_REQUEST_NORMAL = 0x00000000;
+
+    static final int PIGEON_PARAMETER_REQUEST_LARGE = 0x00000004;
+
+    static final int PIGEON_PARAMETER_RESPONSE_NORMAL = 0x00000040;
+
+    static final int PIGEON_PARAMETER_RESPONSE_LARGE = 0x00000080;
+
+
+    public static int getParcelParameter(int flags) {
+        return flags & PIGEON_PARAMETER_IS_PARCE_MASK;
+    }
 
     public static int getRequestParameter(int flags) {
         return flags & PIGEON_PARAMETER_REQUEST_MASK;
@@ -55,4 +69,13 @@ public class ParametersSpec {
     public static int setResponseNormal(int old) {
         return setFlag(old, PIGEON_PARAMETER_RESPONSE_NORMAL, PIGEON_PARAMETER_RESPONSE_MASK);
     }
+
+    public static int setParamParcel(int old, boolean isParcel) {
+        return setFlag(old, PIGEON_PARAMETER_IS_PARCE_MASK, isParcel ? PIGEON_PARAMETER_IS_PARCE_TRUE : PIGEON_PARAMETER_IS_PARCE_FALSE);
+    }
+
+    public static boolean isParamParcel(int flags) {
+        return getParcelParameter(flags) == PIGEON_PARAMETER_IS_PARCE_TRUE;
+    }
+
 }
