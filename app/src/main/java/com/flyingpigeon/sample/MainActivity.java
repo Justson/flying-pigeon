@@ -54,7 +54,6 @@ public class MainActivity extends AppCompatActivity {
         int posterId = serviceApi.createPoster(poster);
         Log.e(TAG, "posterId:" + posterId);
 
-
 //        String returnResult = serviceApi.testLargeBlock("hello,worlds", " new byte[1000]".getBytes());
 //        Log.e(TAG, "returnResult:" + returnResult);
         mHandler.postDelayed(new Runnable() {
@@ -63,8 +62,8 @@ public class MainActivity extends AppCompatActivity {
                 test(pigeon);
 //                pigeon.route("/words").withString("name", "Justson").fly();
 //                pigeon.route("/hello").with(new Bundle()).fly();
-//                pigeon.route("/world").fly();
-                pigeon.route("/submit/bitmap", UUID.randomUUID().toString(), new byte[1024 * 500], 1200).resquestLarge().fly();
+                pigeon.route("/world").fly();
+                pigeon.route("/submit/bitmap", UUID.randomUUID().toString(), new byte[1024 * 1000 * 2], 1200).resquestLarge().fly();
                 byte[] data = pigeon.route("/query/bitmap", "girl.jpg", 5555).responseLarge().fly();
                 if (null != data) {
                     //Arrays.toString(data)
