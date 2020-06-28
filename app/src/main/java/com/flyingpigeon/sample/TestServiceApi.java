@@ -88,7 +88,7 @@ public class TestServiceApi extends ServiceContentProvider implements ServiceApi
 
     @Override
     public String testLargeBlock(String param, byte[] data) {
-        Log.e(TAG, "testLargeBlock , param:" + param + " data:" + new String(data));
+        Log.e(TAG, "testLargeBlock , param:" + param + " data:" + data.length);
         Information information = new Information("Justson", "just", 110, (short) 1, 'c', 1.22F, (byte) 14, 8989123.111D, 100000L);
         return GsonUtils.toJson(information);
     }

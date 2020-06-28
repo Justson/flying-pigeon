@@ -25,7 +25,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import static com.flyingpigeon.library.Config.PREFIX;
-import static com.flyingpigeon.library.PigeonConstant.*;
+import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_CLASS;
+import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_FLAGS;
+import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_TYPE;
 
 /**
  * @author xiaozhongcen
@@ -64,10 +66,6 @@ public final class Pigeon {
         return new LargeFlyPigeon(this, route, params);
     }
 
-
-    String fly(String route, Object[] params) {
-        return null;
-    }
 
     private Object call(Class<?> service, Object proxy, Method method, Object[] args) {
         // large
@@ -215,7 +213,7 @@ public final class Pigeon {
             return this;
         }
 
-        public Builder setAuthority(@NonNull Class<?> service) {
+        public Builder setAuthority(@NonNull Class<? extends ServiceContentProvider> service) {
             PackageInfo packageInfos = null;
             try {
                 PackageManager packageManager = mContext.getPackageManager();

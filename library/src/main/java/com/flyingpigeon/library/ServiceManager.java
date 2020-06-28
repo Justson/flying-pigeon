@@ -35,6 +35,7 @@ import androidx.annotation.Nullable;
 import static com.flyingpigeon.library.Config.PREFIX;
 import static com.flyingpigeon.library.PigeonConstant.PIGEON_APPROACH_METHOD;
 import static com.flyingpigeon.library.PigeonConstant.PIGEON_APPROACH_ROUTE;
+import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_ARRAY_LENGTH;
 import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_CLASS;
 import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_CLASS_INDEX;
 import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_INDEX;
@@ -73,80 +74,85 @@ public final class ServiceManager implements IServiceManager {
     Bundle buildRequest(Class<?> service, Object proxy, Method method, Object[] args) {
         Bundle bundle = new Bundle();
         Type[] types = method.getGenericParameterTypes();
-        String key = PIGEON_KEY_INDEX;
+        String keyIndex = PIGEON_KEY_INDEX;
         for (int i = 0; i < types.length; i++) {
+            String key = String.format(keyIndex, i);
             Log.e(TAG, "type name:" + types[i] + " method:" + method.getName() + " service:" + service);
             Class<?> typeClazz = ClassUtil.getRawType(types[i]);
             if (int.class.isAssignableFrom(typeClazz)) {
                 ParameterHandler.IntHandler handler = (ParameterHandler.IntHandler) map.get(int.class);
                 assert handler != null;
-                handler.apply((Integer) args[i], String.format(key, i + ""), bundle);
+                handler.apply((Integer) args[i], key, bundle);
             } else if (double.class.isAssignableFrom(typeClazz)) {
                 ParameterHandler.DoubleHandler handler = (ParameterHandler.DoubleHandler) map.get(double.class);
                 assert handler != null;
-                handler.apply((Double) args[i], String.format(key, i + ""), bundle);
+                handler.apply((Double) args[i], key, bundle);
             } else if (long.class.isAssignableFrom(typeClazz)) {
                 ParameterHandler.LongHandler handler = (ParameterHandler.LongHandler) map.get(long.class);
                 assert handler != null;
-                handler.apply((Long) args[i], String.format(key, i + ""), bundle);
+                handler.apply((Long) args[i], key, bundle);
             } else if (short.class.isAssignableFrom(typeClazz)) {
                 ParameterHandler.ShortHandler handler = (ParameterHandler.ShortHandler) map.get(short.class);
                 assert handler != null;
-                handler.apply((Short) args[i], String.format(key, i + ""), bundle);
+                handler.apply((Short) args[i], key, bundle);
             } else if (float.class.isAssignableFrom(typeClazz)) {
                 ParameterHandler.FloatHandler handler = (ParameterHandler.FloatHandler) map.get(float.class);
                 assert handler != null;
-                handler.apply((Float) args[i], String.format(key, i + ""), bundle);
+                handler.apply((Float) args[i], key, bundle);
             } else if (byte.class.isAssignableFrom(typeClazz)) {
                 ParameterHandler.ByteHandler handler = (ParameterHandler.ByteHandler) map.get(byte.class);
                 assert handler != null;
-                handler.apply((Byte) args[i], String.format(key, i + ""), bundle);
+                handler.apply((Byte) args[i], key, bundle);
             } else if (byte[].class.isAssignableFrom(typeClazz)) {
                 byte[] array = (byte[]) args[i];
                 if (array.length > 8 * 1024) {
+                    String keyLength = key + PIGEON_KEY_ARRAY_LENGTH;
+                    Log.e(TAG, "keyLength:" + keyLength + " length:" + array.length);
                     ParcelFileDescriptor parcelFileDescriptor = Ashmem.byteArrayToFileDescriptor(array);
-                    bundle.putInt(key + "key_array_length", array.length);
+                    bundle.putInt(keyLength, array.length);
                     ParameterHandler.ParcelableHandler handler = (ParameterHandler.ParcelableHandler) map.get(Parcelable.class);
                     assert handler != null;
-                    handler.apply(parcelFileDescriptor,  String.format(key, i + ""), bundle);
+                    handler.apply(parcelFileDescriptor, key, bundle);
                     Parcelable parcelable = bundle.getParcelable(key);
                 } else {
                     ParameterHandler.ByteArrayHandler byteArrayHandler = (ParameterHandler.ByteArrayHandler) map.get(byte[].class);
-                    byteArrayHandler.apply(array,  String.format(key, i + ""), bundle);
+                    byteArrayHandler.apply(array, key, bundle);
                 }
 
             } else if (Byte[].class.isAssignableFrom(typeClazz)) {
                 byte[] array = Utils.toPrimitives((Byte[]) args[i]);
                 if (array.length > 8 * 1024) {
                     ParcelFileDescriptor parcelFileDescriptor = Ashmem.byteArrayToFileDescriptor(array);
-                    bundle.putInt(key + "key_array_length", array.length);
+                    String keyLength = key + PIGEON_KEY_ARRAY_LENGTH;
+                    Log.e(TAG, "keyLength:" + keyLength + " length:" + array.length);
+                    bundle.putInt(keyLength, array.length);
                     ParameterHandler.ParcelableHandler handler = (ParameterHandler.ParcelableHandler) map.get(Parcelable.class);
                     assert handler != null;
-                    handler.apply(parcelFileDescriptor,  String.format(key, i + ""), bundle);
+                    handler.apply(parcelFileDescriptor, key, bundle);
                     Parcelable parcelable = bundle.getParcelable(key);
                 } else {
                     ParameterHandler.ByteArrayHandler byteArrayHandler = (ParameterHandler.ByteArrayHandler) map.get(byte[].class);
-                    byteArrayHandler.apply(array,  String.format(key, i + ""), bundle);
+                    byteArrayHandler.apply(array, key, bundle);
                 }
 
             } else if (boolean.class.isAssignableFrom(typeClazz)) {
                 ParameterHandler.BooleanHandler handler = (ParameterHandler.BooleanHandler) map.get(boolean.class);
                 assert handler != null;
-                handler.apply((Boolean) args[i], String.format(key, i + ""), bundle);
+                handler.apply((Boolean) args[i], key, bundle);
             } else if (String.class.isAssignableFrom(typeClazz)) {
                 ParameterHandler.StringHandler handler = (ParameterHandler.StringHandler) map.get(String.class);
                 assert handler != null;
-                handler.apply((String) args[i], String.format(key, i + ""), bundle);
+                handler.apply((String) args[i], key, bundle);
             } else if (Parcelable.class.isAssignableFrom((typeClazz))) {
                 ParameterHandler.ParcelableHandler handler = (ParameterHandler.ParcelableHandler) map.get(Parcelable.class);
                 assert handler != null;
-                handler.apply((Parcelable) args[i], String.format(key, i + ""), bundle);
-                Parcelable parcelable = bundle.getParcelable(String.format(key, i + ""));
+                handler.apply((Parcelable) args[i], key, bundle);
+                Parcelable parcelable = bundle.getParcelable(key);
             } else if (Serializable.class.isAssignableFrom((typeClazz))) {
                 ParameterHandler.SerializableHandler handler = (ParameterHandler.SerializableHandler) map.get(Serializable.class);
                 assert handler != null;
-                handler.apply((Serializable) args[i], String.format(key, i + ""), bundle);
-                Parcelable parcelable = bundle.getParcelable(String.format(key, i + ""));
+                handler.apply((Serializable) args[i], key, bundle);
+                Parcelable parcelable = bundle.getParcelable(key);
             }
         }
 
@@ -309,8 +315,8 @@ public final class ServiceManager implements IServiceManager {
         String key = PIGEON_KEY_INDEX;
         String keyClass = PIGEON_KEY_CLASS_INDEX;
         for (int i = 0; i < args.length; i++) {
-            String index = String.format(key, i + "");
-            String indexClass = String.format(keyClass, i + "");
+            String index = String.format(key, i);
+            String indexClass = String.format(keyClass, i);
             if (types[i] == null) {
                 bundle.putString(index, "");
                 bundle.putString(indexClass, "null");
@@ -326,8 +332,8 @@ public final class ServiceManager implements IServiceManager {
         String key = PIGEON_KEY_INDEX;
         String keyClass = PIGEON_KEY_CLASS_INDEX;
         for (int i = 0; i < args.length; i++) {
-            String index = String.format(key, i + "");
-            String indexClass = String.format(keyClass, i + "");
+            String index = String.format(key, i);
+            String indexClass = String.format(keyClass, i);
             if (types[i] == null) {
                 contentValues.put(index, "");
                 contentValues.put(indexClass, "null");
@@ -403,7 +409,7 @@ public final class ServiceManager implements IServiceManager {
         int length = extras.getInt(PIGEON_KEY_LENGTH);
         Class<?>[] clazzs = new Class[length];
         for (int i = 0; i < length; i++) {
-            String index = String.format(key, i + "");
+            String index = String.format(key, i);
             Parcelable parcelable = extras.getParcelable(index);
             if (parcelable == null) {
                 break;
@@ -436,7 +442,7 @@ public final class ServiceManager implements IServiceManager {
         int length = values.getAsInteger(PIGEON_KEY_LENGTH);
         Class<?>[] clazzs = new Class[length];
         for (int i = 0; i < length; i++) {
-            String clazz = values.getAsString(String.format(keyClass, i + ""));
+            String clazz = values.getAsString(String.format(keyClass, i));
             Log.e(TAG, "approachByMethodInsert:" + clazz + "  index:" + String.format(keyClass, i + ""));
             clazzs[i] = Class.forName(clazz);
         }
@@ -460,7 +466,7 @@ public final class ServiceManager implements IServiceManager {
         String keyClass = PIGEON_KEY_CLASS_INDEX;
         int length = values.getAsInteger(PIGEON_KEY_LENGTH);
         for (int i = 0; i < length; i++) {
-            String clazz = values.getAsString(String.format(keyClass, i + ""));
+            String clazz = values.getAsString(String.format(keyClass, i));
             Log.e(TAG, "approachByRouteInsert:" + clazz + "  index:" + String.format(keyClass, i + ""));
         }
         ArrayDeque<MethodCaller> callers = routers.get(route);
@@ -475,31 +481,32 @@ public final class ServiceManager implements IServiceManager {
         Object[] values = new Object[length];
         Class<?>[] clazzs = new Class[length];
         String key = PIGEON_KEY_INDEX;
-        String keyClass = PIGEON_KEY_CLASS_INDEX;
+        String keyIndexClass = PIGEON_KEY_CLASS_INDEX;
         for (int i = 0; i < length; i++) {
-            String clazz = contentValues.getAsString(String.format(keyClass, i + ""));
+            String keyClass = String.format(keyIndexClass, i);
+            String clazz = contentValues.getAsString(keyClass);
             Log.e(TAG, "parseDataInsert clazz:" + clazz);
             if (clazz.startsWith("int")) {
-                values[i] = contentValues.getAsInteger(String.format(key, i + ""));
+                values[i] = contentValues.getAsInteger(keyClass);
             } else if (clazz.startsWith("double")) {
-                values[i] = contentValues.getAsDouble(String.format(key, i + ""));
+                values[i] = contentValues.getAsDouble(keyClass);
             } else if (clazz.startsWith("long")) {
-                values[i] = contentValues.getAsLong(String.format(key, i + ""));
+                values[i] = contentValues.getAsLong(keyClass);
             } else if (clazz.startsWith("short")) {
-                values[i] = contentValues.getAsShort(String.format(key, i + ""));
+                values[i] = contentValues.getAsShort(keyClass);
             } else if (clazz.startsWith("float")) {
-                values[i] = contentValues.getAsFloat(String.format(key, i + ""));
+                values[i] = contentValues.getAsFloat(keyClass);
             } else if (clazz.startsWith("byte")) {
-                values[i] = contentValues.getAsByte(String.format(key, i + ""));
+                values[i] = contentValues.getAsByte(keyClass);
             } else if (clazz.startsWith("boolean")) {
-                values[i] = contentValues.getAsBoolean(String.format(key, i + ""));
+                values[i] = contentValues.getAsBoolean(keyClass);
             } else if ("java.lang.String".equals(clazz)) {
-                values[i] = contentValues.getAsString(String.format(key, i + ""));
+                values[i] = contentValues.getAsString(keyClass);
             } else if ("[B".equals(clazz)) {
-                values[i] = contentValues.getAsByteArray(String.format(key, i + ""));
+                values[i] = contentValues.getAsByteArray(keyClass);
             } else if (clazz.equals(ParcelFileDescriptor.class.getName())) {
-                String parcelFile = contentValues.getAsString(String.format(key, i + ""));
-                int arrayLength = contentValues.getAsInteger("key_array_length");
+                String parcelFile = contentValues.getAsString(keyClass);
+                int arrayLength = contentValues.getAsInteger(keyClass + PIGEON_KEY_ARRAY_LENGTH);
                 ParcelFileDescriptor parcelFileDescriptor = ParcelableUtils.string2Parcelable(parcelFile, ParcelFileDescriptor.CREATOR);
                 FileDescriptor fileDescriptor = parcelFileDescriptor.getFileDescriptor();
                 FileInputStream fileInputStream = new FileInputStream(fileDescriptor);
@@ -529,7 +536,7 @@ public final class ServiceManager implements IServiceManager {
         Object[] values = new Object[length];
         Class<?>[] clazzs = new Class[length];
         for (int i = 0; i < length; i++) {
-            String index = String.format(key, i + "");
+            String index = String.format(key, i);
             Parcelable parcelable = extras.getParcelable(index);
             if (parcelable == null) {
                 break;
@@ -595,7 +602,9 @@ public final class ServiceManager implements IServiceManager {
             try {
                 Parcelable value = ((Pair.PairParcelable) parcelable).getValue();
                 if (value instanceof ParcelFileDescriptor) {
-                    int arrayLength = extras.getInt(index + "key_array_length");
+                    String lengthKey = index + PIGEON_KEY_ARRAY_LENGTH;
+                    int arrayLength = extras.getInt(lengthKey);
+                    Log.e(TAG, "keyLength:" + arrayLength + " lengthKey:" + lengthKey);
                     ParcelFileDescriptor parcelFileDescriptor = (ParcelFileDescriptor) value;
                     FileDescriptor fileDescriptor = parcelFileDescriptor.getFileDescriptor();
                     FileInputStream fileInputStream = new FileInputStream(fileDescriptor);

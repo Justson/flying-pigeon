@@ -121,39 +121,7 @@ public class ServiceContentProvider extends ContentProvider {
     @Nullable
     @Override
     public Uri insert(@NonNull Uri uri, @Nullable ContentValues values) {
-        Log.e(TAG, "insert:" + uri.toString() + " uri.getPath():" + uri.getPath());
-        try {
-            int approach = values.getAsInteger(PIGEON_KEY_LOOK_UP_APPROACH);
-            MethodCaller methodCaller;
-            if (approach == PIGEON_APPROACH_METHOD) {
-                methodCaller = ServiceManager.getInstance().approachByMethodInsert(uri, values, uri.getPath().replace("/pigeon/0/", ""));
-                Object result = methodCaller.call(ServiceManager.getInstance().parseDataInsert(uri, values));
-                if (result instanceof String) {
-                    Uri returnUri = uri.buildUpon().appendQueryParameter("result", result.toString()).build();
-                    return returnUri;
-                } else {
-                    return uri;
-                }
-            } else if (approach == PIGEON_APPROACH_ROUTE) {
-                methodCaller = ServiceManager.getInstance().approachByRouteInsert(uri, values, uri.getPath().replace("/pigeon/1/", ""));
-                Object result = methodCaller.call(ServiceManager.getInstance().parseDataInsert(uri, values));
-                if (result instanceof String) {
-                    Uri returnUri = uri.buildUpon().appendQueryParameter("result", result.toString()).build();
-                    return returnUri;
-                } else {
-                    return uri;
-                }
-            }
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        } catch (NoSuchMethodException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        } catch (InvocationTargetException e) {
-            e.printStackTrace();
-        }
-        return uri;
+        throw new UnsupportedOperationException();
     }
 
     @Override

@@ -1,5 +1,6 @@
 package com.flyingpigeon.sample;
 
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -33,7 +34,7 @@ public class MainActivity extends AppCompatActivity {
 
         Short aShort = 1;
         byte aByte = 10;
-        ServiceApi serviceApi = pigeon.create(ServiceApi.class);
+        final ServiceApi serviceApi = pigeon.create(ServiceApi.class);
         serviceApi.queryTest(1);
         serviceApi.queryItems(UUID.randomUUID().hashCode(), 0.001D, SystemClock.elapsedRealtime(), aShort, 0.011F, aByte, true);
         Information information = new Information("Justson", "just", 110, (short) 1, 'c', 1.22F, (byte) 14, 8989123.111D, 100000L);
@@ -54,7 +55,6 @@ public class MainActivity extends AppCompatActivity {
         int posterId = serviceApi.createPoster(poster);
         Log.e(TAG, "posterId:" + posterId);
 
-        String returnResult = serviceApi.testLargeBlock("hello,worlds ", new byte[1024 * 1000 * 3]);
 //        Log.e(TAG, "returnResult:" + returnResult);
         mHandler.postDelayed(new Runnable() {
             @Override
@@ -63,7 +63,7 @@ public class MainActivity extends AppCompatActivity {
 //                pigeon.route("/words").withString("name", "Justson").fly();
 //                pigeon.route("/hello").with(new Bundle()).fly();
                 pigeon.route("/world").fly();
-                pigeon.route("/submit/bitmap", UUID.randomUUID().toString(), new byte[1024 * 1000 * 3], 1200).resquestLarge().fly();
+//                pigeon.route("/submit/bitmap", UUID.randomUUID().toString(), new byte[1024 * 1000 * 3], 1200).resquestLarge().fly();
                 byte[] data = pigeon.route("/query/bitmap", "girl.jpg", 5555).responseLarge().fly();
                 if (null != data) {
                     //Arrays.toString(data)
@@ -71,6 +71,16 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     Log.e(TAG, "data is null.");
                 }
+
+                AsyncTask.THREAD_POOL_EXECUTOR.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        for (int i = 0; i < 1; i++) {
+                            SystemClock.sleep(50);
+                            String returnResult = serviceApi.testLargeBlock("hello,worlds ", new byte[1024 * 1024 * 3]);
+                        }
+                    }
+                });
             }
         }, 400);
     }

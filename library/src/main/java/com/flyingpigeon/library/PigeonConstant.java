@@ -20,12 +20,13 @@ interface PigeonConstant {
     int PIGEON_PARAM_DISPERSION = 2;
     String PIGEON_KEY_RESPONSE_CODE = "reponse_code";
     String PIGEON_KEY_LENGTH = "key_length";
-    String PIGEON_KEY_INDEX = "key_%s";
-    String PIGEON_KEY_CLASS_INDEX = "key_class_%s";
+    String PIGEON_KEY_INDEX = "key_%d";
+    String PIGEON_KEY_CLASS_INDEX = "key_class_%d";
     String PIGEON_KEY_CLASS = "key_class";
     String PIGEON_KEY_TYPE = "key_type";
     String PIGEON_KEY_RESPONSE = "key_response";
     String PIGEON_KEY_FLAGS = "key_flags";
+    String PIGEON_KEY_ARRAY_LENGTH = "_array_length";
 
 
 }
