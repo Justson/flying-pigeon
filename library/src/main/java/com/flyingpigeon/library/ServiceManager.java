@@ -27,6 +27,7 @@ import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayDeque;
 import java.util.Iterator;
+import java.util.Locale;
 import java.util.concurrent.ConcurrentHashMap;
 
 import androidx.annotation.NonNull;
@@ -74,9 +75,8 @@ public final class ServiceManager implements IServiceManager {
     Bundle buildRequest(Class<?> service, Object proxy, Method method, Object[] args) {
         Bundle bundle = new Bundle();
         Type[] types = method.getGenericParameterTypes();
-        String keyIndex = PIGEON_KEY_INDEX;
         for (int i = 0; i < types.length; i++) {
-            String key = String.format(keyIndex, i);
+            String key = String.format(Locale.ENGLISH, PIGEON_KEY_INDEX, i);
             Log.e(TAG, "type name:" + types[i] + " method:" + method.getName() + " service:" + service);
             Class<?> typeClazz = ClassUtil.getRawType(types[i]);
             if (int.class.isAssignableFrom(typeClazz)) {
@@ -312,11 +312,9 @@ public final class ServiceManager implements IServiceManager {
 
 
     private void settingValues0(Object[] args, Bundle bundle, Type[] types) {
-        String key = PIGEON_KEY_INDEX;
-        String keyClass = PIGEON_KEY_CLASS_INDEX;
         for (int i = 0; i < args.length; i++) {
-            String index = String.format(key, i);
-            String indexClass = String.format(keyClass, i);
+            String index = String.format(Locale.ENGLISH, PIGEON_KEY_INDEX, i);
+            String indexClass = String.format(Locale.ENGLISH, PIGEON_KEY_CLASS_INDEX, i);
             if (types[i] == null) {
                 bundle.putString(index, "");
                 bundle.putString(indexClass, "null");
@@ -329,11 +327,9 @@ public final class ServiceManager implements IServiceManager {
 
 
     private void settingValues(Object[] args, ContentValues contentValues, Type[] types) {
-        String key = PIGEON_KEY_INDEX;
-        String keyClass = PIGEON_KEY_CLASS_INDEX;
         for (int i = 0; i < args.length; i++) {
-            String index = String.format(key, i);
-            String indexClass = String.format(keyClass, i);
+            String index = String.format(Locale.ENGLISH, PIGEON_KEY_INDEX, i);
+            String indexClass = String.format(Locale.ENGLISH, PIGEON_KEY_CLASS_INDEX, i);
             if (types[i] == null) {
                 contentValues.put(index, "");
                 contentValues.put(indexClass, "null");
@@ -405,16 +401,16 @@ public final class ServiceManager implements IServiceManager {
 
     MethodCaller approachByMethod(@NonNull String method, @NonNull Bundle extras) throws ClassNotFoundException, NoSuchMethodException {
         MethodCaller methodCaller;
-        String key = PIGEON_KEY_INDEX;
         int length = extras.getInt(PIGEON_KEY_LENGTH);
         Class<?>[] clazzs = new Class[length];
         for (int i = 0; i < length; i++) {
-            String index = String.format(key, i);
+            String index = String.format(Locale.ENGLISH, PIGEON_KEY_INDEX, i);
             Parcelable parcelable = extras.getParcelable(index);
             if (parcelable == null) {
                 break;
             }
             android.util.Pair<Class<?>, Object> data = parcelableToClazz(parcelable, index, extras);
+            assert data != null;
             clazzs[i] = data.first;
             Log.e(TAG, "clazz:" + clazzs[i]);
         }
@@ -442,8 +438,8 @@ public final class ServiceManager implements IServiceManager {
         int length = values.getAsInteger(PIGEON_KEY_LENGTH);
         Class<?>[] clazzs = new Class[length];
         for (int i = 0; i < length; i++) {
-            String clazz = values.getAsString(String.format(keyClass, i));
-            Log.e(TAG, "approachByMethodInsert:" + clazz + "  index:" + String.format(keyClass, i + ""));
+            String clazz = values.getAsString(String.format(Locale.ENGLISH, keyClass, i));
+            Log.e(TAG, "approachByMethodInsert:" + clazz + "  index:" + String.format(Locale.ENGLISH, keyClass, i + ""));
             clazzs[i] = Class.forName(clazz);
         }
         for (int i = 0; i < length; i++) {
@@ -466,8 +462,8 @@ public final class ServiceManager implements IServiceManager {
         String keyClass = PIGEON_KEY_CLASS_INDEX;
         int length = values.getAsInteger(PIGEON_KEY_LENGTH);
         for (int i = 0; i < length; i++) {
-            String clazz = values.getAsString(String.format(keyClass, i));
-            Log.e(TAG, "approachByRouteInsert:" + clazz + "  index:" + String.format(keyClass, i + ""));
+            String clazz = values.getAsString(String.format(Locale.ENGLISH, keyClass, i));
+            Log.e(TAG, "approachByRouteInsert:" + clazz + "  index:" + String.format(Locale.ENGLISH, keyClass, i + ""));
         }
         ArrayDeque<MethodCaller> callers = routers.get(route);
         if (callers == null || callers.isEmpty()) {
@@ -480,10 +476,8 @@ public final class ServiceManager implements IServiceManager {
         int length = contentValues.getAsInteger(PIGEON_KEY_LENGTH);
         Object[] values = new Object[length];
         Class<?>[] clazzs = new Class[length];
-        String key = PIGEON_KEY_INDEX;
-        String keyIndexClass = PIGEON_KEY_CLASS_INDEX;
         for (int i = 0; i < length; i++) {
-            String keyClass = String.format(keyIndexClass, i);
+            String keyClass = String.format(Locale.ENGLISH, PIGEON_KEY_CLASS_INDEX, i);
             String clazz = contentValues.getAsString(keyClass);
             Log.e(TAG, "parseDataInsert clazz:" + clazz);
             if (clazz.startsWith("int")) {
@@ -531,12 +525,11 @@ public final class ServiceManager implements IServiceManager {
 
 
     Object[] parseData(@Nullable String arg, @Nullable Bundle extras) {
-        String key = PIGEON_KEY_INDEX;
         int length = extras.getInt(PIGEON_KEY_LENGTH);
         Object[] values = new Object[length];
         Class<?>[] clazzs = new Class[length];
         for (int i = 0; i < length; i++) {
-            String index = String.format(key, i);
+            String index = String.format(Locale.ENGLISH, PIGEON_KEY_INDEX, i);
             Parcelable parcelable = extras.getParcelable(index);
             if (parcelable == null) {
                 break;
