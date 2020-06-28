@@ -27,6 +27,7 @@ import androidx.annotation.Nullable;
 import static com.flyingpigeon.library.Config.PREFIX;
 import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_CLASS;
 import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_FLAGS;
+import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_RESULT;
 import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_TYPE;
 
 /**
@@ -109,7 +110,7 @@ public final class Pigeon {
         Cursor cursor = contentResolver.query(uri, new String[]{}, "", contentValues, "");
         try {
             Bundle bundle = cursor.getExtras();
-            Parcelable parcelable = bundle.getParcelable("result");
+            Parcelable parcelable = bundle.getParcelable(PIGEON_KEY_RESULT);
             if (parcelable != null) {
                 return ServiceManager.getInstance().parcelableValueOut(parcelable);
             } else if (cursor.moveToFirst()) {
@@ -132,7 +133,7 @@ public final class Pigeon {
         ContentResolver contentResolver = mContext.getContentResolver();
         Uri uri = base.buildUpon().appendPath("pigeon/0/" + method.getName()).build();
         Uri result = contentResolver.insert(uri, contentValues);
-        return result.getQueryParameter("result");
+        return result.getQueryParameter(PIGEON_KEY_RESULT);
     }
 
     Bundle fly(@NonNull Bundle in) {
@@ -164,7 +165,7 @@ public final class Pigeon {
         if (null == result) {
             return "";
         }
-        return result.getString("result");
+        return result.getString(PIGEON_KEY_RESULT);
     }
 
     <T> T routeLargeResponse(String route, Object[] params) {
@@ -177,7 +178,7 @@ public final class Pigeon {
         }
         try {
             Bundle bundle = cursor.getExtras();
-            Parcelable parcelable = bundle.getParcelable("result");
+            Parcelable parcelable = bundle.getParcelable(PIGEON_KEY_RESULT);
             if (parcelable != null) {
                 return (T) ServiceManager.getInstance().parcelableValueOut(parcelable);
             } else if (cursor.moveToFirst()) {

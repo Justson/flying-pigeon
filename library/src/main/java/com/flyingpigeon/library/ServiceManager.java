@@ -43,6 +43,7 @@ import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_LENGTH;
 import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_LOOK_UP_APPROACH;
 import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_RESPONSE;
 import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_RESPONSE_CODE;
+import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_RESULT;
 import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_ROUTE;
 import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_TYPE;
 import static com.flyingpigeon.library.PigeonConstant.PIGEON_RESPONSE_RESULE_ILLEGALACCESS;
@@ -849,8 +850,7 @@ public final class ServiceManager implements IServiceManager {
             return null;
         }
         Bundle bundle = new Bundle();
-        BundleCursor bundleCursor = new BundleCursor(bundle, new String[]{"result"});
-        ;
+        BundleCursor bundleCursor = new BundleCursor(bundle, new String[]{PIGEON_KEY_RESULT});
         if (o instanceof String) {
             bundle.putString(PIGEON_KEY_TYPE, "String");
             bundleCursor.addRow(new Object[]{o.toString()});
@@ -864,7 +864,7 @@ public final class ServiceManager implements IServiceManager {
             RouteResponseLargeCaller routeResponseLargeCaller = (RouteResponseLargeCaller) methodCaller;
             Method target = routeResponseLargeCaller.target;
             Type returnType = target.getGenericReturnType();
-            Utils.typeConvert(returnType, bundle, "result");
+            Utils.typeConvert(returnType, bundle, PIGEON_KEY_RESULT);
         }
         return bundleCursor;
     }
@@ -889,7 +889,7 @@ public final class ServiceManager implements IServiceManager {
         }
 
         Bundle bundle = new Bundle();
-        BundleCursor bundleCursor = new BundleCursor(bundle, new String[]{"result"});
+        BundleCursor bundleCursor = new BundleCursor(bundle, new String[]{PIGEON_KEY_RESULT});
         if (o instanceof String) {
             bundle.putString(PIGEON_KEY_TYPE, "String");
             bundleCursor.addRow(new Object[]{o.toString()});
@@ -903,7 +903,7 @@ public final class ServiceManager implements IServiceManager {
             RouteResponseLargeCaller routeResponseLargeCaller = (RouteResponseLargeCaller) methodCaller;
             Method target = routeResponseLargeCaller.target;
             Type returnType = target.getGenericReturnType();
-            Utils.typeConvert(returnType, bundle, "result");
+            Utils.typeConvert(returnType, bundle, PIGEON_KEY_RESULT);
         }
         return bundleCursor;
     }

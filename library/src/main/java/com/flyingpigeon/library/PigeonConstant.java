@@ -27,6 +27,7 @@ interface PigeonConstant {
     String PIGEON_KEY_RESPONSE = "key_response";
     String PIGEON_KEY_FLAGS = "key_flags";
     String PIGEON_KEY_ARRAY_LENGTH = "_array_length";
+    String PIGEON_KEY_RESULT = "key_result";
 
 
 }
