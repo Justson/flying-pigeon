@@ -12,6 +12,7 @@ import android.util.Log;
 import com.flyingpigeon.library.annotations.RequestLarge;
 import com.flyingpigeon.library.annotations.ResponseLarge;
 import com.flyingpigeon.library.annotations.route;
+import com.flyingpigeon.library.ashmem.Ashmem;
 import com.flyingpigeon.library.serialization.ParcelableUtils;
 
 import java.io.FileDescriptor;
@@ -100,6 +101,34 @@ public final class ServiceManager implements IServiceManager {
                 ParameterHandler.ByteHandler handler = (ParameterHandler.ByteHandler) map.get(byte.class);
                 assert handler != null;
                 handler.apply((Byte) args[i], String.format(key, i + ""), bundle);
+            } else if (byte[].class.isAssignableFrom(typeClazz)) {
+                byte[] array = (byte[]) args[i];
+                if (array.length > 8 * 1024) {
+                    ParcelFileDescriptor parcelFileDescriptor = Ashmem.byteArrayToFileDescriptor(array);
+                    bundle.putInt(key + "key_array_length", array.length);
+                    ParameterHandler.ParcelableHandler handler = (ParameterHandler.ParcelableHandler) map.get(Parcelable.class);
+                    assert handler != null;
+                    handler.apply(parcelFileDescriptor, key, bundle);
+                    Parcelable parcelable = bundle.getParcelable(key);
+                } else {
+                    ParameterHandler.ByteArrayHandler byteArrayHandler = (ParameterHandler.ByteArrayHandler) map.get(byte[].class);
+                    byteArrayHandler.apply(array, byte[].class.getName(), bundle);
+                }
+
+            } else if (Byte[].class.isAssignableFrom(typeClazz)) {
+                byte[] array = Utils.toPrimitives((Byte[]) args[i]);
+                if (array.length > 8 * 1024) {
+                    ParcelFileDescriptor parcelFileDescriptor = Ashmem.byteArrayToFileDescriptor(array);
+                    bundle.putInt(key + "key_array_length", array.length);
+                    ParameterHandler.ParcelableHandler handler = (ParameterHandler.ParcelableHandler) map.get(Parcelable.class);
+                    assert handler != null;
+                    handler.apply(parcelFileDescriptor, key, bundle);
+                    Parcelable parcelable = bundle.getParcelable(key);
+                } else {
+                    ParameterHandler.ByteArrayHandler byteArrayHandler = (ParameterHandler.ByteArrayHandler) map.get(byte[].class);
+                    byteArrayHandler.apply(array, byte[].class.getName(), bundle);
+                }
+
             } else if (boolean.class.isAssignableFrom(typeClazz)) {
                 ParameterHandler.BooleanHandler handler = (ParameterHandler.BooleanHandler) map.get(boolean.class);
                 assert handler != null;

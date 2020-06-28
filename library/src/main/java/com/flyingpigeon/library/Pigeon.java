@@ -85,10 +85,6 @@ public final class Pigeon {
             flags = ParametersSpec.setResponseLarge(flags);
         }
 
-        boolean isRequestLarge = ParametersSpec.isRequestParameterLarge(flags);
-        if (isRequestLarge) {
-            return callByContentProvideInsert(service, proxy, method, args);
-        }
         boolean isResponseLarge = ParametersSpec.isResponseParameterLarge(flags);
         if (isResponseLarge) {
             return callByResponseLarge(service, proxy, method, args);
