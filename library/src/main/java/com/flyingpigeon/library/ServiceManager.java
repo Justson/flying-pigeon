@@ -13,7 +13,6 @@ import com.flyingpigeon.library.annotations.RequestLarge;
 import com.flyingpigeon.library.annotations.ResponseLarge;
 import com.flyingpigeon.library.annotations.route;
 import com.flyingpigeon.library.ashmem.Ashmem;
-import com.flyingpigeon.library.serialization.ParcelableUtils;
 
 import java.io.FileDescriptor;
 import java.io.FileInputStream;
@@ -412,7 +411,6 @@ public final class ServiceManager implements IServiceManager {
             android.util.Pair<Class<?>, Object> data = parcelableToClazz(parcelable, index, extras);
             assert data != null;
             clazzs[i] = data.first;
-            Log.e(TAG, "clazz:" + clazzs[i]);
         }
         for (int i = 0; i < length; i++) {
             if (clazzs[i] == null) {
@@ -421,7 +419,6 @@ public final class ServiceManager implements IServiceManager {
         }
 
         String clazz = extras.getString(PIGEON_KEY_CLASS);
-        Log.e(TAG, "clazz:" + clazz);
         BuketMethod buket = getMethods(Class.forName(clazz));
         if (buket == null) {
             throw new ClassNotFoundException();
@@ -448,7 +445,6 @@ public final class ServiceManager implements IServiceManager {
             }
         }
         String clazz = values.getAsString(PIGEON_KEY_CLASS);
-        Log.e(TAG, "clazz:" + clazz);
         BuketMethod buket = getMethods(Class.forName(clazz));
         if (buket == null) {
             throw new ClassNotFoundException();
@@ -470,57 +466,6 @@ public final class ServiceManager implements IServiceManager {
             throw new NoSuchMethodException(route);
         }
         return callers.getFirst();
-    }
-
-    Object[] parseDataInsert(Uri uri, ContentValues contentValues) {
-        int length = contentValues.getAsInteger(PIGEON_KEY_LENGTH);
-        Object[] values = new Object[length];
-        Class<?>[] clazzs = new Class[length];
-        for (int i = 0; i < length; i++) {
-            String keyClass = String.format(Locale.ENGLISH, PIGEON_KEY_CLASS_INDEX, i);
-            String clazz = contentValues.getAsString(keyClass);
-            Log.e(TAG, "parseDataInsert clazz:" + clazz);
-            if (clazz.startsWith("int")) {
-                values[i] = contentValues.getAsInteger(keyClass);
-            } else if (clazz.startsWith("double")) {
-                values[i] = contentValues.getAsDouble(keyClass);
-            } else if (clazz.startsWith("long")) {
-                values[i] = contentValues.getAsLong(keyClass);
-            } else if (clazz.startsWith("short")) {
-                values[i] = contentValues.getAsShort(keyClass);
-            } else if (clazz.startsWith("float")) {
-                values[i] = contentValues.getAsFloat(keyClass);
-            } else if (clazz.startsWith("byte")) {
-                values[i] = contentValues.getAsByte(keyClass);
-            } else if (clazz.startsWith("boolean")) {
-                values[i] = contentValues.getAsBoolean(keyClass);
-            } else if ("java.lang.String".equals(clazz)) {
-                values[i] = contentValues.getAsString(keyClass);
-            } else if ("[B".equals(clazz)) {
-                values[i] = contentValues.getAsByteArray(keyClass);
-            } else if (clazz.equals(ParcelFileDescriptor.class.getName())) {
-                String parcelFile = contentValues.getAsString(keyClass);
-                int arrayLength = contentValues.getAsInteger(keyClass + PIGEON_KEY_ARRAY_LENGTH);
-                ParcelFileDescriptor parcelFileDescriptor = ParcelableUtils.string2Parcelable(parcelFile, ParcelFileDescriptor.CREATOR);
-                FileDescriptor fileDescriptor = parcelFileDescriptor.getFileDescriptor();
-                FileInputStream fileInputStream = new FileInputStream(fileDescriptor);
-                byte[] bytes = new byte[arrayLength];
-                try {
-                    fileInputStream.read(bytes);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } finally {
-                    try {
-                        fileInputStream.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-                values[i] = bytes;
-            }
-            Log.e(TAG, "values[i] :" + values[i]);
-        }
-        return values;
     }
 
 
