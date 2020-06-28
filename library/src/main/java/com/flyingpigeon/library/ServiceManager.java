@@ -108,11 +108,11 @@ public final class ServiceManager implements IServiceManager {
                     bundle.putInt(key + "key_array_length", array.length);
                     ParameterHandler.ParcelableHandler handler = (ParameterHandler.ParcelableHandler) map.get(Parcelable.class);
                     assert handler != null;
-                    handler.apply(parcelFileDescriptor, key, bundle);
+                    handler.apply(parcelFileDescriptor,  String.format(key, i + ""), bundle);
                     Parcelable parcelable = bundle.getParcelable(key);
                 } else {
                     ParameterHandler.ByteArrayHandler byteArrayHandler = (ParameterHandler.ByteArrayHandler) map.get(byte[].class);
-                    byteArrayHandler.apply(array, byte[].class.getName(), bundle);
+                    byteArrayHandler.apply(array,  String.format(key, i + ""), bundle);
                 }
 
             } else if (Byte[].class.isAssignableFrom(typeClazz)) {
@@ -122,11 +122,11 @@ public final class ServiceManager implements IServiceManager {
                     bundle.putInt(key + "key_array_length", array.length);
                     ParameterHandler.ParcelableHandler handler = (ParameterHandler.ParcelableHandler) map.get(Parcelable.class);
                     assert handler != null;
-                    handler.apply(parcelFileDescriptor, key, bundle);
+                    handler.apply(parcelFileDescriptor,  String.format(key, i + ""), bundle);
                     Parcelable parcelable = bundle.getParcelable(key);
                 } else {
                     ParameterHandler.ByteArrayHandler byteArrayHandler = (ParameterHandler.ByteArrayHandler) map.get(byte[].class);
-                    byteArrayHandler.apply(array, byte[].class.getName(), bundle);
+                    byteArrayHandler.apply(array,  String.format(key, i + ""), bundle);
                 }
 
             } else if (boolean.class.isAssignableFrom(typeClazz)) {
@@ -410,6 +410,7 @@ public final class ServiceManager implements IServiceManager {
             }
             android.util.Pair<Class<?>, Object> data = parcelableToClazz(parcelable, index, extras);
             clazzs[i] = data.first;
+            Log.e(TAG, "clazz:" + clazzs[i]);
         }
         for (int i = 0; i < length; i++) {
             if (clazzs[i] == null) {
@@ -572,6 +573,8 @@ public final class ServiceManager implements IServiceManager {
             return new android.util.Pair<Class<?>, Object>(byte.class, ((com.flyingpigeon.library.Pair.PairByte) parcelable).getValue());
         } else if (parcelable instanceof com.flyingpigeon.library.Pair.PairBoolean) {
             return new android.util.Pair<Class<?>, Object>(boolean.class, ((com.flyingpigeon.library.Pair.PairBoolean) parcelable).isValue());
+        } else if (parcelable instanceof Pair.PairByteArray) {
+            return new android.util.Pair<Class<?>, Object>(byte[].class, ((com.flyingpigeon.library.Pair.PairByteArray) parcelable).getValue());
         } else if (parcelable instanceof com.flyingpigeon.library.Pair.PairString) {
             try {
                 return new android.util.Pair<Class<?>, Object>(Class.forName(((Pair.PairString) parcelable).getKey()), ((Pair.PairString) parcelable).getValue());

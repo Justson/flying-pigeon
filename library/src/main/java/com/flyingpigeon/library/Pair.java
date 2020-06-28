@@ -300,12 +300,15 @@ public abstract class Pair implements Parcelable {
 
         protected PairByteArray(Parcel in) {
             super(in);
+            int length = in.readInt();
+            value = new byte[length];
             in.readByteArray(value);
         }
 
         @Override
         public void writeToParcel(Parcel dest, int flags) {
             super.writeToParcel(dest, flags);
+            dest.writeInt(value.length);
             dest.writeByteArray(value);
         }
 
