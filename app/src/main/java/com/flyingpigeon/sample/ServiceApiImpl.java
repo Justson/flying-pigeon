@@ -15,8 +15,8 @@ import static com.flyingpigeon.library.Config.PREFIX;
  * @date 20-6-10
  * @since 1.0.0
  */
-public class TestServiceApi extends ServiceContentProvider implements ServiceApi {
-    private static final String TAG = PREFIX + TestServiceApi.class.getSimpleName();
+public class ServiceApiImpl extends ServiceContentProvider implements IServiceApi {
+    private static final String TAG = PREFIX + ServiceApiImpl.class.getSimpleName();
 
     @Override
     public boolean onCreate() {

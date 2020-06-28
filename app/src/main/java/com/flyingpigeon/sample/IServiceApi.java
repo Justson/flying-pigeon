@@ -10,7 +10,7 @@ import java.util.ArrayList;
  * @date 20-6-8
  * @since 1.0.0
  */
-public interface ServiceApi {
+public interface IServiceApi {
 
     void queryTest(int id);
 

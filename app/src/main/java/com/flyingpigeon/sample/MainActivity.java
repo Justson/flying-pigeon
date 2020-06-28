@@ -27,14 +27,14 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
 
-        RemoteService.startService(this);
+        RemoteService.startService(this.getApplicationContext());
 
         Log.e(TAG, "MainActivity");
-        final Pigeon pigeon = Pigeon.newBuilder(this).setAuthority(TestServiceApi.class).build();
+        final Pigeon pigeon = Pigeon.newBuilder(this).setAuthority(ServiceApiImpl.class).build();
 
         Short aShort = 1;
         byte aByte = 10;
-        final ServiceApi serviceApi = pigeon.create(ServiceApi.class);
+        final IServiceApi serviceApi = pigeon.create(IServiceApi.class);
         serviceApi.queryTest(1);
         serviceApi.queryItems(UUID.randomUUID().hashCode(), 0.001D, SystemClock.elapsedRealtime(), aShort, 0.011F, aByte, true);
         Information information = new Information("Justson", "just", 110, (short) 1, 'c', 1.22F, (byte) 14, 8989123.111D, 100000L);
@@ -60,8 +60,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void run() {
                 test(pigeon);
-//                pigeon.route("/words").withString("name", "Justson").fly();
-//                pigeon.route("/hello").with(new Bundle()).fly();
+                pigeon.route("/words").withString("name", "Justson").fly();
+                pigeon.route("/hello").with(new Bundle()).fly();
                 pigeon.route("/world").fly();
 //                pigeon.route("/submit/bitmap", UUID.randomUUID().toString(), new byte[1024 * 1000 * 3], 1200).resquestLarge().fly();
                 byte[] data = pigeon.route("/query/bitmap", "girl.jpg", 5555).responseLarge().fly();
@@ -78,6 +78,7 @@ public class MainActivity extends AppCompatActivity {
                         for (int i = 0; i < 1; i++) {
                             SystemClock.sleep(50);
                             String returnResult = serviceApi.testLargeBlock("hello,worlds ", new byte[1024 * 1024 * 3]);
+                            Log.e(TAG, "returnResult:" + returnResult);
                         }
                     }
                 });
@@ -104,9 +105,9 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private void testReturn(ServiceApi serviceApi) {
+    private void testReturn(IServiceApi IServiceApi) {
         Poster poster = new Poster("Justson", "just", 119, 11111000L, (short) 23, 1.15646F, 'h', (byte) 4, 123456.415D);
 
-        Log.e(TAG, "int:" + serviceApi.createPoster(poster) + " double:" + serviceApi.testDouble() + " long:" + serviceApi.testLong() + " short:" + serviceApi.testShort() + " float:" + serviceApi.testFloat() + " byte:" + serviceApi.testByte() + " boolean:" + serviceApi.testBoolean() + " testParcelable:" + GsonUtils.toJson(serviceApi.testParcelable()));
+        Log.e(TAG, "int:" + IServiceApi.createPoster(poster) + " double:" + IServiceApi.testDouble() + " long:" + IServiceApi.testLong() + " short:" + IServiceApi.testShort() + " float:" + IServiceApi.testFloat() + " byte:" + IServiceApi.testByte() + " boolean:" + IServiceApi.testBoolean() + " testParcelable:" + GsonUtils.toJson(IServiceApi.testParcelable()));
     }
 }

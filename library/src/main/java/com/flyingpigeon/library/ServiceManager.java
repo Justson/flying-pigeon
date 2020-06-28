@@ -77,7 +77,7 @@ public final class ServiceManager implements IServiceManager {
         Type[] types = method.getGenericParameterTypes();
         for (int i = 0; i < types.length; i++) {
             String key = String.format(Locale.ENGLISH, PIGEON_KEY_INDEX, i);
-            Log.e(TAG, "type name:" + types[i] + " method:" + method.getName() + " service:" + service);
+//            Log.e(TAG, "type name:" + types[i] + " method:" + method.getName() + " service:" + service);
             Class<?> typeClazz = ClassUtil.getRawType(types[i]);
             if (int.class.isAssignableFrom(typeClazz)) {
                 ParameterHandler.IntHandler handler = (ParameterHandler.IntHandler) map.get(int.class);

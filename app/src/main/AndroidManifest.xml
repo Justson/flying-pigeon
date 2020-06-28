@@ -20,11 +20,12 @@
         </activity>
 
         <provider
-            android:name="com.flyingpigeon.sample.TestServiceApi"
+            android:name="com.flyingpigeon.sample.ServiceApiImpl"
             android:authorities="com.flyingpigeon.sample.api"
             android:exported="true"
             android:grantUriPermissions="false"
             android:process=":tools" />
+
         <provider
             android:name="com.flyingpigeon.sample.MainProcessApi"
             android:authorities="com.flyingpigeon.sample.main.api"
