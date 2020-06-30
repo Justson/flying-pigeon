@@ -1,6 +1,7 @@
 package com.flyingpigeon.sample;
 
 import java.io.Serializable;
+import java.util.HashMap;
 
 /**
  * @author xiaozhongcen
@@ -18,6 +19,7 @@ public class Poster implements Serializable {
     private char aChar;
     private byte aByte;
     private double aDouble;
+    private HashMap<String, String> aHashMap;
 
     public Poster(String name, String alis, int id, long aLong, short aShort, float aFloat, char aChar, byte aByte, double aDouble) {
         this.name = name;
@@ -29,6 +31,8 @@ public class Poster implements Serializable {
         this.aChar = aChar;
         this.aByte = aByte;
         this.aDouble = aDouble;
+        aHashMap = new HashMap<>();
+        aHashMap.put("test", "test test");
     }
 
     public String getName() {
@@ -101,5 +105,13 @@ public class Poster implements Serializable {
 
     public void setaDouble(double aDouble) {
         this.aDouble = aDouble;
+    }
+
+    public HashMap<String, String> getaHashMap() {
+        return aHashMap;
+    }
+
+    public void setaHashMap(HashMap<String, String> aHashMap) {
+        this.aHashMap = aHashMap;
     }
 }

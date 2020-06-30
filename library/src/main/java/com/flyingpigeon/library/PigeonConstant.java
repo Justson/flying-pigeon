@@ -14,10 +14,6 @@ interface PigeonConstant {
     int PIGEON_RESPONSE_RESULE_LOST_CLASS = 405;
     int PIGEON_RESPONSE_RESULE_ILLEGALACCESS = 403;
     int PIGEON_RESPONSE_RESULE_SUCCESS = 200;
-    int PIGEON_MATCH_EXACT = 1;
-    int PIGEON_MATCH_FAZZY = 2;
-    int PIGEON_PARAM_PACEL = 1;
-    int PIGEON_PARAM_DISPERSION = 2;
     String PIGEON_KEY_RESPONSE_CODE = "reponse_code";
     String PIGEON_KEY_LENGTH = "key_length";
     String PIGEON_KEY_INDEX = "key_%d";

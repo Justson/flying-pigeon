@@ -11,7 +11,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.flyingpigeon.library.annotations.RequestLarge;
 import com.flyingpigeon.library.annotations.ResponseLarge;
@@ -39,9 +38,9 @@ public final class Pigeon {
 
     private static final String TAG = PREFIX + Pigeon.class.getSimpleName();
 
-    private String authority;
-    private Context mContext;
-    private final Uri base;
+    String authority;
+    Context mContext;
+    final Uri base;
 
     private Pigeon(Builder builder) {
         authority = builder.authority;
@@ -83,24 +82,22 @@ public final class Pigeon {
         } else {
             flags = ParametersSpec.setResponseLarge(flags);
         }
-
         boolean isResponseLarge = ParametersSpec.isResponseParameterLarge(flags);
         if (isResponseLarge) {
             return callByResponseLarge(service, proxy, method, args);
         }
         flags = ParametersSpec.setParamParcel(flags, false);
-
-        Bundle bundle = ServiceManager.getInstance().buildRequest(service, proxy, method, args);
+        ClientBoxmen<Bundle, Object> clientBoxmen = new ClientBoxmenImpl();
+        Bundle bundle = clientBoxmen.boxing(args, method.getGenericParameterTypes(), method.getGenericReturnType());
         bundle.putInt(PIGEON_KEY_FLAGS, flags);
-        ContentResolver contentResolver = mContext.getContentResolver();
-        Bundle response = contentResolver.call(base, method.getName(), null, bundle);
-        Object o = null;
-        try {
-            o = ServiceManager.getInstance().parseReponse(response, method);
-        } catch (CallRemoteException e) {
-            throw new RuntimeException(e);
-        }
-        return o;
+        bundle.putString(PIGEON_KEY_CLASS, service.getName());
+        RealCall realCall = newCall();
+        Bundle response = realCall.execute(method, bundle);
+        return clientBoxmen.unboxing(response);
+    }
+
+    private RealCall newCall() {
+        return new RealCall(mContext, this);
     }
 
     private Object callByResponseLarge(Class<?> service, Object proxy, Method method, Object[] args) {
@@ -154,17 +151,13 @@ public final class Pigeon {
     }
 
     String routeLargeRequest(String route, Object[] params) {
-        Bundle bundle = ServiceManager.getInstance().buildRouteRequestInsert(route, params);
-        ContentResolver contentResolver = mContext.getContentResolver();
-        Uri uri = base.buildUpon().appendPath("pigeon/1").appendPath(route).build();
-        int flags = 0;
-        flags = ParametersSpec.setParamParcel(flags, false);
-        bundle.putInt(PIGEON_KEY_FLAGS, flags);
-        Log.e(TAG, "uri:" + uri.toString() + " contentValues:" + bundle + " contentResolver:" + contentResolver);
-        Bundle result = contentResolver.call(uri, "", "", bundle);
+        RouteClientBoxmen<Bundle, Bundle> routeClientBoxmen = new RouteClientBoxmenImpl();
+        Bundle bundle = routeClientBoxmen.boxing(route, params);
+        Bundle result = newCall().execute(route, bundle);
         if (null == result) {
             return "";
         }
+//        return routeClientBoxmen.unboxing(result);
         return result.getString(PIGEON_KEY_RESULT);
     }
 

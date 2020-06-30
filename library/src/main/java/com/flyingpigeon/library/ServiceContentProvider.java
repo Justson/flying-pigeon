@@ -48,10 +48,9 @@ public class ServiceContentProvider extends ContentProvider {
         }
         try {
             if (path.startsWith("/pigeon/10")) {
-                cursor = ServiceManager.getInstance().matchQuery(uri, selectionArgs, path.replace("/pigeon/10/", ""));
+                cursor = Server.getInstance().dispatch(uri, selectionArgs, path.replace("/pigeon/10/", ""));
             } else if (path.startsWith("/pigeon/11")) {
-                cursor = ServiceManager.getInstance().matchQuery0(uri, selectionArgs, path.replace("/pigeon/11/", ""));
-
+                cursor = Server.getInstance().dispatch0(uri, selectionArgs, path.replace("/pigeon/11/", ""));
             }
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
@@ -71,22 +70,19 @@ public class ServiceContentProvider extends ContentProvider {
     public Bundle call(@NonNull String method, @Nullable String arg, @Nullable Bundle extras) {
         Bundle response = new Bundle();
         try {
+            assert extras != null;
             extras.setClassLoader(Pair.class.getClassLoader());
-            MethodCaller methodCaller;
             int approach = extras.getInt(PIGEON_KEY_LOOK_UP_APPROACH);
             if (approach == PIGEON_APPROACH_METHOD) {
-                methodCaller = ServiceManager.getInstance().approachByMethod(method, extras);
-                Object result = methodCaller.call(ServiceManager.getInstance().parseData(arg, extras));
-                ServiceManager.getInstance().buildResponse(extras, response, result);
-                response.putInt(PIGEON_KEY_RESPONSE_CODE, PIGEON_RESPONSE_RESULE_SUCCESS);
+                return Server.getInstance().dispatch(method, response, arg, extras);
             } else {
                 String route = extras.getString(PIGEON_KEY_ROUTE);
                 int flags = extras.getInt(PIGEON_KEY_FLAGS);
                 Log.e(TAG, "call route:" + route + " isParamParcel:" + ParametersSpec.isParamParcel(flags));
                 if (ParametersSpec.isParamParcel(flags)) {
-                    ServiceManager.getInstance().approachByRoute(method, extras, response);
+                    return Server.getInstance().dispatch(method, extras, response);
                 } else {
-                    ServiceManager.getInstance().routeQuery(method, extras);
+                    Server.getInstance().dispatch(method, extras);
                 }
             }
         } catch (NoSuchMethodException e) {

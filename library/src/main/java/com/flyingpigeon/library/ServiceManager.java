@@ -1,8 +1,6 @@
 package com.flyingpigeon.library;
 
 import android.content.ContentValues;
-import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.ParcelFileDescriptor;
 import android.os.Parcelable;
@@ -12,24 +10,20 @@ import android.util.Log;
 import com.flyingpigeon.library.annotations.RequestLarge;
 import com.flyingpigeon.library.annotations.ResponseLarge;
 import com.flyingpigeon.library.annotations.route;
-import com.flyingpigeon.library.ashmem.Ashmem;
 
 import java.io.FileDescriptor;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayDeque;
-import java.util.Iterator;
 import java.util.Locale;
 import java.util.concurrent.ConcurrentHashMap;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import static com.flyingpigeon.library.Config.PREFIX;
@@ -43,13 +37,10 @@ import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_LENGTH;
 import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_LOOK_UP_APPROACH;
 import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_RESPONSE;
 import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_RESPONSE_CODE;
-import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_RESULT;
 import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_ROUTE;
-import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_TYPE;
 import static com.flyingpigeon.library.PigeonConstant.PIGEON_RESPONSE_RESULE_ILLEGALACCESS;
 import static com.flyingpigeon.library.PigeonConstant.PIGEON_RESPONSE_RESULE_LOST_CLASS;
 import static com.flyingpigeon.library.PigeonConstant.PIGEON_RESPONSE_RESULE_NO_SUCH_METHOD;
-import static com.flyingpigeon.library.PigeonConstant.PIGEON_RESPONSE_RESULE_SUCCESS;
 
 /**
  * @author xiaozhongcen
@@ -61,7 +52,7 @@ public final class ServiceManager implements IServiceManager {
     private static final String TAG = PREFIX + ServiceManager.class.getSimpleName();
     private final Object lock = new Object();
     private ConcurrentHashMap<Class<?>, BuketMethod> sCache = new ConcurrentHashMap<>();
-    private ConcurrentHashMap<String, ArrayDeque<MethodCaller>> routers = new ConcurrentHashMap<>();
+    ConcurrentHashMap<String, ArrayDeque<MethodCaller>> routers = new ConcurrentHashMap<>();
 
     private ServiceManager() {
     }
@@ -72,159 +63,6 @@ public final class ServiceManager implements IServiceManager {
         return sInstance;
     }
 
-    Bundle buildRequest(Class<?> service, Object proxy, Method method, Object[] args) {
-        Bundle bundle = new Bundle();
-        Type[] types = method.getGenericParameterTypes();
-        for (int i = 0; i < types.length; i++) {
-            String key = String.format(Locale.ENGLISH, PIGEON_KEY_INDEX, i);
-//            Log.e(TAG, "type name:" + types[i] + " method:" + method.getName() + " service:" + service);
-            Class<?> typeClazz = ClassUtil.getRawType(types[i]);
-            if (int.class.isAssignableFrom(typeClazz)) {
-                ParameterHandler.IntHandler handler = (ParameterHandler.IntHandler) map.get(int.class);
-                assert handler != null;
-                handler.apply((Integer) args[i], key, bundle);
-            } else if (double.class.isAssignableFrom(typeClazz)) {
-                ParameterHandler.DoubleHandler handler = (ParameterHandler.DoubleHandler) map.get(double.class);
-                assert handler != null;
-                handler.apply((Double) args[i], key, bundle);
-            } else if (long.class.isAssignableFrom(typeClazz)) {
-                ParameterHandler.LongHandler handler = (ParameterHandler.LongHandler) map.get(long.class);
-                assert handler != null;
-                handler.apply((Long) args[i], key, bundle);
-            } else if (short.class.isAssignableFrom(typeClazz)) {
-                ParameterHandler.ShortHandler handler = (ParameterHandler.ShortHandler) map.get(short.class);
-                assert handler != null;
-                handler.apply((Short) args[i], key, bundle);
-            } else if (float.class.isAssignableFrom(typeClazz)) {
-                ParameterHandler.FloatHandler handler = (ParameterHandler.FloatHandler) map.get(float.class);
-                assert handler != null;
-                handler.apply((Float) args[i], key, bundle);
-            } else if (byte.class.isAssignableFrom(typeClazz)) {
-                ParameterHandler.ByteHandler handler = (ParameterHandler.ByteHandler) map.get(byte.class);
-                assert handler != null;
-                handler.apply((Byte) args[i], key, bundle);
-            } else if (byte[].class.isAssignableFrom(typeClazz)) {
-                byte[] array = (byte[]) args[i];
-                if (array.length > 8 * 1024) {
-                    String keyLength = key + PIGEON_KEY_ARRAY_LENGTH;
-                    Log.e(TAG, "keyLength:" + keyLength + " length:" + array.length);
-                    ParcelFileDescriptor parcelFileDescriptor = Ashmem.byteArrayToFileDescriptor(array);
-                    bundle.putInt(keyLength, array.length);
-                    ParameterHandler.ParcelableHandler handler = (ParameterHandler.ParcelableHandler) map.get(Parcelable.class);
-                    assert handler != null;
-                    handler.apply(parcelFileDescriptor, key, bundle);
-                    Parcelable parcelable = bundle.getParcelable(key);
-                } else {
-                    ParameterHandler.ByteArrayHandler byteArrayHandler = (ParameterHandler.ByteArrayHandler) map.get(byte[].class);
-                    byteArrayHandler.apply(array, key, bundle);
-                }
-
-            } else if (Byte[].class.isAssignableFrom(typeClazz)) {
-                byte[] array = Utils.toPrimitives((Byte[]) args[i]);
-                if (array.length > 8 * 1024) {
-                    ParcelFileDescriptor parcelFileDescriptor = Ashmem.byteArrayToFileDescriptor(array);
-                    String keyLength = key + PIGEON_KEY_ARRAY_LENGTH;
-                    Log.e(TAG, "keyLength:" + keyLength + " length:" + array.length);
-                    bundle.putInt(keyLength, array.length);
-                    ParameterHandler.ParcelableHandler handler = (ParameterHandler.ParcelableHandler) map.get(Parcelable.class);
-                    assert handler != null;
-                    handler.apply(parcelFileDescriptor, key, bundle);
-                    Parcelable parcelable = bundle.getParcelable(key);
-                } else {
-                    ParameterHandler.ByteArrayHandler byteArrayHandler = (ParameterHandler.ByteArrayHandler) map.get(byte[].class);
-                    byteArrayHandler.apply(array, key, bundle);
-                }
-
-            } else if (boolean.class.isAssignableFrom(typeClazz)) {
-                ParameterHandler.BooleanHandler handler = (ParameterHandler.BooleanHandler) map.get(boolean.class);
-                assert handler != null;
-                handler.apply((Boolean) args[i], key, bundle);
-            } else if (String.class.isAssignableFrom(typeClazz)) {
-                ParameterHandler.StringHandler handler = (ParameterHandler.StringHandler) map.get(String.class);
-                assert handler != null;
-                handler.apply((String) args[i], key, bundle);
-            } else if (Parcelable.class.isAssignableFrom((typeClazz))) {
-                ParameterHandler.ParcelableHandler handler = (ParameterHandler.ParcelableHandler) map.get(Parcelable.class);
-                assert handler != null;
-                handler.apply((Parcelable) args[i], key, bundle);
-                Parcelable parcelable = bundle.getParcelable(key);
-            } else if (Serializable.class.isAssignableFrom((typeClazz))) {
-                ParameterHandler.SerializableHandler handler = (ParameterHandler.SerializableHandler) map.get(Serializable.class);
-                assert handler != null;
-                handler.apply((Serializable) args[i], key, bundle);
-                Parcelable parcelable = bundle.getParcelable(key);
-            }
-        }
-
-        bundle.putInt(PIGEON_KEY_LENGTH, types.length);
-        bundle.putInt(PIGEON_KEY_LOOK_UP_APPROACH, PIGEON_APPROACH_METHOD);
-        bundle.putString(PIGEON_KEY_CLASS, service.getName());
-
-        // build response type;
-        String responseKey = PIGEON_KEY_RESPONSE;
-        Type returnType = method.getGenericReturnType();
-        if (int.class.isAssignableFrom((Class<?>) returnType)) {
-            ParameterHandler.IntHandler handler = (ParameterHandler.IntHandler) map.get(int.class);
-            assert handler != null;
-            handler.apply(0, responseKey, bundle);
-        } else if (double.class.isAssignableFrom((Class<?>) returnType)) {
-            ParameterHandler.DoubleHandler handler = (ParameterHandler.DoubleHandler) map.get(double.class);
-            assert handler != null;
-            handler.apply(0D, responseKey, bundle);
-        } else if (long.class.isAssignableFrom((Class<?>) returnType)) {
-            ParameterHandler.LongHandler handler = (ParameterHandler.LongHandler) map.get(long.class);
-            assert handler != null;
-            handler.apply(0L, responseKey, bundle);
-        } else if (short.class.isAssignableFrom((Class<?>) returnType)) {
-            ParameterHandler.ShortHandler handler = (ParameterHandler.ShortHandler) map.get(short.class);
-            assert handler != null;
-            handler.apply((short) 0, responseKey, bundle);
-        } else if (float.class.isAssignableFrom((Class<?>) returnType)) {
-            ParameterHandler.FloatHandler handler = (ParameterHandler.FloatHandler) map.get(float.class);
-            assert handler != null;
-            handler.apply(0F, responseKey, bundle);
-        } else if (byte.class.isAssignableFrom((Class<?>) returnType)) {
-            ParameterHandler.ByteHandler handler = (ParameterHandler.ByteHandler) map.get(byte.class);
-            assert handler != null;
-            handler.apply((byte) 0, responseKey, bundle);
-        } else if (boolean.class.isAssignableFrom((Class<?>) returnType)) {
-            ParameterHandler.BooleanHandler handler = (ParameterHandler.BooleanHandler) map.get(boolean.class);
-            assert handler != null;
-            handler.apply(false, responseKey, bundle);
-        } else if (String.class.isAssignableFrom((Class<?>) returnType)) {
-            ParameterHandler.StringHandler handler = (ParameterHandler.StringHandler) map.get(String.class);
-            assert handler != null;
-            handler.apply("", responseKey, bundle);
-        } else if (Parcelable.class.isAssignableFrom(((Class<?>) returnType))) {
-            ParameterHandler.ParcelableHandler handler = (ParameterHandler.ParcelableHandler) map.get(Parcelable.class);
-            assert handler != null;
-            handler.apply(new Empty(), responseKey, bundle);
-        } else if (Serializable.class.isAssignableFrom(((Class<?>) returnType))) {
-            ParameterHandler.SerializableHandler handler = (ParameterHandler.SerializableHandler) map.get(Serializable.class);
-            assert handler != null;
-            handler.apply(new Empty(), responseKey, bundle);
-        } else if (Void.class.isAssignableFrom(((Class<?>) returnType))) {
-        }
-
-        return bundle;
-    }
-
-
-    void approachByRoute(String method, Bundle in, Bundle out) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-        String route = in.getString(PIGEON_KEY_ROUTE);
-        if (TextUtils.isEmpty(route)) {
-            throw new NoSuchMethodException();
-        }
-        ArrayDeque<MethodCaller> callers = routers.get(route);
-        if (callers == null || callers.isEmpty()) {
-            throw new NoSuchMethodException(route);
-        }
-        Iterator<MethodCaller> iterators = callers.iterator();
-        while (iterators.hasNext()) {
-            MethodCaller methodCaller = iterators.next();
-            methodCaller.call(in, out);
-        }
-    }
 
 
     ContentValues buildRequestInsert(Class<?> service, Object proxy, Method method, Object[] args) {
@@ -399,76 +237,6 @@ public final class ServiceManager implements IServiceManager {
     }
 
 
-    MethodCaller approachByMethod(@NonNull String method, @NonNull Bundle extras) throws ClassNotFoundException, NoSuchMethodException {
-        MethodCaller methodCaller;
-        int length = extras.getInt(PIGEON_KEY_LENGTH);
-        Class<?>[] clazzs = new Class[length];
-        for (int i = 0; i < length; i++) {
-            String index = String.format(Locale.ENGLISH, PIGEON_KEY_INDEX, i);
-            Parcelable parcelable = extras.getParcelable(index);
-            if (parcelable == null) {
-                break;
-            }
-            android.util.Pair<Class<?>, Object> data = parcelableToClazz(parcelable, index, extras);
-            assert data != null;
-            clazzs[i] = data.first;
-        }
-        for (int i = 0; i < length; i++) {
-            if (clazzs[i] == null) {
-                throw new IllegalArgumentException("arg error");
-            }
-        }
-
-        String clazz = extras.getString(PIGEON_KEY_CLASS);
-        BuketMethod buket = getMethods(Class.forName(clazz));
-        if (buket == null) {
-            throw new ClassNotFoundException();
-        }
-        methodCaller = buket.match(method, clazzs);
-        return methodCaller;
-    }
-
-
-    MethodCaller approachByMethodInsert(Uri uri, ContentValues values, String method) throws ClassNotFoundException, NoSuchMethodException {
-        MethodCaller methodCaller;
-        String key = PIGEON_KEY_INDEX;
-        String keyClass = PIGEON_KEY_CLASS_INDEX;
-        int length = values.getAsInteger(PIGEON_KEY_LENGTH);
-        Class<?>[] clazzs = new Class[length];
-        for (int i = 0; i < length; i++) {
-            String clazz = values.getAsString(String.format(Locale.ENGLISH, keyClass, i));
-            Log.e(TAG, "approachByMethodInsert:" + clazz + "  index:" + String.format(Locale.ENGLISH, keyClass, i + ""));
-            clazzs[i] = Class.forName(clazz);
-        }
-        for (int i = 0; i < length; i++) {
-            if (clazzs[i] == null) {
-                throw new IllegalArgumentException("arg error");
-            }
-        }
-        String clazz = values.getAsString(PIGEON_KEY_CLASS);
-        BuketMethod buket = getMethods(Class.forName(clazz));
-        if (buket == null) {
-            throw new ClassNotFoundException();
-        }
-        methodCaller = buket.match(method, clazzs);
-        return methodCaller;
-    }
-
-    MethodCaller approachByRouteInsert(Uri uri, ContentValues values, String route) throws ClassNotFoundException, NoSuchMethodException {
-        String key = PIGEON_KEY_INDEX;
-        String keyClass = PIGEON_KEY_CLASS_INDEX;
-        int length = values.getAsInteger(PIGEON_KEY_LENGTH);
-        for (int i = 0; i < length; i++) {
-            String clazz = values.getAsString(String.format(Locale.ENGLISH, keyClass, i));
-            Log.e(TAG, "approachByRouteInsert:" + clazz + "  index:" + String.format(Locale.ENGLISH, keyClass, i + ""));
-        }
-        ArrayDeque<MethodCaller> callers = routers.get(route);
-        if (callers == null || callers.isEmpty()) {
-            throw new NoSuchMethodException(route);
-        }
-        return callers.getFirst();
-    }
-
 
     Object[] parseData(@Nullable String arg, @Nullable Bundle extras) {
         int length = extras.getInt(PIGEON_KEY_LENGTH);
@@ -568,27 +336,6 @@ public final class ServiceManager implements IServiceManager {
                 return null;
             }
         }
-    }
-
-    Object parseReponse(Bundle response, Method method) throws CallRemoteException {
-        response.setClassLoader(Pair.class.getClassLoader());
-        int responseCode = response.getInt(PIGEON_KEY_RESPONSE_CODE);
-        if (responseCode == PIGEON_RESPONSE_RESULE_NO_SUCH_METHOD) {
-            throw new CallRemoteException("404 , method not found ");
-        }
-        if (responseCode == PIGEON_RESPONSE_RESULE_LOST_CLASS) {
-            throw new CallRemoteException("404 , class not found ");
-        }
-
-        if (responseCode == PIGEON_RESPONSE_RESULE_ILLEGALACCESS) {
-            throw new CallRemoteException("404 , illegal access ");
-        }
-
-        Parcelable parcelable;
-        if (responseCode == PIGEON_RESPONSE_RESULE_SUCCESS && (parcelable = response.getParcelable(PIGEON_KEY_RESPONSE)) != null) {
-            return parcelableValueOut(parcelable);
-        }
-        return null;
     }
 
     void parseReponse(Bundle response) throws CallRemoteException {
@@ -831,99 +578,5 @@ public final class ServiceManager implements IServiceManager {
         return bundle;
     }
 
-
-    Cursor matchQuery(Uri uri, String[] arg, String route) throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-        Log.e(TAG, "matchQuery:" + route);
-        int pLength = (arg.length - 2) / 2;
-        String[] params = new String[pLength];
-        String[] types = new String[pLength];
-        System.arraycopy(arg, 0, params, 0, pLength);
-        System.arraycopy(arg, pLength + 2, types, 0, pLength);
-        Object[] values = Utils.getValues(types, params);
-        ArrayDeque<MethodCaller> callers = routers.get(route);
-        if (callers == null || callers.isEmpty()) {
-            throw new NoSuchMethodException(route);
-        }
-        MethodCaller methodCaller = callers.getFirst();
-        Object o = methodCaller.call(values);
-        if (o == null) {
-            return null;
-        }
-        Bundle bundle = new Bundle();
-        BundleCursor bundleCursor = new BundleCursor(bundle, new String[]{PIGEON_KEY_RESULT});
-        if (o instanceof String) {
-            bundle.putString(PIGEON_KEY_TYPE, "String");
-            bundleCursor.addRow(new Object[]{o.toString()});
-        } else if (o instanceof Byte[]) {
-            bundle.putString(PIGEON_KEY_TYPE, "[B");
-            bundleCursor.addRow(new Object[]{Utils.toPrimitives((Byte[]) o)});
-        } else if (o instanceof byte[]) {
-            bundle.putString(PIGEON_KEY_TYPE, "[B");
-            bundleCursor.addRow(new Object[]{o});
-        } else {
-            RouteResponseLargeCaller routeResponseLargeCaller = (RouteResponseLargeCaller) methodCaller;
-            Method target = routeResponseLargeCaller.target;
-            Type returnType = target.getGenericReturnType();
-            Utils.typeConvert(returnType, bundle, PIGEON_KEY_RESULT);
-        }
-        return bundleCursor;
-    }
-
-    Cursor matchQuery0(Uri uri, String[] arg, String method) throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-        int pLength = (arg.length - 2) / 2;
-        String[] params = new String[pLength];
-        String[] types = new String[pLength];
-        System.arraycopy(arg, 0, params, 0, pLength);
-        System.arraycopy(arg, pLength + 2, types, 0, pLength);
-        Class<?>[] classes = Utils.getClazz(types, params);
-        String clazz = uri.getQueryParameter(PIGEON_KEY_CLASS);
-        BuketMethod buketMethod = getMethods(Class.forName(clazz));
-        if (buketMethod == null) {
-            throw new NoSuchMethodException(method);
-        }
-        MethodCaller methodCaller = buketMethod.match(method, classes);
-        Object[] values = Utils.getValues(types, params);
-        Object o = methodCaller.call(values);
-        if (o == null) {
-            return null;
-        }
-
-        Bundle bundle = new Bundle();
-        BundleCursor bundleCursor = new BundleCursor(bundle, new String[]{PIGEON_KEY_RESULT});
-        if (o instanceof String) {
-            bundle.putString(PIGEON_KEY_TYPE, "String");
-            bundleCursor.addRow(new Object[]{o.toString()});
-        } else if (o instanceof Byte[]) {
-            bundle.putString(PIGEON_KEY_TYPE, "[B");
-            bundleCursor.addRow(new Object[]{Utils.toPrimitives((Byte[]) o)});
-        } else if (o instanceof byte[]) {
-            bundle.putString(PIGEON_KEY_TYPE, "[B");
-            bundleCursor.addRow(new Object[]{o});
-        } else {
-            RouteResponseLargeCaller routeResponseLargeCaller = (RouteResponseLargeCaller) methodCaller;
-            Method target = routeResponseLargeCaller.target;
-            Type returnType = target.getGenericReturnType();
-            Utils.typeConvert(returnType, bundle, PIGEON_KEY_RESULT);
-        }
-        return bundleCursor;
-    }
-
-    public Object routeQuery(String method, Bundle in) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-        String route = in.getString(PIGEON_KEY_ROUTE);
-        if (TextUtils.isEmpty(route)) {
-            throw new NoSuchMethodException();
-        }
-        ArrayDeque<MethodCaller> callers = routers.get(route);
-        if (callers == null || callers.isEmpty()) {
-            throw new NoSuchMethodException(route);
-        }
-        Iterator<MethodCaller> iterators = callers.iterator();
-        if (iterators.hasNext()) {
-            MethodCaller methodCaller = iterators.next();
-            Object[] params = ServiceManager.getInstance().parseData("", in);
-            return methodCaller.call(params);
-        }
-        return null;
-    }
 
 }
