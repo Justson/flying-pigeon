@@ -46,7 +46,7 @@ public class Server {
             throw new ClassNotFoundException();
         }
         methodCaller = buket.match(method, unboxing.first);
-        Object result = methodCaller.call(ServiceManager.getInstance().parseData(arg, in));
+        Object result = methodCaller.call(unboxing.second);
         serverBoxmen.boxing(in, response, result);
         return response;
     }
@@ -78,10 +78,12 @@ public class Server {
         if (callers == null || callers.isEmpty()) {
             throw new NoSuchMethodException(route);
         }
+        ServerBoxmenImpl serverBoxmen = new ServerBoxmenImpl();
+        Pair<Class<?>[], Object[]> pair = serverBoxmen.unboxing(in);
         Iterator<MethodCaller> iterators = callers.iterator();
         if (iterators.hasNext()) {
             MethodCaller methodCaller = iterators.next();
-            Object[] params = ServiceManager.getInstance().parseData("", in);
+            Object[] params = pair.second;
             return methodCaller.call(params);
         }
         return null;

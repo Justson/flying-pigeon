@@ -18,7 +18,7 @@ import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_LOOK_UP_APPROAC
 import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_RESPONSE;
 import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_RESPONSE_CODE;
 import static com.flyingpigeon.library.PigeonConstant.PIGEON_RESPONSE_RESULE_SUCCESS;
-import static com.flyingpigeon.library.ServiceManager.map;
+import static com.flyingpigeon.library.PigeonConstant.map;
 
 /**
  * @author xiaozhongcen

@@ -2,7 +2,6 @@ package com.flyingpigeon.library;
 
 import android.content.ContentValues;
 import android.os.Bundle;
-import android.os.ParcelFileDescriptor;
 import android.os.Parcelable;
 import android.text.TextUtils;
 import android.util.Log;
@@ -11,10 +10,6 @@ import com.flyingpigeon.library.annotations.RequestLarge;
 import com.flyingpigeon.library.annotations.ResponseLarge;
 import com.flyingpigeon.library.annotations.route;
 
-import java.io.FileDescriptor;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
@@ -24,20 +19,14 @@ import java.util.ArrayDeque;
 import java.util.Locale;
 import java.util.concurrent.ConcurrentHashMap;
 
-import androidx.annotation.Nullable;
-
 import static com.flyingpigeon.library.Config.PREFIX;
 import static com.flyingpigeon.library.PigeonConstant.PIGEON_APPROACH_METHOD;
-import static com.flyingpigeon.library.PigeonConstant.PIGEON_APPROACH_ROUTE;
-import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_ARRAY_LENGTH;
 import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_CLASS;
 import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_CLASS_INDEX;
 import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_INDEX;
 import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_LENGTH;
 import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_LOOK_UP_APPROACH;
-import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_RESPONSE;
 import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_RESPONSE_CODE;
-import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_ROUTE;
 import static com.flyingpigeon.library.PigeonConstant.PIGEON_RESPONSE_RESULE_ILLEGALACCESS;
 import static com.flyingpigeon.library.PigeonConstant.PIGEON_RESPONSE_RESULE_LOST_CLASS;
 import static com.flyingpigeon.library.PigeonConstant.PIGEON_RESPONSE_RESULE_NO_SUCH_METHOD;
@@ -62,7 +51,6 @@ public final class ServiceManager implements IServiceManager {
     public static ServiceManager getInstance() {
         return sInstance;
     }
-
 
 
     ContentValues buildRequestInsert(Class<?> service, Object proxy, Method method, Object[] args) {
@@ -93,7 +81,7 @@ public final class ServiceManager implements IServiceManager {
             }
             Class<?> typeClazz = ClassUtil.getRawType(types[i]);
             if (int.class.isAssignableFrom(typeClazz)) {
-                params[i] = args[i] + "";
+                params[i] = args[i].toString();
                 params[i + pLength + 2] = int.class.getName();
             } else if (double.class.isAssignableFrom(typeClazz)) {
                 params[i] = args[i] + "";
@@ -238,106 +226,6 @@ public final class ServiceManager implements IServiceManager {
 
 
 
-    Object[] parseData(@Nullable String arg, @Nullable Bundle extras) {
-        int length = extras.getInt(PIGEON_KEY_LENGTH);
-        Object[] values = new Object[length];
-        Class<?>[] clazzs = new Class[length];
-        for (int i = 0; i < length; i++) {
-            String index = String.format(Locale.ENGLISH, PIGEON_KEY_INDEX, i);
-            Parcelable parcelable = extras.getParcelable(index);
-            if (parcelable == null) {
-                break;
-            }
-            android.util.Pair<Class<?>, Object> data = parcelableToClazz(parcelable, index, extras);
-            clazzs[i] = data.first;
-            values[i] = data.second;
-        }
-        return values;
-    }
-
-
-    static final ConcurrentHashMap<Class, ParameterHandler> map = new ConcurrentHashMap<Class, ParameterHandler>() {
-        {
-            put(int.class, new ParameterHandler.IntHandler());
-            put(double.class, new ParameterHandler.DoubleHandler());
-            put(long.class, new ParameterHandler.LongHandler());
-            put(short.class, new ParameterHandler.ShortHandler());
-            put(float.class, new ParameterHandler.FloatHandler());
-            put(byte.class, new ParameterHandler.ByteHandler());
-            put(byte[].class, new ParameterHandler.ByteArrayHandler());
-            put(boolean.class, new ParameterHandler.BooleanHandler());
-            put(Parcelable.class, new ParameterHandler.ParcelableHandler());
-            put(Serializable.class, new ParameterHandler.SerializableHandler());
-            put(String.class, new ParameterHandler.StringHandler());
-        }
-    };
-
-    private android.util.Pair<Class<?>, Object> parcelableToClazz(Parcelable parcelable, String index, Bundle extras) {
-        if (parcelable instanceof com.flyingpigeon.library.Pair.PairInt) {
-            return new android.util.Pair<Class<?>, Object>(int.class, ((com.flyingpigeon.library.Pair.PairInt) parcelable).getValue());
-        } else if (parcelable instanceof com.flyingpigeon.library.Pair.PairDouble) {
-            return new android.util.Pair<Class<?>, Object>(double.class, ((com.flyingpigeon.library.Pair.PairDouble) parcelable).getValue());
-        } else if (parcelable instanceof com.flyingpigeon.library.Pair.PairLong) {
-            return new android.util.Pair<Class<?>, Object>(long.class, ((com.flyingpigeon.library.Pair.PairLong) parcelable).getValue());
-        } else if (parcelable instanceof com.flyingpigeon.library.Pair.PairShort) {
-            return new android.util.Pair<Class<?>, Object>(short.class, ((com.flyingpigeon.library.Pair.PairShort) parcelable).getValue());
-        } else if (parcelable instanceof com.flyingpigeon.library.Pair.PairFloat) {
-            return new android.util.Pair<Class<?>, Object>(float.class, ((com.flyingpigeon.library.Pair.PairFloat) parcelable).getValue());
-        } else if (parcelable instanceof com.flyingpigeon.library.Pair.PairByte) {
-            return new android.util.Pair<Class<?>, Object>(byte.class, ((com.flyingpigeon.library.Pair.PairByte) parcelable).getValue());
-        } else if (parcelable instanceof com.flyingpigeon.library.Pair.PairBoolean) {
-            return new android.util.Pair<Class<?>, Object>(boolean.class, ((com.flyingpigeon.library.Pair.PairBoolean) parcelable).isValue());
-        } else if (parcelable instanceof Pair.PairByteArray) {
-            return new android.util.Pair<Class<?>, Object>(byte[].class, ((com.flyingpigeon.library.Pair.PairByteArray) parcelable).getValue());
-        } else if (parcelable instanceof com.flyingpigeon.library.Pair.PairString) {
-            try {
-                return new android.util.Pair<Class<?>, Object>(Class.forName(((Pair.PairString) parcelable).getKey()), ((Pair.PairString) parcelable).getValue());
-            } catch (ClassNotFoundException e) {
-                e.printStackTrace();
-                return null;
-            }
-        } else if (parcelable instanceof com.flyingpigeon.library.Pair.PairByteArray) {
-            return new android.util.Pair<Class<?>, Object>(byte[].class, ((Pair.PairByteArray) parcelable).getValue());
-        } else if (parcelable instanceof com.flyingpigeon.library.Pair.PairSerializable) {
-            try {
-                return new android.util.Pair<Class<?>, Object>(Class.forName(((Pair.PairSerializable) parcelable).getKey()), ((Pair.PairSerializable) parcelable).getValue());
-            } catch (ClassNotFoundException e) {
-                e.printStackTrace();
-                return null;
-            }
-        } else {
-            try {
-                Parcelable value = ((Pair.PairParcelable) parcelable).getValue();
-                if (value instanceof ParcelFileDescriptor) {
-                    String lengthKey = index + PIGEON_KEY_ARRAY_LENGTH;
-                    int arrayLength = extras.getInt(lengthKey);
-                    Log.e(TAG, "keyLength:" + arrayLength + " lengthKey:" + lengthKey);
-                    ParcelFileDescriptor parcelFileDescriptor = (ParcelFileDescriptor) value;
-                    FileDescriptor fileDescriptor = parcelFileDescriptor.getFileDescriptor();
-                    FileInputStream fileInputStream = new FileInputStream(fileDescriptor);
-                    byte[] bytes = new byte[arrayLength];
-                    try {
-                        fileInputStream.read(bytes);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    } finally {
-                        try {
-                            fileInputStream.close();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                    return new android.util.Pair<Class<?>, Object>(byte[].class, bytes);
-                } else {
-                    return new android.util.Pair<Class<?>, Object>(Class.forName(((Pair.PairParcelable) parcelable).getKey()), ((Pair.PairParcelable) parcelable).getValue());
-                }
-            } catch (ClassNotFoundException e) {
-                e.printStackTrace();
-                return null;
-            }
-        }
-    }
-
     void parseReponse(Bundle response) throws CallRemoteException {
         response.setClassLoader(Pair.class.getClassLoader());
         int responseCode = response.getInt(PIGEON_KEY_RESPONSE_CODE);
@@ -354,41 +242,6 @@ public final class ServiceManager implements IServiceManager {
         response.remove(PIGEON_KEY_RESPONSE_CODE);
     }
 
-    void buildResponse(Bundle request, Bundle response, Object result) {
-        Parcelable parcelable = request.getParcelable(PIGEON_KEY_RESPONSE);
-        if (parcelable != null) {
-            parcelableValueIn(parcelable, result);
-            response.putParcelable(PIGEON_KEY_RESPONSE, parcelable);
-        }
-    }
-
-
-    private void parcelableValueIn(Parcelable parcelable, Object value) {
-        if (parcelable instanceof com.flyingpigeon.library.Pair.PairInt) {
-            ((com.flyingpigeon.library.Pair.PairInt) parcelable).setValue((Integer) value);
-        } else if (parcelable instanceof com.flyingpigeon.library.Pair.PairDouble) {
-            ((com.flyingpigeon.library.Pair.PairDouble) parcelable).setValue((Double) value);
-        } else if (parcelable instanceof com.flyingpigeon.library.Pair.PairLong) {
-            ((com.flyingpigeon.library.Pair.PairLong) parcelable).setValue((Long) value);
-        } else if (parcelable instanceof com.flyingpigeon.library.Pair.PairShort) {
-            ((com.flyingpigeon.library.Pair.PairShort) parcelable).setValue((Short) value);
-        } else if (parcelable instanceof com.flyingpigeon.library.Pair.PairFloat) {
-            ((com.flyingpigeon.library.Pair.PairFloat) parcelable).setValue((Float) value);
-        } else if (parcelable instanceof com.flyingpigeon.library.Pair.PairByte) {
-            ((com.flyingpigeon.library.Pair.PairByte) parcelable).setValue((Byte) value);
-        } else if (parcelable instanceof com.flyingpigeon.library.Pair.PairBoolean) {
-            ((com.flyingpigeon.library.Pair.PairBoolean) parcelable).setValue((Boolean) value);
-        } else if (parcelable instanceof com.flyingpigeon.library.Pair.PairString) {
-            ((Pair.PairString) parcelable).setValue((String) value);
-            ((Pair.PairString) parcelable).setKey(value.getClass().getName());
-        } else if (parcelable instanceof com.flyingpigeon.library.Pair.PairSerializable) {
-            ((Pair.PairSerializable) parcelable).setValue((Serializable) value);
-            ((Pair.PairSerializable) parcelable).setKey(value.getClass().getName());
-        } else {
-            ((Pair.PairParcelable) parcelable).setValue((Parcelable) value);
-            ((Pair.PairParcelable) parcelable).setKey(value.getClass().getName());
-        }
-    }
 
     Object parcelableValueOut(Parcelable parcelable) {
         if (parcelable instanceof com.flyingpigeon.library.Pair.PairInt) {
@@ -545,37 +398,6 @@ public final class ServiceManager implements IServiceManager {
                 sCache.remove(aInterface);
             }
         }
-    }
-
-    void buildRequestRoute(Bundle in) {
-        in.putInt(PIGEON_KEY_LOOK_UP_APPROACH, PIGEON_APPROACH_ROUTE);
-    }
-
-
-    String[] buildRequestQuery(String route, Object[] params) {
-        int length = params.length;
-        String[] data = new String[length * 2 + 2];
-        for (int i = 0; i < length; i++) {
-            data[i] = params[i].toString();
-            data[i + length + 2] = params[i].getClass().getName();
-        }
-        return data;
-    }
-
-    Bundle buildRouteRequestInsert(String route, Object[] params) {
-        Type[] types = new Type[params.length];
-        for (int i = 0; i < params.length; i++) {
-            if (params[i] == null) {
-                continue;
-            }
-            types[i] = params[i].getClass();
-        }
-        Bundle bundle = new Bundle();
-        bundle.putInt(PIGEON_KEY_LENGTH, params.length);
-        bundle.putString(PIGEON_KEY_ROUTE, route);
-        bundle.putInt(PIGEON_KEY_LOOK_UP_APPROACH, PIGEON_APPROACH_ROUTE);
-        settingValues0(params, bundle, types);
-        return bundle;
     }
 
 

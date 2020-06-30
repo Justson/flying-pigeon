@@ -1,5 +1,10 @@
 package com.flyingpigeon.library;
 
+import android.os.Parcelable;
+
+import java.io.Serializable;
+import java.util.concurrent.ConcurrentHashMap;
+
 /**
  * @author xiaozhongcen
  * @date 20-6-24
@@ -25,5 +30,20 @@ interface PigeonConstant {
     String PIGEON_KEY_ARRAY_LENGTH = "_array_length";
     String PIGEON_KEY_RESULT = "key_result";
 
+    static final ConcurrentHashMap<Class, ParameterHandler> map = new ConcurrentHashMap<Class, ParameterHandler>() {
+        {
+            put(int.class, new ParameterHandler.IntHandler());
+            put(double.class, new ParameterHandler.DoubleHandler());
+            put(long.class, new ParameterHandler.LongHandler());
+            put(short.class, new ParameterHandler.ShortHandler());
+            put(float.class, new ParameterHandler.FloatHandler());
+            put(byte.class, new ParameterHandler.ByteHandler());
+            put(byte[].class, new ParameterHandler.ByteArrayHandler());
+            put(boolean.class, new ParameterHandler.BooleanHandler());
+            put(Parcelable.class, new ParameterHandler.ParcelableHandler());
+            put(Serializable.class, new ParameterHandler.SerializableHandler());
+            put(String.class, new ParameterHandler.StringHandler());
+        }
+    };
 
 }

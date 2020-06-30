@@ -1,7 +1,6 @@
 package com.flyingpigeon.library;
 
 import android.content.ContentResolver;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -21,11 +20,12 @@ import java.lang.reflect.Proxy;
 import java.util.Objects;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 import static com.flyingpigeon.library.Config.PREFIX;
+import static com.flyingpigeon.library.PigeonConstant.PIGEON_APPROACH_ROUTE;
 import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_CLASS;
 import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_FLAGS;
+import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_LOOK_UP_APPROACH;
 import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_RESULT;
 import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_TYPE;
 
@@ -84,7 +84,7 @@ public final class Pigeon {
         }
         boolean isResponseLarge = ParametersSpec.isResponseParameterLarge(flags);
         if (isResponseLarge) {
-            return callByResponseLarge(service, proxy, method, args);
+            return large(service, proxy, method, args);
         }
         flags = ParametersSpec.setParamParcel(flags, false);
         ClientBoxmen<Bundle, Object> clientBoxmen = new ClientBoxmenImpl();
@@ -100,7 +100,7 @@ public final class Pigeon {
         return new RealCall(mContext, this);
     }
 
-    private Object callByResponseLarge(Class<?> service, Object proxy, Method method, Object[] args) {
+    private Object large(Class<?> service, Object proxy, Method method, Object[] args) {
         String[] contentValues = ServiceManager.getInstance().buildRequestQuery(service, proxy, method, args);
         ContentResolver contentResolver = mContext.getContentResolver();
         Uri uri = base.buildUpon().appendPath("pigeon/11/" + method.getName()).appendQueryParameter(PIGEON_KEY_CLASS, service.getName()).build();
@@ -124,17 +124,9 @@ public final class Pigeon {
         return null;
     }
 
-    private @Nullable
-    Object callByContentProvideInsert(Class<?> service, Object proxy, Method method, Object[] args) {
-        ContentValues contentValues = ServiceManager.getInstance().buildRequestInsert(service, proxy, method, args);
-        ContentResolver contentResolver = mContext.getContentResolver();
-        Uri uri = base.buildUpon().appendPath("pigeon/0/" + method.getName()).build();
-        Uri result = contentResolver.insert(uri, contentValues);
-        return result.getQueryParameter(PIGEON_KEY_RESULT);
-    }
 
     Bundle fly(@NonNull Bundle in) {
-        ServiceManager.getInstance().buildRequestRoute(in);
+        in.putInt(PIGEON_KEY_LOOK_UP_APPROACH, PIGEON_APPROACH_ROUTE);
         ContentResolver contentResolver = mContext.getContentResolver();
         Bundle response = contentResolver.call(base, "", null, in);
         try {
@@ -162,10 +154,15 @@ public final class Pigeon {
     }
 
     <T> T routeLargeResponse(String route, Object[] params) {
-        String[] args = ServiceManager.getInstance().buildRequestQuery(route, params);
+        int length = params.length;
+        String[] data = new String[length * 2 + 2];
+        for (int i = 0; i < length; i++) {
+            data[i] = params[i].toString();
+            data[i + length + 2] = params[i].getClass().getName();
+        }
         ContentResolver contentResolver = mContext.getContentResolver();
         Uri uri = base.buildUpon().appendPath("pigeon/10/" + route).build();
-        Cursor cursor = contentResolver.query(uri, new String[]{}, "", args, "");
+        Cursor cursor = contentResolver.query(uri, new String[]{}, "", data, "");
         if (null == cursor) {
             return null;
         }
