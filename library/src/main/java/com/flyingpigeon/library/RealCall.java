@@ -2,12 +2,14 @@ package com.flyingpigeon.library;
 
 import android.content.ContentResolver;
 import android.content.Context;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 
 import java.lang.reflect.Method;
 
+import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_CLASS;
 import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_FLAGS;
 
 /**
@@ -47,6 +49,18 @@ public class RealCall {
             Log.e(TAG, "uri:" + uri.toString() + " contentValues:" + bundle + " contentResolver:" + contentResolver);
             Bundle result = contentResolver.call(uri, "", "", bundle);
             return result;
+        } catch (Throwable throwable) {
+            throwable.printStackTrace();
+        }
+        return null;
+    }
+
+
+    Cursor execute(Method method, Class<?> service, String[] contentValues) {
+        ContentResolver contentResolver = mContext.getContentResolver();
+        try {
+            Uri uri = mPigeon.base.buildUpon().appendPath("pigeon/11/" + method.getName()).appendQueryParameter(PIGEON_KEY_CLASS, service.getName()).build();
+            return contentResolver.query(uri, new String[]{}, "", contentValues, "");
         } catch (Throwable throwable) {
             throwable.printStackTrace();
         }

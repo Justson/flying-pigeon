@@ -10,7 +10,8 @@ import com.flyingpigeon.library.ashmem.Ashmem;
 import java.io.Serializable;
 import java.lang.reflect.Type;
 
-import static com.flyingpigeon.library.ServiceManager.map;
+import static com.flyingpigeon.library.PigeonConstant.map;
+
 
 /**
  * @author xiaozhongcen
@@ -283,6 +284,32 @@ public class Utils {
             assert handler != null;
             handler.apply((Serializable) arg, key, bundle);
             Parcelable parcelable = bundle.getParcelable(key);
+        }
+    }
+
+
+
+    static Object parcelableValueOut(Parcelable parcelable) {
+        if (parcelable instanceof com.flyingpigeon.library.Pair.PairInt) {
+            return ((com.flyingpigeon.library.Pair.PairInt) parcelable).getValue();
+        } else if (parcelable instanceof com.flyingpigeon.library.Pair.PairDouble) {
+            return ((com.flyingpigeon.library.Pair.PairDouble) parcelable).getValue();
+        } else if (parcelable instanceof com.flyingpigeon.library.Pair.PairLong) {
+            return ((com.flyingpigeon.library.Pair.PairLong) parcelable).getValue();
+        } else if (parcelable instanceof com.flyingpigeon.library.Pair.PairShort) {
+            return ((com.flyingpigeon.library.Pair.PairShort) parcelable).getValue();
+        } else if (parcelable instanceof com.flyingpigeon.library.Pair.PairFloat) {
+            return ((com.flyingpigeon.library.Pair.PairFloat) parcelable).getValue();
+        } else if (parcelable instanceof com.flyingpigeon.library.Pair.PairByte) {
+            return ((com.flyingpigeon.library.Pair.PairByte) parcelable).getValue();
+        } else if (parcelable instanceof com.flyingpigeon.library.Pair.PairBoolean) {
+            return ((com.flyingpigeon.library.Pair.PairBoolean) parcelable).isValue();
+        } else if (parcelable instanceof com.flyingpigeon.library.Pair.PairString) {
+            return ((com.flyingpigeon.library.Pair.PairString) parcelable).getValue();
+        } else if (parcelable instanceof com.flyingpigeon.library.Pair.PairSerializable) {
+            return ((com.flyingpigeon.library.Pair.PairSerializable) parcelable).getValue();
+        } else {
+            return ((com.flyingpigeon.library.Pair.PairParcelable) parcelable).getValue();
         }
     }
 }

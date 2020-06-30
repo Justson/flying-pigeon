@@ -87,7 +87,7 @@ public final class Pigeon {
             return large(service, proxy, method, args);
         }
         flags = ParametersSpec.setParamParcel(flags, false);
-        ClientBoxmen<Bundle, Object> clientBoxmen = new ClientBoxmenImpl();
+        ClientBoxmen<Bundle, Bundle, Object> clientBoxmen = new ClientBoxmenImpl();
         Bundle bundle = clientBoxmen.boxing(args, method.getGenericParameterTypes(), method.getGenericReturnType());
         bundle.putInt(PIGEON_KEY_FLAGS, flags);
         bundle.putString(PIGEON_KEY_CLASS, service.getName());
@@ -101,25 +101,27 @@ public final class Pigeon {
     }
 
     private Object large(Class<?> service, Object proxy, Method method, Object[] args) {
-        String[] contentValues = ServiceManager.getInstance().buildRequestQuery(service, proxy, method, args);
-        ContentResolver contentResolver = mContext.getContentResolver();
-        Uri uri = base.buildUpon().appendPath("pigeon/11/" + method.getName()).appendQueryParameter(PIGEON_KEY_CLASS, service.getName()).build();
-        Cursor cursor = contentResolver.query(uri, new String[]{}, "", contentValues, "");
+        ClientBoxmen<String[], Bundle, Object> clientBoxmen = new ClientLargeBoxmenImpl();
+        String[] contentValues = clientBoxmen.boxing(args, method.getGenericParameterTypes(), null);
+        Cursor cursor = null;
         try {
+            cursor = newCall().execute(method, service, contentValues);
             Bundle bundle = cursor.getExtras();
-            Parcelable parcelable = bundle.getParcelable(PIGEON_KEY_RESULT);
-            if (parcelable != null) {
-                return ServiceManager.getInstance().parcelableValueOut(parcelable);
-            } else if (cursor.moveToFirst()) {
+            if (cursor.moveToFirst()) {
                 String clazz = bundle.getString(PIGEON_KEY_TYPE);
                 if ("String".equalsIgnoreCase(clazz)) {
                     return cursor.getString(0);
                 } else if ("[B".equalsIgnoreCase(clazz)) {
                     return cursor.getBlob(0);
                 }
+            } else {
+                Object o = clientBoxmen.unboxing(bundle);
+                return o;
             }
         } finally {
-            cursor.close();
+            if (cursor != null) {
+                cursor.close();
+            }
         }
         return null;
     }
@@ -170,7 +172,7 @@ public final class Pigeon {
             Bundle bundle = cursor.getExtras();
             Parcelable parcelable = bundle.getParcelable(PIGEON_KEY_RESULT);
             if (parcelable != null) {
-                return (T) ServiceManager.getInstance().parcelableValueOut(parcelable);
+                return (T) Utils.parcelableValueOut(parcelable);
             } else if (cursor.moveToFirst()) {
                 String clazz = bundle.getString(PIGEON_KEY_TYPE);
                 if ("String".equalsIgnoreCase(clazz)) {

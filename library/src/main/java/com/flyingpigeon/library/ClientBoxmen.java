@@ -7,9 +7,9 @@ import java.lang.reflect.Type;
  * @date 20-6-30
  * @since 1.0.0
  */
-public interface ClientBoxmen<T, R> {
+public interface ClientBoxmen<T, P, R> {
 
     T boxing(Object[] args, Type[] types, Type returnType);
 
-    R unboxing(T t);
+    R unboxing(P p);
 }

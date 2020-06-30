@@ -25,7 +25,7 @@ import static com.flyingpigeon.library.PigeonConstant.map;
  * @date 20-6-30
  * @since 1.0.0
  */
-public class ClientBoxmenImpl implements ClientBoxmen<Bundle, Object> {
+public class ClientBoxmenImpl implements ClientBoxmen<Bundle, Bundle, Object> {
     @Override
     public Bundle boxing(Object[] args, Type[] types, Type returnType) {
         Bundle bundle = new Bundle();

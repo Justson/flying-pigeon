@@ -1,0 +1,123 @@
+package com.flyingpigeon.library;
+
+import android.os.Bundle;
+import android.os.Parcelable;
+
+import java.lang.reflect.Type;
+
+import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_RESULT;
+
+/**
+ * @author xiaozhongcen
+ * @date 20-6-30
+ * @since 1.0.0
+ */
+public class ClientLargeBoxmenImpl implements ClientBoxmen<String[], Bundle, Object> {
+
+    @Override
+    public String[] boxing(Object[] args, Type[] types, Type returnType) {
+        return settingValues(args, types);
+    }
+
+    @Override
+    public Object unboxing(Bundle bundle) {
+        Parcelable parcelable = bundle.getParcelable(PIGEON_KEY_RESULT);
+        if (parcelable != null) {
+            return parcelableValueOut(parcelable);
+        }
+        return null;
+    }
+
+
+    Object parcelableValueOut(Parcelable parcelable) {
+        if (parcelable instanceof com.flyingpigeon.library.Pair.PairInt) {
+            return ((com.flyingpigeon.library.Pair.PairInt) parcelable).getValue();
+        } else if (parcelable instanceof com.flyingpigeon.library.Pair.PairDouble) {
+            return ((com.flyingpigeon.library.Pair.PairDouble) parcelable).getValue();
+        } else if (parcelable instanceof com.flyingpigeon.library.Pair.PairLong) {
+            return ((com.flyingpigeon.library.Pair.PairLong) parcelable).getValue();
+        } else if (parcelable instanceof com.flyingpigeon.library.Pair.PairShort) {
+            return ((com.flyingpigeon.library.Pair.PairShort) parcelable).getValue();
+        } else if (parcelable instanceof com.flyingpigeon.library.Pair.PairFloat) {
+            return ((com.flyingpigeon.library.Pair.PairFloat) parcelable).getValue();
+        } else if (parcelable instanceof com.flyingpigeon.library.Pair.PairByte) {
+            return ((com.flyingpigeon.library.Pair.PairByte) parcelable).getValue();
+        } else if (parcelable instanceof com.flyingpigeon.library.Pair.PairBoolean) {
+            return ((com.flyingpigeon.library.Pair.PairBoolean) parcelable).isValue();
+        } else if (parcelable instanceof com.flyingpigeon.library.Pair.PairString) {
+            return ((Pair.PairString) parcelable).getValue();
+        } else if (parcelable instanceof com.flyingpigeon.library.Pair.PairSerializable) {
+            return ((Pair.PairSerializable) parcelable).getValue();
+        } else {
+            return ((Pair.PairParcelable) parcelable).getValue();
+        }
+    }
+
+
+    private String[] settingValues(Object[] args, Type[] types) {
+        int pLength = types.length;
+        String[] params = new String[pLength * 2 + 2];
+        for (int i = 0; i < args.length; i++) {
+            if (args[i] == null) {
+                params[i] = "";
+                params[i + pLength + 2] = ClassUtil.getRawType(types[i]).getName();
+                continue;
+            }
+            Class<?> typeClazz = ClassUtil.getRawType(types[i]);
+            if (int.class.isAssignableFrom(typeClazz)) {
+                params[i] = args[i].toString();
+                params[i + pLength + 2] = int.class.getName();
+            } else if (double.class.isAssignableFrom(typeClazz)) {
+                params[i] = args[i] + "";
+                params[i + pLength + 2] = double.class.getName();
+            } else if (long.class.isAssignableFrom(typeClazz)) {
+                params[i] = args[i] + "";
+                params[i + pLength + 2] = long.class.getName();
+            } else if (short.class.isAssignableFrom(typeClazz)) {
+
+                params[i] = args[i] + "";
+                params[i + pLength + 2] = short.class.getName();
+            } else if (float.class.isAssignableFrom(typeClazz)) {
+                params[i] = args[i] + "";
+                params[i + pLength + 2] = float.class.getName();
+            } else if (byte.class.isAssignableFrom(typeClazz)) {
+                params[i] = args[i] + "";
+                params[i + pLength + 2] = byte.class.getName();
+            } else if (boolean.class.isAssignableFrom(typeClazz)) {
+
+                params[i] = args[i] + "";
+                params[i + pLength + 2] = boolean.class.getName();
+            } else if (String.class.isAssignableFrom(typeClazz)) {
+
+                params[i] = args[i] + "";
+                params[i + pLength + 2] = String.class.getName();
+            } else if (Integer.class.isAssignableFrom(typeClazz)) {
+                Integer v = (Integer) args[i];
+                params[i] = v.intValue() + "";
+                params[i + pLength + 2] = int.class.getName();
+            } else if (Double.class.isAssignableFrom(typeClazz)) {
+                Double v = (Double) args[i];
+                params[i] = v.doubleValue() + "";
+                params[i + pLength + 2] = double.class.getName();
+            } else if (Long.class.isAssignableFrom(typeClazz)) {
+                Long v = (Long) args[i];
+                params[i] = v.longValue() + "";
+                params[i + pLength + 2] = long.class.getName();
+            } else if (Short.class.isAssignableFrom(typeClazz)) {
+                Short v = (Short) args[i];
+                params[i] = v.shortValue() + "";
+                params[i + pLength + 2] = short.class.getName();
+            } else if (Float.class.isAssignableFrom(typeClazz)) {
+                Float v = (Float) args[i];
+                params[i] = v.floatValue() + "";
+                params[i + pLength + 2] = float.class.getName();
+            } else if (Byte.class.isAssignableFrom(typeClazz)) {
+                Byte v = (Byte) args[i];
+                params[i] = v.byteValue() + "";
+                params[i + pLength + 2] = byte.class.getName();
+            }
+        }
+        return params;
+    }
+
+}

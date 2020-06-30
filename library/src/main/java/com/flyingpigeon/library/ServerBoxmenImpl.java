@@ -29,7 +29,6 @@ public class ServerBoxmenImpl implements ServerBoxmen<Bundle> {
 
     @Override
     public Pair<Class<?>[], Object[]> unboxing(Bundle bundle) {
-        MethodCaller methodCaller;
         int length = bundle.getInt(PIGEON_KEY_LENGTH);
         Class<?>[] clazzs = new Class[length];
         Object[] values = new Object[length];
