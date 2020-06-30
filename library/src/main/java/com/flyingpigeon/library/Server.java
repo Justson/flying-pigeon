@@ -14,6 +14,7 @@ import java.util.ArrayDeque;
 import java.util.Iterator;
 
 import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_CLASS;
+import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_RESPONSE;
 import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_RESULT;
 import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_ROUTE;
 import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_TYPE;
@@ -69,7 +70,7 @@ public class Server {
         return out;
     }
 
-    Object dispatch(String method, Bundle in) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+    void dispatch0(String method, Bundle in, Bundle response) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         String route = in.getString(PIGEON_KEY_ROUTE);
         if (TextUtils.isEmpty(route)) {
             throw new NoSuchMethodException();
@@ -84,9 +85,14 @@ public class Server {
         if (iterators.hasNext()) {
             MethodCaller methodCaller = iterators.next();
             Object[] params = pair.second;
-            return methodCaller.call(params);
+            Object o = methodCaller.call(params);
+            if (o != null) {
+                Class<?> clazz = o.getClass();
+                Log.e(TAG, "clazz:" + clazz + " o:" + o);
+                Utils.convert(PIGEON_KEY_RESPONSE, in, clazz, o);
+                serverBoxmen.boxing(in, response, o);
+            }
         }
-        return null;
     }
 
 

@@ -25,11 +25,8 @@ public final class LargeFlyPigeon {
         return new ResponseLargeFlyPigeon(this);
     }
 
-    public interface Fly {
-        String fly();
-    }
 
-    public interface Fly0 {
+    public interface Fly {
         <T> T fly();
     }
 
@@ -42,12 +39,12 @@ public final class LargeFlyPigeon {
         }
 
         @Override
-        public String fly() {
+        public <T> T fly() {
             return mLargeFlyPigeon.pigeon.routeLargeRequest(mLargeFlyPigeon.route, mLargeFlyPigeon.params);
         }
     }
 
-    public static final class ResponseLargeFlyPigeon implements Fly0 {
+    public static final class ResponseLargeFlyPigeon implements Fly {
 
         private LargeFlyPigeon mLargeFlyPigeon;
 

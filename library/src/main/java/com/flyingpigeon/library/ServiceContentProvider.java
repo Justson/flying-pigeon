@@ -82,7 +82,7 @@ public class ServiceContentProvider extends ContentProvider {
                 if (ParametersSpec.isParamParcel(flags)) {
                     return Server.getInstance().dispatch(method, extras, response);
                 } else {
-                    Server.getInstance().dispatch(method, extras);
+                    Server.getInstance().dispatch0(method, extras, response);
                 }
             }
         } catch (NoSuchMethodException e) {

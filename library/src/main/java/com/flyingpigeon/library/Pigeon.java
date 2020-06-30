@@ -68,7 +68,6 @@ public final class Pigeon {
 
 
     private Object call(Class<?> service, Object proxy, Method method, Object[] args) {
-        // large
         RequestLarge requestLarge = method.getAnnotation(RequestLarge.class);
         ResponseLarge responseLarge = method.getAnnotation(ResponseLarge.class);
         int flags = 0;
@@ -144,15 +143,15 @@ public final class Pigeon {
         return new Builder(context);
     }
 
-    String routeLargeRequest(String route, Object[] params) {
-        RouteClientBoxmen<Bundle, Bundle> routeClientBoxmen = new RouteClientBoxmenImpl();
+    <T> T routeLargeRequest(String route, Object[] params) {
+        RouteClientBoxmen<Bundle, Object> routeClientBoxmen = new RouteClientBoxmenImpl();
         Bundle bundle = routeClientBoxmen.boxing(route, params);
         Bundle result = newCall().execute(route, bundle);
         if (null == result) {
-            return "";
+            return null;
         }
-//        return routeClientBoxmen.unboxing(result);
-        return result.getString(PIGEON_KEY_RESULT);
+        result.setClassLoader(Pair.class.getClassLoader());
+        return (T) routeClientBoxmen.unboxing(result);
     }
 
     <T> T routeLargeResponse(String route, Object[] params) {

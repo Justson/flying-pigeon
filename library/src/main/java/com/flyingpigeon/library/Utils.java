@@ -256,6 +256,34 @@ public class Utils {
             ParameterHandler.BooleanHandler handler = (ParameterHandler.BooleanHandler) map.get(boolean.class);
             assert handler != null;
             handler.apply((Boolean) arg, key, bundle);
+        } else if (Integer.class.isAssignableFrom(typeClazz)) {
+            ParameterHandler.IntHandler handler = (ParameterHandler.IntHandler) map.get(int.class);
+            assert handler != null;
+            handler.apply((Integer) arg, key, bundle);
+        } else if (Double.class.isAssignableFrom(typeClazz)) {
+            ParameterHandler.DoubleHandler handler = (ParameterHandler.DoubleHandler) map.get(double.class);
+            assert handler != null;
+            handler.apply((Double) arg, key, bundle);
+        } else if (Long.class.isAssignableFrom(typeClazz)) {
+            ParameterHandler.LongHandler handler = (ParameterHandler.LongHandler) map.get(long.class);
+            assert handler != null;
+            handler.apply((Long) arg, key, bundle);
+        } else if (Short.class.isAssignableFrom(typeClazz)) {
+            ParameterHandler.ShortHandler handler = (ParameterHandler.ShortHandler) map.get(short.class);
+            assert handler != null;
+            handler.apply((Short) arg, key, bundle);
+        } else if (Float.class.isAssignableFrom(typeClazz)) {
+            ParameterHandler.FloatHandler handler = (ParameterHandler.FloatHandler) map.get(float.class);
+            assert handler != null;
+            handler.apply((Float) arg, key, bundle);
+        } else if (Byte.class.isAssignableFrom(typeClazz)) {
+            ParameterHandler.ByteHandler handler = (ParameterHandler.ByteHandler) map.get(byte.class);
+            assert handler != null;
+            handler.apply((Byte) arg, key, bundle);
+        } else if (Boolean.class.isAssignableFrom(typeClazz)) {
+            ParameterHandler.BooleanHandler handler = (ParameterHandler.BooleanHandler) map.get(boolean.class);
+            assert handler != null;
+            handler.apply((Boolean) arg, key, bundle);
         } else if (byte[].class.isAssignableFrom(typeClazz)) {
             byte[] array = (byte[]) arg;
             if (array.length > 8 * 1024) {
@@ -288,7 +316,6 @@ public class Utils {
     }
 
 
-
     static Object parcelableValueOut(Parcelable parcelable) {
         if (parcelable instanceof com.flyingpigeon.library.Pair.PairInt) {
             return ((com.flyingpigeon.library.Pair.PairInt) parcelable).getValue();
@@ -312,4 +339,5 @@ public class Utils {
             return ((com.flyingpigeon.library.Pair.PairParcelable) parcelable).getValue();
         }
     }
+
 }

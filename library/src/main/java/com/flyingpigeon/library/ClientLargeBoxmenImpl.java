@@ -64,56 +64,34 @@ public class ClientLargeBoxmenImpl implements ClientBoxmen<String[], Bundle, Obj
                 continue;
             }
             Class<?> typeClazz = ClassUtil.getRawType(types[i]);
+            params[i] = args[i].toString();
             if (int.class.isAssignableFrom(typeClazz)) {
-                params[i] = args[i].toString();
                 params[i + pLength + 2] = int.class.getName();
             } else if (double.class.isAssignableFrom(typeClazz)) {
-                params[i] = args[i] + "";
                 params[i + pLength + 2] = double.class.getName();
             } else if (long.class.isAssignableFrom(typeClazz)) {
-                params[i] = args[i] + "";
                 params[i + pLength + 2] = long.class.getName();
             } else if (short.class.isAssignableFrom(typeClazz)) {
-
-                params[i] = args[i] + "";
                 params[i + pLength + 2] = short.class.getName();
             } else if (float.class.isAssignableFrom(typeClazz)) {
-                params[i] = args[i] + "";
                 params[i + pLength + 2] = float.class.getName();
             } else if (byte.class.isAssignableFrom(typeClazz)) {
-                params[i] = args[i] + "";
                 params[i + pLength + 2] = byte.class.getName();
             } else if (boolean.class.isAssignableFrom(typeClazz)) {
-
-                params[i] = args[i] + "";
                 params[i + pLength + 2] = boolean.class.getName();
             } else if (String.class.isAssignableFrom(typeClazz)) {
-
-                params[i] = args[i] + "";
                 params[i + pLength + 2] = String.class.getName();
             } else if (Integer.class.isAssignableFrom(typeClazz)) {
-                Integer v = (Integer) args[i];
-                params[i] = v.intValue() + "";
                 params[i + pLength + 2] = int.class.getName();
             } else if (Double.class.isAssignableFrom(typeClazz)) {
-                Double v = (Double) args[i];
-                params[i] = v.doubleValue() + "";
                 params[i + pLength + 2] = double.class.getName();
             } else if (Long.class.isAssignableFrom(typeClazz)) {
-                Long v = (Long) args[i];
-                params[i] = v.longValue() + "";
                 params[i + pLength + 2] = long.class.getName();
             } else if (Short.class.isAssignableFrom(typeClazz)) {
-                Short v = (Short) args[i];
-                params[i] = v.shortValue() + "";
                 params[i + pLength + 2] = short.class.getName();
             } else if (Float.class.isAssignableFrom(typeClazz)) {
-                Float v = (Float) args[i];
-                params[i] = v.floatValue() + "";
                 params[i + pLength + 2] = float.class.getName();
             } else if (Byte.class.isAssignableFrom(typeClazz)) {
-                Byte v = (Byte) args[i];
-                params[i] = v.byteValue() + "";
                 params[i + pLength + 2] = byte.class.getName();
             }
         }
