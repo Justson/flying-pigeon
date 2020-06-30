@@ -26,8 +26,12 @@ import static com.flyingpigeon.library.PigeonConstant.PIGEON_APPROACH_ROUTE;
 import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_CLASS;
 import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_FLAGS;
 import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_LOOK_UP_APPROACH;
+import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_RESPONSE_CODE;
 import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_RESULT;
 import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_TYPE;
+import static com.flyingpigeon.library.PigeonConstant.PIGEON_RESPONSE_RESULE_ILLEGALACCESS;
+import static com.flyingpigeon.library.PigeonConstant.PIGEON_RESPONSE_RESULE_LOST_CLASS;
+import static com.flyingpigeon.library.PigeonConstant.PIGEON_RESPONSE_RESULE_NO_SUCH_METHOD;
 
 /**
  * @author xiaozhongcen
@@ -131,11 +135,28 @@ public final class Pigeon {
         ContentResolver contentResolver = mContext.getContentResolver();
         Bundle response = contentResolver.call(base, "", null, in);
         try {
-            ServiceManager.getInstance().parseReponse(response);
+            parseReponse(response);
         } catch (CallRemoteException e) {
             throw new RuntimeException(e);
         }
         return response;
+    }
+
+
+    void parseReponse(Bundle response) throws CallRemoteException {
+        response.setClassLoader(Pair.class.getClassLoader());
+        int responseCode = response.getInt(PIGEON_KEY_RESPONSE_CODE);
+        if (responseCode == PIGEON_RESPONSE_RESULE_NO_SUCH_METHOD) {
+            throw new CallRemoteException("404 , method not found ");
+        }
+        if (responseCode == PIGEON_RESPONSE_RESULE_LOST_CLASS) {
+            throw new CallRemoteException("404 , class not found ");
+        }
+
+        if (responseCode == PIGEON_RESPONSE_RESULE_ILLEGALACCESS) {
+            throw new CallRemoteException("404 , illegal access ");
+        }
+        response.remove(PIGEON_KEY_RESPONSE_CODE);
     }
 
     public static Pigeon.Builder newBuilder(@NonNull Context context) {

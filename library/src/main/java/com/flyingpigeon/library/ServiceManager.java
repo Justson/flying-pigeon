@@ -1,7 +1,5 @@
 package com.flyingpigeon.library;
 
-import android.os.Bundle;
-import android.os.Parcelable;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -17,10 +15,6 @@ import java.util.ArrayDeque;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static com.flyingpigeon.library.Config.PREFIX;
-import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_RESPONSE_CODE;
-import static com.flyingpigeon.library.PigeonConstant.PIGEON_RESPONSE_RESULE_ILLEGALACCESS;
-import static com.flyingpigeon.library.PigeonConstant.PIGEON_RESPONSE_RESULE_LOST_CLASS;
-import static com.flyingpigeon.library.PigeonConstant.PIGEON_RESPONSE_RESULE_NO_SUCH_METHOD;
 
 /**
  * @author xiaozhongcen
@@ -32,7 +26,7 @@ public final class ServiceManager implements IServiceManager {
     private static final String TAG = PREFIX + ServiceManager.class.getSimpleName();
     private final Object lock = new Object();
     private ConcurrentHashMap<Class<?>, BuketMethod> sCache = new ConcurrentHashMap<>();
-    ConcurrentHashMap<String, ArrayDeque<MethodCaller>> routers = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<String, ArrayDeque<MethodCaller>> routers = new ConcurrentHashMap<>();
 
     private ServiceManager() {
     }
@@ -44,29 +38,11 @@ public final class ServiceManager implements IServiceManager {
     }
 
 
-
-    void parseReponse(Bundle response) throws CallRemoteException {
-        response.setClassLoader(Pair.class.getClassLoader());
-        int responseCode = response.getInt(PIGEON_KEY_RESPONSE_CODE);
-        if (responseCode == PIGEON_RESPONSE_RESULE_NO_SUCH_METHOD) {
-            throw new CallRemoteException("404 , method not found ");
-        }
-        if (responseCode == PIGEON_RESPONSE_RESULE_LOST_CLASS) {
-            throw new CallRemoteException("404 , class not found ");
-        }
-
-        if (responseCode == PIGEON_RESPONSE_RESULE_ILLEGALACCESS) {
-            throw new CallRemoteException("404 , illegal access ");
-        }
-        response.remove(PIGEON_KEY_RESPONSE_CODE);
-    }
-
-
-
     @Override
     public void publish(Object service, Class<?>... interfaces) {
         if (interfaces.length == 0) {
             Log.e(TAG, "without interfaces ");
+            return;
         }
         synchronized (lock) {
             for (Class<?> aInterface : interfaces) {
@@ -132,6 +108,11 @@ public final class ServiceManager implements IServiceManager {
 
     BuketMethod getMethods(Class<?> clazz) {
         return this.sCache.get(clazz);
+    }
+
+
+    ArrayDeque<MethodCaller> lookupMethods(String route) {
+        return this.routers.get(route);
     }
 
     private void cacheMethodToRoute(String key, MethodCaller caller) {

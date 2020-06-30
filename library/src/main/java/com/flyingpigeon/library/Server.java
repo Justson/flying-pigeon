@@ -58,7 +58,7 @@ public class Server {
         if (TextUtils.isEmpty(route)) {
             throw new NoSuchMethodException();
         }
-        ArrayDeque<MethodCaller> callers = ServiceManager.getInstance().routers.get(route);
+        ArrayDeque<MethodCaller> callers = ServiceManager.getInstance().lookupMethods(route);
         if (callers == null || callers.isEmpty()) {
             throw new NoSuchMethodException(route);
         }
@@ -75,7 +75,7 @@ public class Server {
         if (TextUtils.isEmpty(route)) {
             throw new NoSuchMethodException();
         }
-        ArrayDeque<MethodCaller> callers = ServiceManager.getInstance().routers.get(route);
+        ArrayDeque<MethodCaller> callers = ServiceManager.getInstance().lookupMethods(route);
         if (callers == null || callers.isEmpty()) {
             throw new NoSuchMethodException(route);
         }
@@ -104,7 +104,7 @@ public class Server {
         System.arraycopy(arg, 0, params, 0, pLength);
         System.arraycopy(arg, pLength + 2, types, 0, pLength);
         Object[] values = Utils.getValues(types, params);
-        ArrayDeque<MethodCaller> callers = ServiceManager.getInstance().routers.get(route);
+        ArrayDeque<MethodCaller> callers = ServiceManager.getInstance().lookupMethods(route);
         if (callers == null || callers.isEmpty()) {
             throw new NoSuchMethodException(route);
         }
