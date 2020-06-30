@@ -1,5 +1,6 @@
 package com.flyingpigeon.library.ashmem;
 
+import android.annotation.SuppressLint;
 import android.os.MemoryFile;
 import android.os.ParcelFileDescriptor;
 
@@ -17,9 +18,17 @@ import java.util.UUID;
 public class Ashmem {
 
     public static ParcelFileDescriptor byteArrayToFileDescriptor(byte[] array) {
+        /**
+         * Landroid/os/MemoryFile;->getFileDescriptor()Ljava/io/FileDescriptor;	greylist
+         * 灰名单接口
+         * Android 10.0发布后，非SDK接口的划分变化
+         *
+         * greylist 无限制，可以正常使用。
+         */
         try {
             MemoryFile memoryFile = new MemoryFile(UUID.randomUUID().toString(), array.length);
             memoryFile.writeBytes(array, 0, 0, array.length);
+            @SuppressLint("DiscouragedPrivateApi")
             Method method = MemoryFile.class.getDeclaredMethod("getFileDescriptor");
             FileDescriptor fd = (FileDescriptor) method.invoke(memoryFile);
             return ParcelFileDescriptor.dup(fd);

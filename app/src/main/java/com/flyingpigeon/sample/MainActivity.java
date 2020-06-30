@@ -105,9 +105,9 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private void testReturn(IServiceApi IServiceApi) {
+    private void testReturn(IServiceApi serviceApi) {
         Poster poster = new Poster("Justson", "just", 119, 11111000L, (short) 23, 1.15646F, 'h', (byte) 4, 123456.415D);
 
-        Log.e(TAG, "int:" + IServiceApi.createPoster(poster) + " double:" + IServiceApi.testDouble() + " long:" + IServiceApi.testLong() + " short:" + IServiceApi.testShort() + " float:" + IServiceApi.testFloat() + " byte:" + IServiceApi.testByte() + " boolean:" + IServiceApi.testBoolean() + " testParcelable:" + GsonUtils.toJson(IServiceApi.testParcelable()));
+        Log.e(TAG, "int:" + serviceApi.createPoster(poster) + " double:" + serviceApi.testDouble() + " long:" + serviceApi.testLong() + " short:" + serviceApi.testShort() + " float:" + serviceApi.testFloat() + " byte:" + serviceApi.testByte() + " boolean:" + serviceApi.testBoolean() + " testParcelable:" + GsonUtils.toJson(serviceApi.testParcelable()));
     }
 }
