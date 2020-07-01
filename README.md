@@ -1,5 +1,7 @@
 # Flying-Pigeon
-Flying-Pigeon 是一个IPC 跨进程通信组件，底层是匿名内存+Binder ， 突破1MB大小限制，无需写AIDL文件，让实现跨进程通信就像写一个接口一样简单
+Flying-Pigeon 内部提供两种跨进程通信方式，来应对各种夸进程场景
+
+## 应用内 
 
 ### Server
 
@@ -13,6 +15,7 @@ private Api mApi = new Api() {
     };
 ```
 
+#### 对外发布服务
 ```java
 ServiceManager.getInstance().publish(mApi);
 ```
@@ -23,5 +26,32 @@ final Pigeon pigeon = Pigeon.newBuilder(this).setAuthority(ServiceApiImpl.class)
  Api api = pigeon.create(Api.class);
  Poster poster = new Poster("Justson", "just", 119, 11111000L, (short) 23, 1.15646F, 'h', (byte) 4, 123456.415D);
  api.createPoster(poster);
+```
 
+## 应用外
+
+### Server
+
+```java
+@route("/query/username")
+public void queryUsername(final Bundle in, final Bundle out) {
+    runOnUiThread(new Runnable() {
+        @Override
+        public void run() {
+            ipcLabel.setText("received other app message,\n message:" + in.getString("userid"));
+        }
+    });
+    out.putString("username", "ipc-sample");
+}
+```
+#### 对外发布服务
+```java
+ServiceManager.getInstance().publish(this);
+```
+
+
+### Client
+```java
+Pigeon flyPigeon = Pigeon.newBuilder(MainActivity.this).setAuthority("com.flyingpigeon.ipc_sample").build();
+Bundle bundle = flyPigeon.route("/query/username").withString("userid", UUID.randomUUID().toString()).fly();
 ```
