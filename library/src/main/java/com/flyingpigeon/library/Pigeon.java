@@ -28,9 +28,11 @@ import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_FLAGS;
 import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_LOOK_UP_APPROACH;
 import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_RESPONSE_CODE;
 import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_RESULT;
+import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_ROUTE;
 import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_TYPE;
 import static com.flyingpigeon.library.PigeonConstant.PIGEON_RESPONSE_RESULE_ILLEGALACCESS;
 import static com.flyingpigeon.library.PigeonConstant.PIGEON_RESPONSE_RESULE_LOST_CLASS;
+import static com.flyingpigeon.library.PigeonConstant.PIGEON_RESPONSE_RESULE_NOT_FOUND_ROUTE;
 import static com.flyingpigeon.library.PigeonConstant.PIGEON_RESPONSE_RESULE_NO_SUCH_METHOD;
 
 /**
@@ -96,6 +98,12 @@ public final class Pigeon {
         bundle.putString(PIGEON_KEY_CLASS, service.getName());
         RealCall realCall = newCall();
         Bundle response = realCall.execute(method, bundle);
+        try {
+            parseReponse(new Bundle(), response);
+        } catch (CallRemoteException e) {
+            e.printStackTrace();
+            return null;
+        }
         return clientBoxmen.unboxing(response);
     }
 
@@ -110,6 +118,7 @@ public final class Pigeon {
         try {
             cursor = newCall().execute(method, service, contentValues);
             Bundle bundle = cursor.getExtras();
+            parseReponse(new Bundle(), bundle);
             if (cursor.moveToFirst()) {
                 String clazz = bundle.getString(PIGEON_KEY_TYPE);
                 if ("String".equalsIgnoreCase(clazz)) {
@@ -121,6 +130,8 @@ public final class Pigeon {
                 Object o = clientBoxmen.unboxing(bundle);
                 return o;
             }
+        } catch (CallRemoteException e) {
+            e.printStackTrace();
         } finally {
             if (cursor != null) {
                 cursor.close();
@@ -133,23 +144,24 @@ public final class Pigeon {
     Bundle fly(@NonNull Bundle in) {
         in.putInt(PIGEON_KEY_LOOK_UP_APPROACH, PIGEON_APPROACH_ROUTE);
         ContentResolver contentResolver = mContext.getContentResolver();
-        Bundle response = contentResolver.call(base, "", null, in);
+        Bundle out = contentResolver.call(base, "", null, in);
         try {
-            parseReponse(response);
+            parseReponse(in, out);
         } catch (Throwable e) {
 //            throw new RuntimeException(e);
             e.printStackTrace();
         }
-        return response;
+        return out;
     }
 
 
-    void parseReponse(Bundle response) throws CallRemoteException {
-        response.setClassLoader(Pair.class.getClassLoader());
-        int responseCode = response.getInt(PIGEON_KEY_RESPONSE_CODE);
+    void parseReponse(Bundle in, Bundle out) throws CallRemoteException {
+        out.setClassLoader(Pair.class.getClassLoader());
+        int responseCode = out.getInt(PIGEON_KEY_RESPONSE_CODE);
         if (responseCode == PIGEON_RESPONSE_RESULE_NO_SUCH_METHOD) {
             throw new CallRemoteException("404 , method not found ");
         }
+
         if (responseCode == PIGEON_RESPONSE_RESULE_LOST_CLASS) {
             throw new CallRemoteException("404 , class not found ");
         }
@@ -157,7 +169,11 @@ public final class Pigeon {
         if (responseCode == PIGEON_RESPONSE_RESULE_ILLEGALACCESS) {
             throw new CallRemoteException("404 , illegal access ");
         }
-        response.remove(PIGEON_KEY_RESPONSE_CODE);
+
+        if (responseCode == PIGEON_RESPONSE_RESULE_NOT_FOUND_ROUTE) {
+            String route = in.getString(PIGEON_KEY_ROUTE);
+            throw new CallRemoteException(route + " was not found ");
+        }
     }
 
     public static Pigeon.Builder newBuilder(@NonNull Context context) {
@@ -168,12 +184,18 @@ public final class Pigeon {
     <T> T routeLargeRequest(String route, Object[] params) {
         RouteClientBoxmen<Bundle, Object> routeClientBoxmen = new RouteClientBoxmenImpl();
         Bundle bundle = routeClientBoxmen.boxing(route, params);
-        Bundle result = newCall().execute(route, bundle);
-        if (null == result) {
+        Bundle out = newCall().execute(route, bundle);
+        if (null == out) {
             return null;
         }
-        result.setClassLoader(Pair.class.getClassLoader());
-        return (T) routeClientBoxmen.unboxing(result);
+        try {
+            parseReponse(bundle, out);
+        } catch (CallRemoteException e) {
+            e.printStackTrace();
+            return null;
+        }
+        out.setClassLoader(Pair.class.getClassLoader());
+        return (T) routeClientBoxmen.unboxing(out);
     }
 
     <T> T routeLargeResponse(String route, Object[] params) {
@@ -185,17 +207,31 @@ public final class Pigeon {
         }
         ContentResolver contentResolver = mContext.getContentResolver();
         Uri uri = base.buildUpon().appendPath("pigeon/10/" + route).build();
-        Cursor cursor = contentResolver.query(uri, new String[]{}, "", data, "");
+        Cursor cursor = null;
+        try {
+            cursor = contentResolver.query(uri, new String[]{}, "", data, "");
+
+        } catch (Throwable throwable) {
+            throwable.printStackTrace();
+        }
         if (null == cursor) {
             return null;
         }
+        Bundle out = cursor.getExtras();
+        Bundle in = new Bundle();
+        in.putString(PIGEON_KEY_ROUTE, route);
         try {
-            Bundle bundle = cursor.getExtras();
-            Parcelable parcelable = bundle.getParcelable(PIGEON_KEY_RESULT);
+            parseReponse(in, out);
+        } catch (CallRemoteException e) {
+            e.printStackTrace();
+            return null;
+        }
+        try {
+            Parcelable parcelable = out.getParcelable(PIGEON_KEY_RESULT);
             if (parcelable != null) {
                 return (T) Utils.parcelableValueOut(parcelable);
             } else if (cursor.moveToFirst()) {
-                String clazz = bundle.getString(PIGEON_KEY_TYPE);
+                String clazz = out.getString(PIGEON_KEY_TYPE);
                 if ("String".equalsIgnoreCase(clazz)) {
                     return (T) cursor.getString(0);
                 } else if ("[B".equalsIgnoreCase(clazz)) {
@@ -205,7 +241,6 @@ public final class Pigeon {
         } finally {
             cursor.close();
         }
-
         return null;
     }
 

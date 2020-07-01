@@ -123,8 +123,8 @@ public class ServerBoxmenImpl implements ServerBoxmen<Bundle> {
         if (parcelable != null) {
             parcelableValueIn(parcelable, result);
             out.putParcelable(PIGEON_KEY_RESPONSE, parcelable);
-            out.putInt(PIGEON_KEY_RESPONSE_CODE, PIGEON_RESPONSE_RESULE_SUCCESS);
         }
+        out.putInt(PIGEON_KEY_RESPONSE_CODE, PIGEON_RESPONSE_RESULE_SUCCESS);
     }
 
     private void parcelableValueIn(Parcelable parcelable, Object value) {

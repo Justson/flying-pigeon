@@ -53,6 +53,7 @@ public class Server {
         methodCaller = buket.match(method, unboxing.first);
         Object result = methodCaller.call(unboxing.second);
         serverBoxmen.boxing(in, response, result);
+        response.putInt(PIGEON_KEY_RESPONSE_CODE, PIGEON_RESPONSE_RESULE_SUCCESS);
         return response;
     }
 
@@ -71,6 +72,7 @@ public class Server {
             MethodCaller methodCaller = iterators.next();
             methodCaller.call(in, out);
         }
+        out.putInt(PIGEON_KEY_RESPONSE_CODE, PIGEON_RESPONSE_RESULE_SUCCESS);
         return out;
     }
 
@@ -97,6 +99,7 @@ public class Server {
                 serverBoxmen.boxing(in, response, o);
             }
         }
+        response.putInt(PIGEON_KEY_RESPONSE_CODE, PIGEON_RESPONSE_RESULE_SUCCESS);
     }
 
 
