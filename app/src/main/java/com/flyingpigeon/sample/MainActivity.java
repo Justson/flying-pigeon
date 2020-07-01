@@ -7,9 +7,12 @@ import android.os.Looper;
 import android.os.SystemClock;
 import android.util.Log;
 import android.view.View;
+import android.widget.TextView;
 
 import com.flyingpigeon.library.Config;
 import com.flyingpigeon.library.Pigeon;
+import com.flyingpigeon.library.ServiceManager;
+import com.flyingpigeon.library.annotations.route;
 
 import java.util.ArrayList;
 import java.util.UUID;
@@ -21,14 +24,15 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = Config.PREFIX + MainActivity.class.getSimpleName();
 
     Handler mHandler = new Handler(Looper.getMainLooper());
+    TextView appName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        this.appName = this.findViewById(R.id.appName);
 
-        RemoteService.startService(this.getApplicationContext());
 
         Log.e(TAG, "MainActivity");
         final Pigeon pigeon = Pigeon.newBuilder(this).setAuthority(ServiceApiImpl.class).build();
@@ -91,18 +95,33 @@ public class MainActivity extends AppCompatActivity {
         }, 400);
 
         // 跨应用通信
-        this.findViewById(R.id.rlSend).setOnClickListener(new View.OnClickListener() {
+        this.findViewById(R.id.sendBtn).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Pigeon flyPigeon = Pigeon.newBuilder(MainActivity.this).setAuthority("com.flyingpigeon.ipc_sample").build();
-                Bundle bundle = flyPigeon.route("/query/username").fly();
+                Bundle bundle = flyPigeon.route("/query/username").withString("userid", UUID.randomUUID().toString()).fly();
                 if (bundle != null) {
                     Log.e(TAG, "bundle:" + bundle.toString());
                 } else {
                     Log.e(TAG, "bundle == null");
                 }
+                appName.setText(bundle.getString("username"));
             }
         });
+
+        ServiceManager.getInstance().publish(this);
+    }
+
+    @route("/show/myapp/name")
+    public void showMyAppName(final Bundle in, Bundle out) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                String name = in.getString("name");
+                appName.setText(name);
+            }
+        });
+        out.putString("name", "fly-pigeon");
     }
 
     private void test(Pigeon pigeon) {
@@ -128,5 +147,11 @@ public class MainActivity extends AppCompatActivity {
         Poster poster = new Poster("Justson", "just", 119, 11111000L, (short) 23, 1.15646F, 'h', (byte) 4, 123456.415D);
 
 //        Log.e(TAG, "int:" + serviceApi.createPoster(poster) + " double:" + serviceApi.testDouble() + " long:" + serviceApi.testLong() + " short:" + serviceApi.testShort() + " float:" + serviceApi.testFloat() + " byte:" + serviceApi.testByte() + " boolean:" + serviceApi.testBoolean() + " testParcelable:" + GsonUtils.toJson(serviceApi.testParcelable()));
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        ServiceManager.getInstance().unpublish(this);
     }
 }
