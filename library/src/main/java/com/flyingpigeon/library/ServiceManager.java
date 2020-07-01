@@ -129,7 +129,7 @@ public final class ServiceManager implements IServiceManager {
     }
 
     @Override
-    public void abolition(Object service) {
+    public void unpublish(Object service) {
         synchronized (lock) {
             Class<?>[] interfaces = ClassUtil.getValidInterface(service.getClass());
             if (interfaces.length == 0) {
@@ -165,7 +165,7 @@ public final class ServiceManager implements IServiceManager {
     }
 
     @Override
-    public void abolition(Object service, Class<?>... interfaces) {
+    public void unpublish(Object service, Class<?>... interfaces) {
         synchronized (lock) {
             if (interfaces.length == 0) {
                 Log.e(TAG, "abolition interface is not exist");

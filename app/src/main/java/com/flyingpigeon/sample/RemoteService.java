@@ -88,6 +88,7 @@ public class RemoteService extends Service implements RemoteServiceApi {
     @route(value = "/words")
     public void queryWords(Bundle in, Bundle out) {
         Log.e(TAG, "IPC by route, parameter name:" + in.getString("name"));
+        out.putShort("test", (short) 1);
     }
 
     @route(value = "/hello")
@@ -140,9 +141,8 @@ public class RemoteService extends Service implements RemoteServiceApi {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        ServiceManager.getInstance().abolition(this, RemoteServiceApi.class);
-
-        ServiceManager.getInstance().abolition(mApi);
+        ServiceManager.getInstance().unpublish(this, RemoteServiceApi.class);
+        ServiceManager.getInstance().unpublish(mApi);
 
     }
 }

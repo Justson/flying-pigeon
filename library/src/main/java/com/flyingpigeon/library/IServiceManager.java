@@ -11,8 +11,8 @@ public interface IServiceManager {
 
     void publish(Object service);
 
-    void abolition(Object service);
+    void unpublish(Object service);
 
-    void abolition(Object service, Class<?>... interfaces);
+    void unpublish(Object service, Class<?>... interfaces);
 
 }
