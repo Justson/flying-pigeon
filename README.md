@@ -10,7 +10,7 @@ Flying-Pigeon 内部提供两种跨进程通信方式，来应对各种夸进程
 implementation 'com.github.Justson:flying-pigeon:v1.0.0'
 ```
 
-## 应用内 
+## 方式一
 
 ### Server
 
@@ -37,7 +37,7 @@ final Pigeon pigeon = Pigeon.newBuilder(this).setAuthority(ServiceApiImpl.class)
  api.createPoster(poster);
 ```
 
-## 应用外
+## 方式二
 
 ### Server
 
@@ -64,3 +64,6 @@ ServiceManager.getInstance().publish(this);
 Pigeon flyPigeon = Pigeon.newBuilder(MainActivity.this).setAuthority("com.flyingpigeon.ipc_sample").build();
 Bundle bundle = flyPigeon.route("/query/username").withString("userid", UUID.randomUUID().toString()).fly();
 ```
+
+## 建议
+> 建议App内使用方式一，App与其他App通信使用方式二
