@@ -136,8 +136,9 @@ public final class Pigeon {
         Bundle response = contentResolver.call(base, "", null, in);
         try {
             parseReponse(response);
-        } catch (CallRemoteException e) {
-            throw new RuntimeException(e);
+        } catch (Throwable e) {
+//            throw new RuntimeException(e);
+            e.printStackTrace();
         }
         return response;
     }

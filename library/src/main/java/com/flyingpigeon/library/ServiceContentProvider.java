@@ -46,20 +46,19 @@ public class ServiceContentProvider extends ContentProvider {
         if (!path.startsWith("/pigeon")) {
             return null;
         }
+        assert selectionArgs != null;
         try {
             if (path.startsWith("/pigeon/10")) {
                 cursor = Server.getInstance().dispatch(uri, selectionArgs, path.replace("/pigeon/10/", ""));
             } else if (path.startsWith("/pigeon/11")) {
                 cursor = Server.getInstance().dispatch0(uri, selectionArgs, path.replace("/pigeon/11/", ""));
             }
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        } catch (NoSuchMethodException e) {
-            e.printStackTrace();
-        } catch (InvocationTargetException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
+        } catch (Throwable throwable) {
+            throwable.printStackTrace();
+            Bundle bundle = new Bundle();
+            BundleCursor bundleCursor = new BundleCursor(bundle, new String[]{});
+            bundle.putInt(PIGEON_KEY_RESPONSE_CODE, PIGEON_RESPONSE_RESULE_REMOTE_EXCEPTION);
+            cursor = bundleCursor;
         }
         return cursor;
     }
@@ -74,29 +73,31 @@ public class ServiceContentProvider extends ContentProvider {
             extras.setClassLoader(Pair.class.getClassLoader());
             int approach = extras.getInt(PIGEON_KEY_LOOK_UP_APPROACH);
             if (approach == PIGEON_APPROACH_METHOD) {
-                return Server.getInstance().dispatch(method, response, arg, extras);
+                Server.getInstance().dispatch(method, response, arg, extras);
             } else {
                 String route = extras.getString(PIGEON_KEY_ROUTE);
                 int flags = extras.getInt(PIGEON_KEY_FLAGS);
-                Log.e(TAG, "call route:" + route + " isParamParcel:" + ParametersSpec.isParamParcel(flags));
                 if (ParametersSpec.isParamParcel(flags)) {
-                    return Server.getInstance().dispatch(method, extras, response);
+                    Server.getInstance().dispatch(method, extras, response);
                 } else {
                     Server.getInstance().dispatch0(method, extras, response);
                 }
             }
-        } catch (NoSuchMethodException e) {
+        } catch (NoSuchMethodException | InvocationTargetException e) {
             e.printStackTrace();
             response.putInt(PIGEON_KEY_RESPONSE_CODE, PIGEON_RESPONSE_RESULE_NO_SUCH_METHOD);
+        } catch (NotFoundRouteException e) {
+            response.putInt(PIGEON_KEY_RESPONSE_CODE, PIGEON_RESPONSE_RESULE_NOT_FOUND_ROUTE);
+            e.printStackTrace();
         } catch (IllegalAccessException e) {
             e.printStackTrace();
             response.putInt(PIGEON_KEY_RESPONSE_CODE, PIGEON_RESPONSE_RESULE_ILLEGALACCESS);
-        } catch (InvocationTargetException e) {
-            e.printStackTrace();
-            response.putInt(PIGEON_KEY_RESPONSE_CODE, PIGEON_RESPONSE_RESULE_NO_SUCH_METHOD);
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
             response.putInt(PIGEON_KEY_RESPONSE_CODE, PIGEON_RESPONSE_RESULE_LOST_CLASS);
+        } catch (Throwable e) {
+            e.printStackTrace();
+            response.putInt(PIGEON_KEY_RESPONSE_CODE, PIGEON_RESPONSE_RESULE_REMOTE_EXCEPTION);
         }
         return response;
     }
@@ -111,18 +112,18 @@ public class ServiceContentProvider extends ContentProvider {
     @Nullable
     @Override
     public String getType(@NonNull Uri uri) {
-        throw new UnsupportedOperationException();
+        return uri.toString();
     }
 
     @Nullable
     @Override
     public Uri insert(@NonNull Uri uri, @Nullable ContentValues values) {
-        throw new UnsupportedOperationException();
+        return uri;
     }
 
     @Override
     public int delete(@NonNull Uri uri, @Nullable String selection, @Nullable String[] selectionArgs) {
-        throw new UnsupportedOperationException();
+        return 0;
     }
 
 
@@ -134,6 +135,6 @@ public class ServiceContentProvider extends ContentProvider {
 
     @Override
     public int update(@NonNull Uri uri, @Nullable ContentValues values, @Nullable String selection, @Nullable String[] selectionArgs) {
-        throw new UnsupportedOperationException();
+        return 0;
     }
 }

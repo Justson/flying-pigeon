@@ -390,7 +390,6 @@ public abstract class Pair implements Parcelable {
         protected PairParcelable(Parcel in) throws ClassNotFoundException {
             super(in);
             value = in.readParcelable(Class.forName(getKey()).getClassLoader());
-            Log.e(TAG, "PairParcelable:" + value);
         }
 
         @Override
@@ -402,7 +401,7 @@ public abstract class Pair implements Parcelable {
         public static final Creator<PairParcelable> CREATOR = new Creator<PairParcelable>() {
             @Override
             public PairParcelable createFromParcel(Parcel in) {
-                Log.e(TAG, "createFromParcel");
+//                Log.e(TAG, "createFromParcel");
                 try {
                     return new PairParcelable(in);
                 } catch (ClassNotFoundException e) {
@@ -444,7 +443,6 @@ public abstract class Pair implements Parcelable {
         protected PairString(Parcel in) throws ClassNotFoundException {
             super(in);
             value = in.readString();
-            Log.e(TAG, "PairParcelable:" + value);
         }
 
         @Override
@@ -456,7 +454,6 @@ public abstract class Pair implements Parcelable {
         public static final Creator<PairString> CREATOR = new Creator<PairString>() {
             @Override
             public PairString createFromParcel(Parcel in) {
-                Log.e(TAG, "createFromParcel");
                 try {
                     return new PairString(in);
                 } catch (ClassNotFoundException e) {
@@ -487,7 +484,6 @@ public abstract class Pair implements Parcelable {
         public PairSerializable(String key, Serializable value) {
             super(key);
             this.value = value;
-            Log.e(TAG, "key:" + this.getKey());
         }
 
         protected PairSerializable(String key) {
@@ -498,7 +494,6 @@ public abstract class Pair implements Parcelable {
         protected PairSerializable(Parcel in) throws ClassNotFoundException {
             super(in);
             value = in.readSerializable();
-            Log.e(TAG, "PairParcelable:" + value);
         }
 
         @Override
@@ -510,7 +505,6 @@ public abstract class Pair implements Parcelable {
         public static final Creator<PairSerializable> CREATOR = new Creator<PairSerializable>() {
             @Override
             public PairSerializable createFromParcel(Parcel in) {
-                Log.e(TAG, "createFromParcel");
                 try {
                     return new PairSerializable(in);
                 } catch (ClassNotFoundException e) {

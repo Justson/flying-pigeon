@@ -1,7 +1,5 @@
 package com.flyingpigeon.library;
 
-import android.util.Log;
-
 import java.lang.reflect.Method;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -45,7 +43,7 @@ public class BuketMethod {
         for (int i = 0; i < clazzs.length; i++) {
             methodUnique.append(clazzs[i].getSimpleName());
         }
-        Log.e(TAG, "methodUnique:" + methodUnique);
+//        Log.e(TAG, "methodUnique:" + methodUnique);
         MethodCaller target = methods.get(methodUnique.toString());
         if (target == null) {
             Method m = owner.getClass().getDeclaredMethod(method, clazzs);

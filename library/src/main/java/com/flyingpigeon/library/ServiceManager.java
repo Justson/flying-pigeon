@@ -71,15 +71,15 @@ public final class ServiceManager implements IServiceManager {
                 Method method = methods[i];
                 route route = method.getAnnotation(route.class);
                 if (route != null) {
-                    String path = route.value();
+                    String routeValue = route.value();
                     boolean encode = route.encoded();
-                    if (TextUtils.isEmpty(path)) {
-                        Log.e(TAG, " the path enable to empty .");
+                    if (TextUtils.isEmpty(routeValue)) {
+                        Log.e(TAG, " the route enable to empty .");
                         continue;
                     }
                     if (encode) {
                         try {
-                            path = URLDecoder.decode(path, StandardCharsets.UTF_8.name());
+                            routeValue = URLDecoder.decode(routeValue, StandardCharsets.UTF_8.name());
                         } catch (UnsupportedEncodingException e) {
                             e.printStackTrace();
                         }
@@ -89,17 +89,17 @@ public final class ServiceManager implements IServiceManager {
                     if (requestLarge != null && responseLarge != null) {
                         throw new IllegalArgumentException("framework unsupport RequestLarge and ResponseLarge together");
                     }
-                    Log.e(TAG, " publish path:" + path);
+//                    Log.e(TAG, " publish route:" + routeValue);
                     method.setAccessible(true);
                     if (requestLarge == null && responseLarge == null) {
-                        MethodCaller methodCaller = new RouteCaller(method, path, service);
-                        cacheMethodToRoute(path, methodCaller);
+                        MethodCaller methodCaller = new RouteCaller(method, routeValue, service);
+                        cacheMethodToRoute(routeValue, methodCaller);
                     } else if (requestLarge != null) {
-                        MethodCaller methodCaller = new RouteRequestLargeCaller(method, path, service);
-                        cacheMethodToRoute(path, methodCaller);
+                        MethodCaller methodCaller = new RouteRequestLargeCaller(method, routeValue, service);
+                        cacheMethodToRoute(routeValue, methodCaller);
                     } else {
-                        MethodCaller methodCaller = new RouteResponseLargeCaller(method, path, service);
-                        cacheMethodToRoute(path, methodCaller);
+                        MethodCaller methodCaller = new RouteResponseLargeCaller(method, routeValue, service);
+                        cacheMethodToRoute(routeValue, methodCaller);
                     }
                 }
             }
@@ -168,7 +168,7 @@ public final class ServiceManager implements IServiceManager {
     public void unpublish(Object service, Class<?>... interfaces) {
         synchronized (lock) {
             if (interfaces.length == 0) {
-                Log.e(TAG, "abolition interface is not exist");
+                Log.e(TAG, "unpublish interface is not exist");
             }
             for (int i = 0; i < interfaces.length; i++) {
                 Class<?> aInterface = interfaces[i];
