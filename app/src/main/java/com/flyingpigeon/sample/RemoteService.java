@@ -74,13 +74,12 @@ public class RemoteService extends Service implements RemoteServiceApi {
 
     }
 
-    Api mApi = new Api() {
+    private Api mApi = new Api() {
         @Override
         public int createPoster(Poster poster) {
             Log.e(TAG, "poster:" + GsonUtils.toJson(poster));
             Pigeon pigeon = Pigeon.newBuilder(RemoteService.this).setAuthority(MainProcessApi.class).build();
             pigeon.create(MainProcessService.class).login("test", "test");
-//            pigeon.route("main/").fly();
             return 11;
         }
     };
