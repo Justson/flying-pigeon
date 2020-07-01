@@ -1,6 +1,15 @@
 # Flying-Pigeon
 Flying-Pigeon 内部提供两种跨进程通信方式，来应对各种夸进程场景
 
+## 引入
+
+* Gradle
+
+
+```gradle
+implementation 'com.github.Justson:flying-pigeon:v1.0.0'
+```
+
 ## 应用内 
 
 ### Server
