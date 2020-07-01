@@ -149,7 +149,6 @@ public final class Pigeon {
             out = contentResolver.call(base, "", null, in);
             parseReponse(in, out);
         } catch (Throwable e) {
-//            throw new RuntimeException(e);
             e.printStackTrace();
         }
         return out;
@@ -175,6 +174,7 @@ public final class Pigeon {
             String route = in.getString(PIGEON_KEY_ROUTE);
             throw new CallRemoteException(route + " was not found ");
         }
+        out.remove(PIGEON_KEY_RESPONSE_CODE);
     }
 
     public static Pigeon.Builder newBuilder(@NonNull Context context) {

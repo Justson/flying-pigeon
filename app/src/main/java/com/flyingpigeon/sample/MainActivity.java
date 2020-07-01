@@ -102,10 +102,10 @@ public class MainActivity extends AppCompatActivity {
                 Bundle bundle = flyPigeon.route("/query/username").withString("userid", UUID.randomUUID().toString()).fly();
                 if (bundle != null) {
                     Log.e(TAG, "bundle:" + bundle.toString());
+                    appName.setText(bundle.getString("username"));
                 } else {
                     Log.e(TAG, "bundle == null");
                 }
-                appName.setText(bundle.getString("username"));
             }
         });
 

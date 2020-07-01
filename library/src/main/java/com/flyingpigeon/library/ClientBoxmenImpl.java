@@ -16,8 +16,6 @@ import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_INDEX;
 import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_LENGTH;
 import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_LOOK_UP_APPROACH;
 import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_RESPONSE;
-import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_RESPONSE_CODE;
-import static com.flyingpigeon.library.PigeonConstant.PIGEON_RESPONSE_RESULE_SUCCESS;
 import static com.flyingpigeon.library.PigeonConstant.map;
 
 /**
@@ -164,9 +162,8 @@ public class ClientBoxmenImpl implements ClientBoxmen<Bundle, Bundle, Object> {
     @Override
     public Object unboxing(Bundle bundle) {
         bundle.setClassLoader(Pair.class.getClassLoader());
-        int responseCode = bundle.getInt(PIGEON_KEY_RESPONSE_CODE);
         Parcelable parcelable = null;
-        if (responseCode != PIGEON_RESPONSE_RESULE_SUCCESS || (parcelable = bundle.getParcelable(PIGEON_KEY_RESPONSE)) == null) {
+        if ((parcelable = bundle.getParcelable(PIGEON_KEY_RESPONSE)) == null) {
             return null;
         }
         if (parcelable instanceof com.flyingpigeon.library.Pair.PairInt) {

@@ -27,8 +27,10 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Pigeon pigeon = Pigeon.newBuilder(MainActivity.this).setAuthority("com.flyingpigeon.sample.main.api").build();
                 Bundle bundle = pigeon.route("/show/myapp/name").withString("name", "ipc-sample").fly();
-                String name = bundle.getString("name");
-                ipcLabel.setText(name);
+                if (bundle != null) {
+                    String name = bundle.getString("name");
+                    ipcLabel.setText(name);
+                }
             }
         });
     }
