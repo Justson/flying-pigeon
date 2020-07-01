@@ -6,6 +6,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
 import android.util.Log;
+import android.view.View;
 
 import com.flyingpigeon.library.Config;
 import com.flyingpigeon.library.Pigeon;
@@ -88,6 +89,20 @@ public class MainActivity extends AppCompatActivity {
                 });
             }
         }, 400);
+
+        // 跨应用通信
+        this.findViewById(R.id.rlSend).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Pigeon flyPigeon = Pigeon.newBuilder(MainActivity.this).setAuthority("com.flyingpigeon.ipc_sample").build();
+                Bundle bundle = flyPigeon.route("/query/username").fly();
+                if (bundle != null) {
+                    Log.e(TAG, "bundle:" + bundle.toString());
+                } else {
+                    Log.e(TAG, "bundle == null");
+                }
+            }
+        });
     }
 
     private void test(Pigeon pigeon) {

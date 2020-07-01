@@ -16,6 +16,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <provider
+            android:name=".SampleServiceApi"
+            android:authorities="com.flyingpigeon.ipc_sample"
+            android:exported="true"
+            android:grantUriPermissions="false" />
     </application>
 
 </manifest>

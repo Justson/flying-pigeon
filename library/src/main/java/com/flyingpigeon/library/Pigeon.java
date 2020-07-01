@@ -144,8 +144,9 @@ public final class Pigeon {
     Bundle fly(@NonNull Bundle in) {
         in.putInt(PIGEON_KEY_LOOK_UP_APPROACH, PIGEON_APPROACH_ROUTE);
         ContentResolver contentResolver = mContext.getContentResolver();
-        Bundle out = contentResolver.call(base, "", null, in);
+        Bundle out = null;
         try {
+            out = contentResolver.call(base, "", null, in);
             parseReponse(in, out);
         } catch (Throwable e) {
 //            throw new RuntimeException(e);
