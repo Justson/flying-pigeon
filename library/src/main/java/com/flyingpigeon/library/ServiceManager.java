@@ -133,7 +133,7 @@ public final class ServiceManager implements IServiceManager {
         synchronized (lock) {
             Class<?>[] interfaces = ClassUtil.getValidInterface(service.getClass());
             if (interfaces.length == 0) {
-                Log.e(TAG, "abolition interface is not exist");
+                Log.e(TAG, "unpublish interface is not exist");
             }
             for (int i = 0; i < interfaces.length; i++) {
                 Class<?> aInterface = interfaces[i];

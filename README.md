@@ -1,5 +1,5 @@
 # Flying-Pigeon
-Flying-Pigeon 内部提供两种跨进程通信方式，来应对各种夸进程场景
+Flying-Pigeon 内部提供两种跨进程通信方式，来应对各种跨进程场景
 
 ## 引入
 
