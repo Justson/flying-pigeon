@@ -71,7 +71,7 @@ public class MainActivity extends AppCompatActivity {
                 pigeon.route("/world/error").fly();
                 pigeon.route("/submit/bitmap", UUID.randomUUID().toString(), new byte[1024 * 1000 * 3], 1200).resquestLarge().fly();
 
-                int resquestLargeResult = pigeon.route("/submit/bitmap2", UUID.randomUUID().toString(), new byte[1024 * 1000 * 3], 1200).resquestLarge().<Integer>fly();
+                Integer resquestLargeResult = pigeon.route("/submit/bitmap2", UUID.randomUUID().toString(), new byte[1024 * 1000 * 3], 1200).resquestLarge().<Integer>fly();
                 Log.e(TAG, "resquestLargeResult:" + resquestLargeResult);
                 byte[] data = pigeon.route("/query/bitmap", "girl.jpg", 5555).responseLarge().fly();
                 if (null != data) {

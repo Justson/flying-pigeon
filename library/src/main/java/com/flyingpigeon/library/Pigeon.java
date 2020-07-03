@@ -27,6 +27,7 @@ import static com.flyingpigeon.library.PigeonConstant.PIGEON_APPROACH_ROUTE;
 import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_CLASS;
 import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_FLAGS;
 import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_LOOK_UP_APPROACH;
+import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_RESPONSE;
 import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_RESPONSE_CODE;
 import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_RESULT;
 import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_ROUTE;
@@ -100,7 +101,14 @@ public final class Pigeon {
         RealCall realCall = newCall();
         Bundle response = realCall.execute(method, bundle);
         if (response == null) {
-            return clientBoxmen.unboxing(bundle);
+            response = (Bundle) bundle.clone();
+            Parcelable parcelable = response.getParcelable(PIGEON_KEY_RESPONSE);
+            if (parcelable instanceof com.flyingpigeon.library.Pair.PairSerializable) {
+                return null;
+            } else if (parcelable instanceof com.flyingpigeon.library.Pair.PairParcelable) {
+                return null;
+            }
+            return clientBoxmen.unboxing(response);
         }
         try {
             parseReponse(new Bundle(), response);
