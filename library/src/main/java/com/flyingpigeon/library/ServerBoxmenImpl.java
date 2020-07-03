@@ -3,7 +3,7 @@ package com.flyingpigeon.library;
 import android.os.Bundle;
 import android.os.ParcelFileDescriptor;
 import android.os.Parcelable;
-import android.util.Log;
+import com.flyingpigeon.library.log.Log;
 import android.util.Pair;
 
 import java.io.FileDescriptor;

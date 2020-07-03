@@ -7,7 +7,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.ParcelFileDescriptor;
 import android.text.TextUtils;
-import android.util.Log;
 
 import java.io.FileNotFoundException;
 import java.lang.reflect.InvocationTargetException;
@@ -16,7 +15,16 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import static com.flyingpigeon.library.Config.PREFIX;
-import static com.flyingpigeon.library.PigeonConstant.*;
+import static com.flyingpigeon.library.PigeonConstant.PIGEON_APPROACH_METHOD;
+import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_FLAGS;
+import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_LOOK_UP_APPROACH;
+import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_RESPONSE_CODE;
+import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_ROUTE;
+import static com.flyingpigeon.library.PigeonConstant.PIGEON_RESPONSE_RESULE_ILLEGALACCESS;
+import static com.flyingpigeon.library.PigeonConstant.PIGEON_RESPONSE_RESULE_LOST_CLASS;
+import static com.flyingpigeon.library.PigeonConstant.PIGEON_RESPONSE_RESULE_NOT_FOUND_ROUTE;
+import static com.flyingpigeon.library.PigeonConstant.PIGEON_RESPONSE_RESULE_NO_SUCH_METHOD;
+import static com.flyingpigeon.library.PigeonConstant.PIGEON_RESPONSE_RESULE_REMOTE_EXCEPTION;
 
 /**
  * @author xiaozhongcen
@@ -42,7 +50,6 @@ public class ServiceContentProvider extends ContentProvider {
         if (TextUtils.isEmpty(path)) {
             return null;
         }
-        Log.e(TAG, "path:" + path);
         if (!path.startsWith("/pigeon")) {
             return null;
         }

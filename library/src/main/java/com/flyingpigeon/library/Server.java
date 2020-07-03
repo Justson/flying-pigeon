@@ -4,7 +4,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
+import com.flyingpigeon.library.log.Log;
 import android.util.Pair;
 
 import java.lang.reflect.InvocationTargetException;

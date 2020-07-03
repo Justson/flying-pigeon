@@ -2,7 +2,7 @@ package com.flyingpigeon.library;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.util.Log;
+import com.flyingpigeon.library.log.Log;
 
 import java.io.Serializable;
 

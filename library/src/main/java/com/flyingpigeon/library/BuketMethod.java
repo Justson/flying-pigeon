@@ -43,7 +43,6 @@ public class BuketMethod {
         for (int i = 0; i < clazzs.length; i++) {
             methodUnique.append(clazzs[i].getSimpleName());
         }
-//        Log.e(TAG, "methodUnique:" + methodUnique);
         MethodCaller target = methods.get(methodUnique.toString());
         if (target == null) {
             Method m = owner.getClass().getDeclaredMethod(method, clazzs);

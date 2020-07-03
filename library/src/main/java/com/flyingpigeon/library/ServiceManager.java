@@ -1,7 +1,8 @@
 package com.flyingpigeon.library;
 
 import android.text.TextUtils;
-import android.util.Log;
+
+import com.flyingpigeon.library.log.Log;
 
 import com.flyingpigeon.library.annotations.RequestLarge;
 import com.flyingpigeon.library.annotations.ResponseLarge;
