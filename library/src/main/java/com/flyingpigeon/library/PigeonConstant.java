@@ -31,6 +31,7 @@ interface PigeonConstant {
     String PIGEON_KEY_FLAGS = "key_flags";
     String PIGEON_KEY_ARRAY_LENGTH = "_array_length";
     String PIGEON_KEY_RESULT = "key_result";
+    String PIGEON_KEY_CALLING_PACKAGE = "key_calling_package";
 
     static final ConcurrentHashMap<Class, ParameterHandler> map = new ConcurrentHashMap<Class, ParameterHandler>() {
         {

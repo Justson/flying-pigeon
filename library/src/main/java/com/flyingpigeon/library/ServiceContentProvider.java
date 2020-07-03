@@ -16,6 +16,7 @@ import androidx.annotation.Nullable;
 
 import static com.flyingpigeon.library.Config.PREFIX;
 import static com.flyingpigeon.library.PigeonConstant.PIGEON_APPROACH_METHOD;
+import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_CALLING_PACKAGE;
 import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_FLAGS;
 import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_LOOK_UP_APPROACH;
 import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_RESPONSE_CODE;
@@ -73,21 +74,27 @@ public class ServiceContentProvider extends ContentProvider {
 
     @Nullable
     @Override
-    public Bundle call(@NonNull String method, @Nullable String arg, @Nullable Bundle extras) {
+    public Bundle call(@NonNull String method, @Nullable String arg, @Nullable Bundle in) {
+        if (in == null) {
+            return null;
+        }
         Bundle response = new Bundle();
         try {
-            assert extras != null;
-            extras.setClassLoader(Pair.class.getClassLoader());
-            int approach = extras.getInt(PIGEON_KEY_LOOK_UP_APPROACH);
+            String calling = getCallingPackage();
+            if (!TextUtils.isEmpty(calling)) {
+                in.putString(PIGEON_KEY_CALLING_PACKAGE, calling);
+            }
+            in.setClassLoader(Pair.class.getClassLoader());
+            int approach = in.getInt(PIGEON_KEY_LOOK_UP_APPROACH);
             if (approach == PIGEON_APPROACH_METHOD) {
-                Server.getInstance().dispatch(method, response, arg, extras);
+                Server.getInstance().dispatch(method, response, arg, in);
             } else {
-                String route = extras.getString(PIGEON_KEY_ROUTE);
-                int flags = extras.getInt(PIGEON_KEY_FLAGS);
+                String route = in.getString(PIGEON_KEY_ROUTE);
+                int flags = in.getInt(PIGEON_KEY_FLAGS);
                 if (ParametersSpec.isParamParcel(flags)) {
-                    Server.getInstance().dispatch(method, extras, response);
+                    Server.getInstance().dispatch(method, in, response);
                 } else {
-                    Server.getInstance().dispatch0(method, extras, response);
+                    Server.getInstance().dispatch0(method, in, response);
                 }
             }
         } catch (NoSuchMethodException | InvocationTargetException e) {
