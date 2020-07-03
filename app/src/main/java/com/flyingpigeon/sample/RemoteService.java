@@ -109,7 +109,7 @@ public class RemoteService extends Service implements RemoteServiceApi {
     @RequestLarge
     @route(value = "/submit/bitmap2")
     public int submitBitmap2(String key, byte[] data, int length) {
-        Log.e(TAG, "IPC by route,submitBitmap:" + key + " data length:" + data.length + " length:" + length);
+        Log.e(TAG, "IPC by route,submitBitmap2:" + key + " data length:" + data.length + " length:" + length);
         return 1;
     }
 

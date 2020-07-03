@@ -10,6 +10,7 @@ import com.flyingpigeon.library.ashmem.Ashmem;
 import java.io.Serializable;
 import java.lang.reflect.Type;
 
+import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_ARRAY_LENGTH;
 import static com.flyingpigeon.library.PigeonConstant.map;
 
 
@@ -288,7 +289,21 @@ public class Utils {
             byte[] array = (byte[]) arg;
             if (array.length > 8 * 1024) {
                 ParcelFileDescriptor parcelFileDescriptor = Ashmem.byteArrayToFileDescriptor(array);
-                bundle.putInt(key + "key_array_length", array.length);
+                bundle.putInt(key + PIGEON_KEY_ARRAY_LENGTH, array.length);
+                ParameterHandler.ParcelableHandler handler = (ParameterHandler.ParcelableHandler) map.get(Parcelable.class);
+                assert handler != null;
+                handler.apply(parcelFileDescriptor, key, bundle);
+                Parcelable parcelable = bundle.getParcelable(key);
+            } else {
+                ParameterHandler.ByteArrayHandler byteArrayHandler = (ParameterHandler.ByteArrayHandler) map.get(byte[].class);
+                byteArrayHandler.apply(array, byte[].class.getName(), bundle);
+            }
+
+        } else if (Byte[].class.isAssignableFrom(typeClazz)) {
+            byte[] array = Utils.toPrimitives((Byte[]) arg);
+            if (array.length > 8 * 1024) {
+                ParcelFileDescriptor parcelFileDescriptor = Ashmem.byteArrayToFileDescriptor(array);
+                bundle.putInt(key + PIGEON_KEY_ARRAY_LENGTH, array.length);
                 ParameterHandler.ParcelableHandler handler = (ParameterHandler.ParcelableHandler) map.get(Parcelable.class);
                 assert handler != null;
                 handler.apply(parcelFileDescriptor, key, bundle);
