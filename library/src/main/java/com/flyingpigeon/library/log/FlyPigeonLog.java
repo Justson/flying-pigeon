@@ -7,16 +7,16 @@ import com.flyingpigeon.library.BuildConfig;
  * @date 20-7-3
  * @since 1.0.0
  */
-public class Log {
+public class FlyPigeonLog {
 
     public static boolean DEBUG = BuildConfig.DEBUG;
 
-    private Log() {
+    private FlyPigeonLog() {
     }
 
-    static void e(String tag, String message) {
+    public static void e(String tag, String message) {
         if (DEBUG) {
-            Log.e(tag, message);
+            FlyPigeonLog.e(tag, message);
         }
     }
 }

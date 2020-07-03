@@ -4,7 +4,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
-import com.flyingpigeon.library.log.Log;
+import com.flyingpigeon.library.log.FlyPigeonLog;
 import android.util.Pair;
 
 import java.lang.reflect.InvocationTargetException;
@@ -108,7 +108,7 @@ public class Server {
         BundleCursor bundleCursor = new BundleCursor(bundle, new String[]{PIGEON_KEY_RESULT});
         bundle.putInt(PIGEON_KEY_RESPONSE_CODE, PIGEON_RESPONSE_RESULE_SUCCESS);
         try {
-            Log.e(TAG, "matchQuery:" + route);
+            FlyPigeonLog.e(TAG, "matchQuery:" + route);
             int pLength = (arg.length - 2) / 2;
             String[] params = new String[pLength];
             String[] types = new String[pLength];

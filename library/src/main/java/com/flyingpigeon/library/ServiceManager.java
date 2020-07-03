@@ -2,7 +2,7 @@ package com.flyingpigeon.library;
 
 import android.text.TextUtils;
 
-import com.flyingpigeon.library.log.Log;
+import com.flyingpigeon.library.log.FlyPigeonLog;
 
 import com.flyingpigeon.library.annotations.RequestLarge;
 import com.flyingpigeon.library.annotations.ResponseLarge;
@@ -42,20 +42,20 @@ public final class ServiceManager implements IServiceManager {
     @Override
     public void publish(Object service, Class<?>... interfaces) {
         if (interfaces.length == 0) {
-            Log.e(TAG, "without interfaces ");
+            FlyPigeonLog.e(TAG, "without interfaces ");
             return;
         }
         synchronized (lock) {
             for (Class<?> aInterface : interfaces) {
                 BuketMethod buket = sCache.get(aInterface);
                 if (buket != null) {
-                    Log.e(TAG, " publish failure, " + "please don't repeat publish same api:" + aInterface.getName());
+                    FlyPigeonLog.e(TAG, " publish failure, " + "please don't repeat publish same api:" + aInterface.getName());
                     continue;
                 }
                 BuketMethod buketMethod = new BuketMethod();
                 buketMethod.setOwner(service);
                 buketMethod.setInterfaceClass(aInterface);
-                Log.e(TAG, "publish:" + aInterface.getName());
+                FlyPigeonLog.e(TAG, "publish:" + aInterface.getName());
                 sCache.put(aInterface, buketMethod);
             }
         }
@@ -75,7 +75,7 @@ public final class ServiceManager implements IServiceManager {
                     String routeValue = route.value();
                     boolean encode = route.encoded();
                     if (TextUtils.isEmpty(routeValue)) {
-                        Log.e(TAG, " the route enable to empty .");
+                        FlyPigeonLog.e(TAG, " the route enable to empty .");
                         continue;
                     }
                     if (encode) {
@@ -134,7 +134,7 @@ public final class ServiceManager implements IServiceManager {
         synchronized (lock) {
             Class<?>[] interfaces = ClassUtil.getValidInterface(service.getClass());
             if (interfaces.length == 0) {
-                Log.e(TAG, "unpublish interface is not exist");
+                FlyPigeonLog.e(TAG, "unpublish interface is not exist");
             }
             for (int i = 0; i < interfaces.length; i++) {
                 Class<?> aInterface = interfaces[i];
@@ -169,7 +169,7 @@ public final class ServiceManager implements IServiceManager {
     public void unpublish(Object service, Class<?>... interfaces) {
         synchronized (lock) {
             if (interfaces.length == 0) {
-                Log.e(TAG, "unpublish interface is not exist");
+                FlyPigeonLog.e(TAG, "unpublish interface is not exist");
             }
             for (int i = 0; i < interfaces.length; i++) {
                 Class<?> aInterface = interfaces[i];

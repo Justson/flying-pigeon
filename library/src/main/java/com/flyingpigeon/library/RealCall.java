@@ -5,7 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import com.flyingpigeon.library.log.Log;
+import com.flyingpigeon.library.log.FlyPigeonLog;
 
 import java.lang.reflect.Method;
 
@@ -46,7 +46,7 @@ public class RealCall {
             int flags = 0;
             flags = ParametersSpec.setParamParcel(flags, false);
             bundle.putInt(PIGEON_KEY_FLAGS, flags);
-            Log.e(TAG, "uri:" + uri.toString() + " contentValues:" + bundle + " contentResolver:" + contentResolver);
+            FlyPigeonLog.e(TAG, "uri:" + uri.toString() + " contentValues:" + bundle + " contentResolver:" + contentResolver);
             Bundle result = contentResolver.call(uri, "", "", bundle);
             return result;
         } catch (Throwable throwable) {

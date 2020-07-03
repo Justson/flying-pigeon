@@ -3,7 +3,7 @@ package com.flyingpigeon.library;
 import android.os.Bundle;
 import android.os.ParcelFileDescriptor;
 import android.os.Parcelable;
-import com.flyingpigeon.library.log.Log;
+import com.flyingpigeon.library.log.FlyPigeonLog;
 import android.util.Pair;
 
 import java.io.FileDescriptor;
@@ -89,7 +89,7 @@ public class ServerBoxmenImpl implements ServerBoxmen<Bundle> {
                 if (value instanceof ParcelFileDescriptor) {
                     String lengthKey = index + PIGEON_KEY_ARRAY_LENGTH;
                     int arrayLength = extras.getInt(lengthKey);
-                    Log.e(TAG, "keyLength:" + arrayLength + " lengthKey:" + lengthKey);
+                    FlyPigeonLog.e(TAG, "keyLength:" + arrayLength + " lengthKey:" + lengthKey);
                     ParcelFileDescriptor parcelFileDescriptor = (ParcelFileDescriptor) value;
                     FileDescriptor fileDescriptor = parcelFileDescriptor.getFileDescriptor();
                     FileInputStream fileInputStream = new FileInputStream(fileDescriptor);
