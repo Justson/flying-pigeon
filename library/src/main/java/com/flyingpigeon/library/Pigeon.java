@@ -17,6 +17,7 @@ import com.flyingpigeon.library.annotations.ResponseLarge;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.lang.reflect.Type;
 import java.util.Objects;
 
 import androidx.annotation.NonNull;
@@ -98,6 +99,9 @@ public final class Pigeon {
         bundle.putString(PIGEON_KEY_CLASS, service.getName());
         RealCall realCall = newCall();
         Bundle response = realCall.execute(method, bundle);
+        if (response == null) {
+            return clientBoxmen.unboxing(bundle);
+        }
         try {
             parseReponse(new Bundle(), response);
         } catch (CallRemoteException e) {
@@ -117,6 +121,10 @@ public final class Pigeon {
         Cursor cursor = null;
         try {
             cursor = newCall().execute(method, service, contentValues);
+            if (cursor == null) {
+                Type returnType = method.getGenericReturnType();
+                return Utils.getBasedata((Class<?>) returnType);
+            }
             Bundle bundle = cursor.getExtras();
             parseReponse(new Bundle(), bundle);
             if (cursor.moveToFirst()) {
@@ -127,8 +135,7 @@ public final class Pigeon {
                     return cursor.getBlob(0);
                 }
             } else {
-                Object o = clientBoxmen.unboxing(bundle);
-                return o;
+                return clientBoxmen.unboxing(bundle);
             }
         } catch (CallRemoteException e) {
             e.printStackTrace();
@@ -137,7 +144,8 @@ public final class Pigeon {
                 cursor.close();
             }
         }
-        return null;
+        Type returnType = method.getGenericReturnType();
+        return Utils.getBasedata((Class<?>) returnType);
     }
 
 
