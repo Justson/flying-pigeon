@@ -32,8 +32,12 @@ interface PigeonConstant {
     String PIGEON_KEY_ARRAY_LENGTH = "_array_length";
     String PIGEON_KEY_RESULT = "key_result";
     String PIGEON_KEY_CALLING_PACKAGE = "key_calling_package";
+    String PIGEON_PATH_START = "pigeon";
+    String PIGEON_PATH_SEGMENT_METHOD = "10";
+    String PIGEON_PATH_SEGMENT_ROUTE = "11";
 
-    static final ConcurrentHashMap<Class, ParameterHandler> map = new ConcurrentHashMap<Class, ParameterHandler>() {
+
+    ConcurrentHashMap<Class, ParameterHandler> map = new ConcurrentHashMap<Class, ParameterHandler>() {
         {
             put(int.class, new ParameterHandler.IntHandler());
             put(double.class, new ParameterHandler.DoubleHandler());

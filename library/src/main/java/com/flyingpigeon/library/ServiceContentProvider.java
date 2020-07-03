@@ -56,10 +56,10 @@ public class ServiceContentProvider extends ContentProvider {
         }
         assert selectionArgs != null;
         try {
-            if (path.startsWith("/pigeon/10")) {
-                cursor = Server.getInstance().dispatch(uri, selectionArgs, path.replace("/pigeon/10/", ""));
-            } else if (path.startsWith("/pigeon/11")) {
-                cursor = Server.getInstance().dispatch0(uri, selectionArgs, path.replace("/pigeon/11/", ""));
+            if (isSegmentMethod(path)) {
+                cursor = Server.getInstance().dispatch(uri, selectionArgs, getMethod(path));
+            } else if (isSegmentRoute(path)) {
+                cursor = Server.getInstance().dispatch0(uri, selectionArgs, getRoute(path));
             }
         } catch (Throwable throwable) {
             throwable.printStackTrace();
@@ -71,6 +71,22 @@ public class ServiceContentProvider extends ContentProvider {
         return cursor;
     }
 
+    private String getMethod(String path) {
+        return path.replace("/pigeon/10/", "");
+    }
+
+    private String getRoute(String path) {
+        return path.replace("/pigeon/11/", "");
+    }
+
+    private boolean isSegmentRoute(String path) {
+        return path.startsWith("/pigeon/11");
+    }
+
+    private boolean isSegmentMethod(String path) {
+        return path.startsWith("/pigeon/10");
+    }
+
 
     @Nullable
     @Override
@@ -80,11 +96,11 @@ public class ServiceContentProvider extends ContentProvider {
         }
         Bundle response = new Bundle();
         try {
+            in.setClassLoader(Pair.class.getClassLoader());
             String calling = getCallingPackage();
             if (!TextUtils.isEmpty(calling)) {
                 in.putString(PIGEON_KEY_CALLING_PACKAGE, calling);
             }
-            in.setClassLoader(Pair.class.getClassLoader());
             int approach = in.getInt(PIGEON_KEY_LOOK_UP_APPROACH);
             if (approach == PIGEON_APPROACH_METHOD) {
                 Server.getInstance().dispatch(method, response, arg, in);

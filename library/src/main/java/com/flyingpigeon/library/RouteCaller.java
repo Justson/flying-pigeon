@@ -4,6 +4,7 @@ import android.os.Bundle;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 
 import androidx.annotation.NonNull;
 
@@ -18,7 +19,7 @@ public class RouteCaller implements MethodCaller {
     private final String route;
     private final Object owner;
 
-    private volatile Boolean isMatchParamters;
+    private volatile boolean isMatchParamters;
     private int parametersLength = -1;
     private int matchLength = -1;
 
@@ -26,38 +27,55 @@ public class RouteCaller implements MethodCaller {
         this.target = target;
         this.route = route;
         this.owner = owner;
+        Class<?>[] parameters = target.getParameterTypes();
+        parametersLength = parameters.length;
+        isMatchParamters = (parametersLength == 2);
+        for (int i = 0; i < parametersLength; i++) {
+            if (!parameters[i].isAssignableFrom(Bundle.class)) {
+                isMatchParamters = false;
+                break;
+            } else {
+                matchLength += 1;
+            }
+        }
     }
 
     @Override
     public Object call(Object... args) throws IllegalAccessException, InvocationTargetException {
         target.setAccessible(true);
-        if (isMatchParamters == null) {
-            synchronized (route) {
-                if (isMatchParamters == null) {
-                    Class<?>[] parameters = target.getParameterTypes();
-                    parametersLength = parameters.length;
-                    isMatchParamters = (parametersLength == 2);
-                    for (int i = 0; i < parametersLength; i++) {
-                        if (!parameters[i].isAssignableFrom(Bundle.class)) {
-                            isMatchParamters = false;
-                            break;
-                        } else {
-                            matchLength += 1;
-                        }
-                    }
+
+        if (isMatchParamters) {
+            if (args.length == 2 && args[0] instanceof Bundle && args[1] instanceof Bundle) {
+                return target.invoke(owner, args);
+            } else {
+                Object[] parameters = new Object[2];
+                if (args[0] instanceof Bundle) {
+                    parameters[0] = args[0];
+                } else {
+                    parameters[0] = new Bundle();
+                }
+
+                if (args[1] instanceof Bundle) {
+                    parameters[1] = args[1];
+                } else {
+                    parameters[1] = new Bundle();
+                }
+                return target.invoke(owner, parameters);
+            }
+        } else {
+            if (parametersLength == 0) {
+                return target.invoke(owner);
+            }
+            Object[] parameters = new Object[parametersLength];
+            Type[] types = target.getGenericParameterTypes();
+            for (int i = 0; i < parametersLength; i++) {
+                if (i < args.length && args[i] instanceof Bundle) {
+                    parameters[i] = args[i];
+                } else {
+                    parameters[i] = Utils.getBasedata(ClassUtil.getRawType(types[i]));
                 }
             }
-        }
-        if (isMatchParamters) {
-            return target.invoke(owner, args);
-        } else {
-            Object[] parameters = new Object[parametersLength];
-            if (matchLength > 0) {
-                System.arraycopy(args, 0, parameters, 0, matchLength);
-                return target.invoke(owner, parameters);
-            } else {
-                return target.invoke(owner, parameters);
-            }
+            return target.invoke(owner, parameters);
         }
     }
 

@@ -1,5 +1,7 @@
 package com.flyingpigeon.library.log;
 
+import android.util.Log;
+
 import com.flyingpigeon.library.BuildConfig;
 
 /**
@@ -16,7 +18,7 @@ public class FlyPigeonLog {
 
     public static void e(String tag, String message) {
         if (DEBUG) {
-            FlyPigeonLog.e(tag, message);
+            Log.e(tag, message);
         }
     }
 }

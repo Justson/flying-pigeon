@@ -86,18 +86,18 @@ public class RemoteService extends Service implements RemoteServiceApi {
 
     @route(value = "/words")
     public void queryWords(Bundle in, Bundle out) {
-        Log.e(TAG, "IPC by route, parameter name:" + in.getString("name"));
+        Log.e(TAG, "IPC by route, parameter name:" + in.getString("name") + " calling package:" + in.getString("key_calling_package"));
         out.putShort("test", (short) 1);
     }
 
     @route(value = "/hello")
     public void queryWords() {
-        Log.e(TAG, "IPC by route,hello");
+        Log.e(TAG, "IPC by route,route=hello");
     }
 
-    @route(value = "/world")
-    public void queryWords(Bundle in) {
-        Log.e(TAG, "IPC by route,world");
+    @route(value = "/world2")
+    public void queryWords2(Bundle in) {
+        Log.e(TAG, "IPC by route,route=world, calling package:" + in.getString("key_calling_package"));
     }
 
     @RequestLarge
