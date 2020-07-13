@@ -1,7 +1,10 @@
-package com.flyingpigeon.library;
+package com.flyingpigeon.library.boxing;
 
 import android.os.Bundle;
 import android.os.Parcelable;
+
+import com.flyingpigeon.library.ClassUtil;
+import com.flyingpigeon.library.Utils;
 
 import java.lang.reflect.Type;
 import java.util.Locale;

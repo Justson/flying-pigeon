@@ -1,4 +1,4 @@
-package com.flyingpigeon.library;
+package com.flyingpigeon.library.boxing;
 
 /**
  * @author xiaozhongcen

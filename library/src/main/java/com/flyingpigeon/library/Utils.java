@@ -227,7 +227,7 @@ public class Utils {
     }
 
 
-    static void convert(String key, Bundle bundle, Type type, Object arg) {
+    public static void convert(String key, Bundle bundle, Type type, Object arg) {
         Class<?> typeClazz = ClassUtil.getRawType(type);
         if (int.class.isAssignableFrom(typeClazz)) {
             ParameterHandler.IntHandler handler = (ParameterHandler.IntHandler) map.get(int.class);
@@ -331,7 +331,7 @@ public class Utils {
     }
 
 
-    static Object parcelableValueOut(Parcelable parcelable) {
+    public static Object parcelableValueOut(Parcelable parcelable) {
         if (parcelable instanceof com.flyingpigeon.library.Pair.PairInt) {
             return ((com.flyingpigeon.library.Pair.PairInt) parcelable).getValue();
         } else if (parcelable instanceof com.flyingpigeon.library.Pair.PairDouble) {

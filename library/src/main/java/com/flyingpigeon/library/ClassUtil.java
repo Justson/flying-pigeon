@@ -55,7 +55,7 @@ public class ClassUtil {
 		return methodError(method, message + " (parameter #" + (p + 1) + ")", args);
 	}
 
-	static Class<?> getRawType(Type type) {
+	public static Class<?> getRawType(Type type) {
 		Objects.requireNonNull(type, "type == null");
 
 		if (type instanceof Class<?>) {

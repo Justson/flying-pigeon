@@ -13,6 +13,11 @@ import android.text.TextUtils;
 
 import com.flyingpigeon.library.annotations.RequestLarge;
 import com.flyingpigeon.library.annotations.ResponseLarge;
+import com.flyingpigeon.library.boxing.ClientBoxmen;
+import com.flyingpigeon.library.boxing.ClientBoxmenImpl;
+import com.flyingpigeon.library.boxing.ClientLargeBoxmenImpl;
+import com.flyingpigeon.library.boxing.RouteClientBoxmen;
+import com.flyingpigeon.library.boxing.RouteClientBoxmenImpl;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;

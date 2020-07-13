@@ -10,7 +10,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @date 20-6-24
  * @since 1.0.0
  */
-interface PigeonConstant {
+public interface PigeonConstant {
     String PIGEON_KEY_LOOK_UP_APPROACH = "key_look_up_approach";
     String PIGEON_KEY_ROUTE = "key_path";
     int PIGEON_APPROACH_METHOD = 1;
