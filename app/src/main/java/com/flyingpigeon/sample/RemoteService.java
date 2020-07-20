@@ -16,6 +16,8 @@ import com.flyingpigeon.library.ServiceManager;
 import com.flyingpigeon.library.annotations.RequestLarge;
 import com.flyingpigeon.library.annotations.ResponseLarge;
 import com.flyingpigeon.library.annotations.route;
+import com.flyingpigeon.library.annotations.thread.MainThread;
+import com.flyingpigeon.library.annotations.thread.SingleThread;
 
 import androidx.annotation.Nullable;
 
@@ -75,18 +77,20 @@ public class RemoteService extends Service implements RemoteServiceApi {
     }
 
     private Api mApi = new Api() {
+        @MainThread
         @Override
         public int createPoster(Poster poster) {
-            Log.e(TAG, "poster:" + GsonUtils.toJson(poster));
+            Log.e(TAG, "thread:" + Thread.currentThread().getName() + ", poster:" + GsonUtils.toJson(poster));
             Pigeon pigeon = Pigeon.newBuilder(RemoteService.this).setAuthority(MainProcessApi.class).build();
             pigeon.create(MainProcessService.class).login("test", "test");
             return 11;
         }
     };
 
+    @SingleThread
     @route(value = "/words")
     public void queryWords(Bundle in, Bundle out) {
-        Log.e(TAG, "IPC by route, parameter name:" + in.getString("name") + " calling package:" + in.getString("key_calling_package"));
+        Log.e(TAG, "thread:" + Thread.currentThread().getName() + ", IPC by route, parameter name:" + in.getString("name") + " calling package:" + in.getString("key_calling_package"));
         out.putShort("test", (short) 1);
     }
 

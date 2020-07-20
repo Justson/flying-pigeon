@@ -50,7 +50,7 @@ public class RouteInvoker extends AbsMethodInvoker {
 
         if (isMatchParamters) {
             if (args.length == 2 && args[0] instanceof Bundle && args[1] instanceof Bundle) {
-                return target.invoke(owner, args);
+                return super.invoke(owner, args);
             } else {
                 Object[] parameters = new Object[2];
                 if (args[0] instanceof Bundle) {
@@ -64,11 +64,11 @@ public class RouteInvoker extends AbsMethodInvoker {
                 } else {
                     parameters[1] = new Bundle();
                 }
-                return invoke(owner,parameters);
+                return super.invoke(owner, parameters);
             }
         } else {
             if (parametersLength == 0) {
-                return target.invoke(owner);
+                return super.invoke(owner, (Object[]) null);
             }
             Object[] parameters = new Object[parametersLength];
             Type[] types = target.getGenericParameterTypes();
@@ -79,7 +79,7 @@ public class RouteInvoker extends AbsMethodInvoker {
                     parameters[i] = Utils.getBasedata(ClassUtil.getRawType(types[i]));
                 }
             }
-            return invoke(owner,parameters);
+            return invoke(owner, parameters);
         }
     }
 

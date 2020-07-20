@@ -16,7 +16,7 @@ import androidx.annotation.NonNull;
 public class RouteResponseLargeInvoker implements MethodInvoker {
 
 
-    final Method target;
+    public final Method target;
     private final String route;
     private final Object owner;
     private int parametersLength = -1;

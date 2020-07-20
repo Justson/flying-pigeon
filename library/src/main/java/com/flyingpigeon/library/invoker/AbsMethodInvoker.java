@@ -39,12 +39,12 @@ public abstract class AbsMethodInvoker implements MethodInvoker {
         final Exception[] exceptions = new Exception[1];
         Object o = mDispatch.call(new Callable<Object>() {
             @Override
-            public Object call() throws Exception {
+            public Object call() {
                 Object returnObject = null;
                 try {
                     returnObject = target.invoke(owner, parameters);
-                } catch (Exception throwable) {
-                    exceptions[0] = throwable;
+                } catch (Exception exception) {
+                    exceptions[0] = exception;
                 }
                 return returnObject;
             }

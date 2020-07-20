@@ -22,7 +22,7 @@ import static com.flyingpigeon.library.PigeonConstant.map;
 public class Utils {
 
 
-    static byte[] toPrimitives(Byte[] oBytes) {
+   public static byte[] toPrimitives(Byte[] oBytes) {
         if (oBytes == null || oBytes.length <= 0) {
             return new byte[0];
         }

@@ -116,14 +116,10 @@ public class MainActivity extends AppCompatActivity {
     @MainThread
     @route("/show/myapp/name")
     public void showMyAppName(final Bundle in, Bundle out) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                String name = in.getString("name");
-                appName.setText(name);
-            }
-        });
         out.putString("name", "fly-pigeon");
+        String name = in.getString("name");
+        appName.setText(name);
+        Log.e(TAG, "current Thread:" + Thread.currentThread().getName());
     }
 
     private void test(Pigeon pigeon) {
