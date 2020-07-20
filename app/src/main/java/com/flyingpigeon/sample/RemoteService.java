@@ -19,6 +19,7 @@ import com.flyingpigeon.library.annotations.route;
 import com.flyingpigeon.library.annotations.thread.MainThread;
 import com.flyingpigeon.library.annotations.thread.SingleThread;
 
+import androidx.annotation.BinderThread;
 import androidx.annotation.Nullable;
 
 import static com.flyingpigeon.library.Config.PREFIX;
@@ -99,9 +100,10 @@ public class RemoteService extends Service implements RemoteServiceApi {
         Log.e(TAG, "IPC by route,route=hello");
     }
 
+    @BinderThread
     @route(value = "/world2")
     public void queryWords2(Bundle in) {
-        Log.e(TAG, "IPC by route,route=world, calling package:" + in.getString("key_calling_package"));
+        Log.e(TAG, "thread:" + Thread.currentThread().getName() + ", IPC by route,route=world, calling package:" + in.getString("key_calling_package"));
     }
 
     @RequestLarge
@@ -110,10 +112,11 @@ public class RemoteService extends Service implements RemoteServiceApi {
         Log.e(TAG, "IPC by route,submitBitmap:" + key + " data length:" + data.length + " length:" + length);
     }
 
+    @MainThread
     @RequestLarge
     @route(value = "/submit/bitmap2")
     public int submitBitmap2(String key, byte[] data, int length) {
-        Log.e(TAG, "IPC by route,submitBitmap2:" + key + " data length:" + data.length + " length:" + length);
+        Log.e(TAG, "thread:" + Thread.currentThread().getName() + ", IPC by route,submitBitmap2:" + key + " data length:" + data.length + " length:" + length);
         return 1;
     }
 

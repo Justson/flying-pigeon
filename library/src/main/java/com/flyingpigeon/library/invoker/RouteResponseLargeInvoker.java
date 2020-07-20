@@ -13,7 +13,7 @@ import androidx.annotation.NonNull;
  * @date 20-6-11
  * @since 1.0.0
  */
-public class RouteResponseLargeInvoker implements MethodInvoker {
+public class RouteResponseLargeInvoker extends AbsMethodInvoker {
 
 
     public final Method target;
@@ -23,6 +23,7 @@ public class RouteResponseLargeInvoker implements MethodInvoker {
     private static final String TAG = Config.PREFIX + RouteRequestLargeInvoker.class.getSimpleName();
 
     public RouteResponseLargeInvoker(@NonNull Method target, @NonNull String route, @NonNull Object owner) {
+        super(target);
         this.target = target;
         this.route = route;
         this.owner = owner;
@@ -53,7 +54,7 @@ public class RouteResponseLargeInvoker implements MethodInvoker {
                 args[i] = o;
             }
         }
-        return target.invoke(owner, args);
+        return super.invoke(owner, args);
     }
 
 
