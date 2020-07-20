@@ -1,4 +1,4 @@
-package com.flyingpigeon.library;
+package com.flyingpigeon.library.invoker;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -11,20 +11,20 @@ import androidx.annotation.Nullable;
  * @date 20-6-11
  * @since 1.0.0
  */
-public class Caller implements MethodCaller {
+public class Invoker implements MethodInvoker {
 
     private Method target;
     private String route;
     private Object owner;
 
-    public Caller(@NonNull Method target, @Nullable String route, @Nullable Object owner) {
+    public Invoker(@NonNull Method target, @Nullable String route, @Nullable Object owner) {
         this.target = target;
         this.route = route;
         this.owner = owner;
     }
 
     @Override
-    public Object call(Object... arg) throws IllegalAccessException, InvocationTargetException {
+    public Object invoke(Object... arg) throws IllegalAccessException, InvocationTargetException {
         target.setAccessible(true);
         return target.invoke(owner, arg);
     }

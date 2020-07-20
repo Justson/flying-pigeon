@@ -4,8 +4,6 @@ import com.queue.library.Dispatch;
 import com.queue.library.DispatchThread;
 import com.queue.library.GlobalQueue;
 
-import java.util.concurrent.Executor;
-
 /**
  * @author xiaozhongcen
  * @date 20-7-20
@@ -15,7 +13,7 @@ public class Executors {
 
     private volatile static Dispatch SINGLE_THREAD;
 
-    public static Executor getSingleThreadExecutor() {
+    public static Dispatch getSingleThreadExecutor() {
         if (null == SINGLE_THREAD) {
             synchronized (Executors.class) {
                 if (null == SINGLE_THREAD) {
@@ -26,7 +24,7 @@ public class Executors {
         return SINGLE_THREAD;
     }
 
-    public static Executor getMainThreadExecutor() {
+    public static Dispatch getMainThreadExecutor() {
         return GlobalQueue.getMainQueue();
     }
 

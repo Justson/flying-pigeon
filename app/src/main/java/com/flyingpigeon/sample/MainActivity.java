@@ -13,6 +13,7 @@ import com.flyingpigeon.library.Config;
 import com.flyingpigeon.library.Pigeon;
 import com.flyingpigeon.library.ServiceManager;
 import com.flyingpigeon.library.annotations.route;
+import com.flyingpigeon.library.annotations.thread.MainThread;
 
 import java.util.ArrayList;
 import java.util.UUID;
@@ -112,6 +113,7 @@ public class MainActivity extends AppCompatActivity {
         ServiceManager.getInstance().publish(this);
     }
 
+    @MainThread
     @route("/show/myapp/name")
     public void showMyAppName(final Bundle in, Bundle out) {
         runOnUiThread(new Runnable() {

@@ -1,6 +1,9 @@
-package com.flyingpigeon.library;
+package com.flyingpigeon.library.invoker;
 
 import android.os.Bundle;
+
+import com.flyingpigeon.library.ClassUtil;
+import com.flyingpigeon.library.Utils;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -13,7 +16,7 @@ import androidx.annotation.NonNull;
  * @date 20-6-11
  * @since 1.0.0
  */
-public class RouteCaller implements MethodCaller {
+public class RouteInvoker extends AbsMethodInvoker {
 
     private final Method target;
     private final String route;
@@ -23,7 +26,8 @@ public class RouteCaller implements MethodCaller {
     private int parametersLength = -1;
     private int matchLength = -1;
 
-    public RouteCaller(@NonNull Method target, @NonNull String route, @NonNull Object owner) {
+    public RouteInvoker(@NonNull Method target, @NonNull String route, @NonNull Object owner) {
+        super(target);
         this.target = target;
         this.route = route;
         this.owner = owner;
@@ -41,7 +45,7 @@ public class RouteCaller implements MethodCaller {
     }
 
     @Override
-    public Object call(Object... args) throws IllegalAccessException, InvocationTargetException {
+    public Object invoke(Object... args) throws IllegalAccessException, InvocationTargetException {
         target.setAccessible(true);
 
         if (isMatchParamters) {
@@ -60,7 +64,7 @@ public class RouteCaller implements MethodCaller {
                 } else {
                     parameters[1] = new Bundle();
                 }
-                return target.invoke(owner, parameters);
+                return invoke(owner,parameters);
             }
         } else {
             if (parametersLength == 0) {
@@ -75,7 +79,7 @@ public class RouteCaller implements MethodCaller {
                     parameters[i] = Utils.getBasedata(ClassUtil.getRawType(types[i]));
                 }
             }
-            return target.invoke(owner, parameters);
+            return invoke(owner,parameters);
         }
     }
 

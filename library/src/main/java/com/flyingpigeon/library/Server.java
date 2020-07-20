@@ -8,6 +8,8 @@ import android.util.Pair;
 
 import com.flyingpigeon.library.boxing.ServerBoxmen;
 import com.flyingpigeon.library.boxing.ServerBoxmenImpl;
+import com.flyingpigeon.library.invoker.MethodInvoker;
+import com.flyingpigeon.library.invoker.RouteResponseLargeInvoker;
 import com.flyingpigeon.library.log.FlyPigeonLog;
 
 import java.lang.reflect.InvocationTargetException;
@@ -47,14 +49,14 @@ public class Server {
     public Bundle dispatch(String method, Bundle response, String arg, Bundle in) throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         ServerBoxmen<Bundle> serverBoxmen = new ServerBoxmenImpl();
         Pair<Class<?>[], Object[]> unboxing = serverBoxmen.unboxing(in);
-        MethodCaller methodCaller;
+        MethodInvoker methodInvoker;
         String clazz = in.getString(PIGEON_KEY_CLASS);
         BuketMethod buket = ServiceManager.getInstance().getMethods(Class.forName(clazz));
         if (buket == null) {
             throw new ClassNotFoundException();
         }
-        methodCaller = buket.match(method, unboxing.first);
-        Object result = methodCaller.call(unboxing.second);
+        methodInvoker = buket.match(method, unboxing.first);
+        Object result = methodInvoker.invoke(unboxing.second);
         serverBoxmen.boxing(in, response, result);
         response.putInt(PIGEON_KEY_RESPONSE_CODE, PIGEON_RESPONSE_RESULE_SUCCESS);
         return response;
@@ -66,14 +68,14 @@ public class Server {
         if (TextUtils.isEmpty(route)) {
             throw new NotFoundRouteException(route + " was not found");
         }
-        ArrayDeque<MethodCaller> callers = ServiceManager.getInstance().lookupMethods(route);
+        ArrayDeque<MethodInvoker> callers = ServiceManager.getInstance().lookupMethods(route);
         if (callers == null || callers.isEmpty()) {
             throw new NotFoundRouteException(route + " was not found");
         }
-        Iterator<MethodCaller> iterators = callers.iterator();
+        Iterator<MethodInvoker> iterators = callers.iterator();
         while (iterators.hasNext()) {
-            MethodCaller methodCaller = iterators.next();
-            methodCaller.call(in, out);
+            MethodInvoker methodInvoker = iterators.next();
+            methodInvoker.invoke(in, out);
         }
         out.putInt(PIGEON_KEY_RESPONSE_CODE, PIGEON_RESPONSE_RESULE_SUCCESS);
         return out;
@@ -84,17 +86,17 @@ public class Server {
         if (TextUtils.isEmpty(route)) {
             throw new NotFoundRouteException(route + " was not found");
         }
-        ArrayDeque<MethodCaller> callers = ServiceManager.getInstance().lookupMethods(route);
+        ArrayDeque<MethodInvoker> callers = ServiceManager.getInstance().lookupMethods(route);
         if (callers == null || callers.isEmpty()) {
             throw new NotFoundRouteException(route + " was not found");
         }
         ServerBoxmenImpl serverBoxmen = new ServerBoxmenImpl();
         Pair<Class<?>[], Object[]> pair = serverBoxmen.unboxing(in);
-        Iterator<MethodCaller> iterators = callers.iterator();
+        Iterator<MethodInvoker> iterators = callers.iterator();
         if (iterators.hasNext()) {
-            MethodCaller methodCaller = iterators.next();
+            MethodInvoker methodInvoker = iterators.next();
             Object[] params = pair.second;
-            Object o = methodCaller.call(params);
+            Object o = methodInvoker.invoke(params);
             if (o != null) {
                 Class<?> clazz = o.getClass();
 //                Log.e(TAG, "clazz:" + clazz + " o:" + o);
@@ -118,12 +120,12 @@ public class Server {
             System.arraycopy(arg, 0, params, 0, pLength);
             System.arraycopy(arg, pLength + 2, types, 0, pLength);
             Object[] values = Utils.getValues(types, params);
-            ArrayDeque<MethodCaller> callers = ServiceManager.getInstance().lookupMethods(route);
+            ArrayDeque<MethodInvoker> callers = ServiceManager.getInstance().lookupMethods(route);
             if (callers == null || callers.isEmpty()) {
                 throw new NotFoundRouteException(route + " was not found");
             }
-            MethodCaller methodCaller = callers.getFirst();
-            Object o = methodCaller.call(values);
+            MethodInvoker methodInvoker = callers.getFirst();
+            Object o = methodInvoker.invoke(values);
             if (o == null) {
                 return bundleCursor;
             }
@@ -137,7 +139,7 @@ public class Server {
                 bundle.putString(PIGEON_KEY_TYPE, "[B");
                 bundleCursor.addRow(new Object[]{o});
             } else {
-                RouteResponseLargeCaller routeResponseLargeCaller = (RouteResponseLargeCaller) methodCaller;
+                RouteResponseLargeInvoker routeResponseLargeCaller = (RouteResponseLargeInvoker) methodInvoker;
                 Method target = routeResponseLargeCaller.target;
                 Type returnType = target.getGenericReturnType();
                 Utils.typeConvert(returnType, bundle, PIGEON_KEY_RESULT);
@@ -169,9 +171,9 @@ public class Server {
             if (buketMethod == null) {
                 throw new NoSuchMethodException(method);
             }
-            MethodCaller methodCaller = buketMethod.match(method, classes);
+            MethodInvoker methodInvoker = buketMethod.match(method, classes);
             Object[] values = Utils.getValues(types, params);
-            Object o = methodCaller.call(values);
+            Object o = methodInvoker.invoke(values);
             if (o == null) {
                 return bundleCursor;
             }
@@ -186,7 +188,7 @@ public class Server {
                 bundle.putString(PIGEON_KEY_TYPE, "[B");
                 bundleCursor.addRow(new Object[]{o});
             } else {
-                RouteResponseLargeCaller routeResponseLargeCaller = (RouteResponseLargeCaller) methodCaller;
+                RouteResponseLargeInvoker routeResponseLargeCaller = (RouteResponseLargeInvoker) methodInvoker;
                 Method target = routeResponseLargeCaller.target;
                 Type returnType = target.getGenericReturnType();
                 Utils.typeConvert(returnType, bundle, PIGEON_KEY_RESULT);

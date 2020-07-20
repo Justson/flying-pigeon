@@ -2,6 +2,10 @@ package com.flyingpigeon.library;
 
 import android.text.TextUtils;
 
+import com.flyingpigeon.library.invoker.MethodInvoker;
+import com.flyingpigeon.library.invoker.RouteInvoker;
+import com.flyingpigeon.library.invoker.RouteRequestLargeInvoker;
+import com.flyingpigeon.library.invoker.RouteResponseLargeInvoker;
 import com.flyingpigeon.library.log.FlyPigeonLog;
 
 import com.flyingpigeon.library.annotations.RequestLarge;
@@ -27,7 +31,7 @@ public final class ServiceManager implements IServiceManager {
     private static final String TAG = PREFIX + ServiceManager.class.getSimpleName();
     private final Object lock = new Object();
     private ConcurrentHashMap<Class<?>, BuketMethod> sCache = new ConcurrentHashMap<>();
-    private ConcurrentHashMap<String, ArrayDeque<MethodCaller>> routers = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<String, ArrayDeque<MethodInvoker>> routers = new ConcurrentHashMap<>();
 
     private ServiceManager() {
     }
@@ -93,14 +97,14 @@ public final class ServiceManager implements IServiceManager {
 //                    Log.e(TAG, " publish route:" + routeValue);
                     method.setAccessible(true);
                     if (requestLarge == null && responseLarge == null) {
-                        MethodCaller methodCaller = new RouteCaller(method, routeValue, service);
-                        cacheMethodToRoute(routeValue, methodCaller);
+                        MethodInvoker methodInvoker = new RouteInvoker(method, routeValue, service);
+                        cacheMethodToRoute(routeValue, methodInvoker);
                     } else if (requestLarge != null) {
-                        MethodCaller methodCaller = new RouteRequestLargeCaller(method, routeValue, service);
-                        cacheMethodToRoute(routeValue, methodCaller);
+                        MethodInvoker methodInvoker = new RouteRequestLargeInvoker(method, routeValue, service);
+                        cacheMethodToRoute(routeValue, methodInvoker);
                     } else {
-                        MethodCaller methodCaller = new RouteResponseLargeCaller(method, routeValue, service);
-                        cacheMethodToRoute(routeValue, methodCaller);
+                        MethodInvoker methodInvoker = new RouteResponseLargeInvoker(method, routeValue, service);
+                        cacheMethodToRoute(routeValue, methodInvoker);
                     }
                 }
             }
@@ -112,19 +116,19 @@ public final class ServiceManager implements IServiceManager {
     }
 
 
-    ArrayDeque<MethodCaller> lookupMethods(String route) {
+    ArrayDeque<MethodInvoker> lookupMethods(String route) {
         return this.routers.get(route);
     }
 
-    private void cacheMethodToRoute(String key, MethodCaller caller) {
+    private void cacheMethodToRoute(String key, MethodInvoker caller) {
         synchronized (routers) {
-            ArrayDeque<MethodCaller> methodCallers = routers.get(key);
-            if (methodCallers == null) {
-                methodCallers = new ArrayDeque<>();
-                methodCallers.addFirst(caller);
-                routers.put(key, methodCallers);
+            ArrayDeque<MethodInvoker> methodInvokers = routers.get(key);
+            if (methodInvokers == null) {
+                methodInvokers = new ArrayDeque<>();
+                methodInvokers.addFirst(caller);
+                routers.put(key, methodInvokers);
             } else {
-                methodCallers.addLast(caller);
+                methodInvokers.addLast(caller);
             }
         }
     }

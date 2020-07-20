@@ -36,7 +36,7 @@ public class Utils {
         return bytes;
     }
 
-    static Object getBasedata(Class<?> clazz) {
+    public static Object getBasedata(Class<?> clazz) {
         if (int.class.isAssignableFrom(clazz)) {
             return 0;
         } else if (double.class.isAssignableFrom(clazz)) {
