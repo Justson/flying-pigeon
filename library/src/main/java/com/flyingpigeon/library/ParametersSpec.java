@@ -31,9 +31,9 @@ public class ParametersSpec {
 
     static final int PIGEON_PARAMETER_IS_PARCE_MASK = 0x00000300;
 
-    static final int PIGEON_PARAMETER_IS_PARCE_TRUE = 0x00000100;
+    static final int PIGEON_PARAMETER_IS_PARCEL_TRUE = 0x00000100;
 
-    static final int PIGEON_PARAMETER_IS_PARCE_FALSE = 0x00000200;
+    static final int PIGEON_PARAMETER_IS_PARCEL_FALSE = 0x00000200;
 
     static final int PIGEON_PARAMETER_REQUEST_NORMAL = 0x00000000;
 
@@ -86,11 +86,11 @@ public class ParametersSpec {
     }
 
     public static int setParamParcel(int old, boolean isParcel) {
-        return setFlag(old, PIGEON_PARAMETER_IS_PARCE_MASK, isParcel ? PIGEON_PARAMETER_IS_PARCE_TRUE : PIGEON_PARAMETER_IS_PARCE_FALSE);
+        return setFlag(old, PIGEON_PARAMETER_IS_PARCE_MASK, isParcel ? PIGEON_PARAMETER_IS_PARCEL_TRUE : PIGEON_PARAMETER_IS_PARCEL_FALSE);
     }
 
     public static boolean isParamParcel(int flags) {
-        return getParcelParameter(flags) == PIGEON_PARAMETER_IS_PARCE_TRUE;
+        return getParcelParameter(flags) == PIGEON_PARAMETER_IS_PARCEL_TRUE;
     }
 
 }
