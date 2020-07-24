@@ -134,7 +134,7 @@ public final class Pigeon {
             parseReponse(new Bundle(), response);
         } catch (CallRemoteException e) {
             e.printStackTrace();
-            return null;
+            return clientBoxmen.unboxing(response);
         }
         return clientBoxmen.unboxing(response);
     }

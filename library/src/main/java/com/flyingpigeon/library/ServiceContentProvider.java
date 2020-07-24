@@ -21,6 +21,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.ParcelFileDescriptor;
+import android.os.Parcelable;
 import android.text.TextUtils;
 
 import java.io.FileNotFoundException;
@@ -34,6 +35,7 @@ import static com.flyingpigeon.library.PigeonConstant.PIGEON_APPROACH_METHOD;
 import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_CALLING_PACKAGE;
 import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_FLAGS;
 import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_LOOK_UP_APPROACH;
+import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_RESPONSE;
 import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_RESPONSE_CODE;
 import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_ROUTE;
 import static com.flyingpigeon.library.PigeonConstant.PIGEON_RESPONSE_RESULE_ILLEGALACCESS;
@@ -81,6 +83,7 @@ public class ServiceContentProvider extends ContentProvider {
             Bundle bundle = new Bundle();
             BundleCursor bundleCursor = new BundleCursor(bundle, new String[]{});
             bundle.putInt(PIGEON_KEY_RESPONSE_CODE, PIGEON_RESPONSE_RESULE_REMOTE_EXCEPTION);
+
             cursor = bundleCursor;
         }
         return cursor;
@@ -110,6 +113,8 @@ public class ServiceContentProvider extends ContentProvider {
             return null;
         }
         Bundle response = new Bundle();
+        Parcelable returnResponse = in.getParcelable(PIGEON_KEY_RESPONSE);
+        response.putParcelable(PIGEON_KEY_RESPONSE, returnResponse);
         try {
             in.setClassLoader(Pair.class.getClassLoader());
             String calling = getCallingPackage();
