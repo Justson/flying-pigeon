@@ -15,7 +15,6 @@
  */
 package com.flyingpigeon.library.execute;
 
-import com.queue.library.Dispatch;
 import com.queue.library.DispatchThread;
 import com.queue.library.GlobalQueue;
 
@@ -26,9 +25,9 @@ import com.queue.library.GlobalQueue;
  */
 public class Executors {
 
-    private volatile static Dispatch SINGLE_THREAD;
+    private volatile static DispatchThread SINGLE_THREAD;
 
-    public static Dispatch getSingleThreadExecutor() {
+    public static DispatchThread getSingleThreadExecutor() {
         if (null == SINGLE_THREAD) {
             synchronized (Executors.class) {
                 if (null == SINGLE_THREAD) {
@@ -39,7 +38,7 @@ public class Executors {
         return SINGLE_THREAD;
     }
 
-    public static Dispatch getMainThreadExecutor() {
+    public static DispatchThread getMainThreadExecutor() {
         return GlobalQueue.getMainQueue();
     }
 
