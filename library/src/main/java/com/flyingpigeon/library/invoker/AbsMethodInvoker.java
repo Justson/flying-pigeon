@@ -18,7 +18,7 @@ package com.flyingpigeon.library.invoker;
 import com.flyingpigeon.library.annotations.thread.MainThread;
 import com.flyingpigeon.library.annotations.thread.SingleThread;
 import com.flyingpigeon.library.execute.Executors;
-import com.queue.library.Dispatch;
+import com.queue.library.DispatchThread;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -32,7 +32,7 @@ import java.util.concurrent.Callable;
 public abstract class AbsMethodInvoker implements MethodInvoker {
 
     private final Method target;
-    private Dispatch mDispatch;
+    private DispatchThread mDispatch;
 
     public AbsMethodInvoker(Method target) {
         this.target = target;

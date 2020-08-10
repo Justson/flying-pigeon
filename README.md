@@ -7,7 +7,7 @@ Flying-Pigeon 内部提供两种跨进程通信方式，来应对各种跨进程
 
 
 ```gradle
-implementation 'com.github.Justson:flying-pigeon:v1.0.3'
+implementation 'com.github.Justson:flying-pigeon:v1.0.4'
 ```
 
 ## 方式一
@@ -32,9 +32,8 @@ ServiceManager.getInstance().publish(mApi);
 ### Client
 ``` java
 final Pigeon pigeon = Pigeon.newBuilder(this).setAuthority(ServiceApiImpl.class).build();
- Api api = pigeon.create(Api.class);
- Poster poster = new Poster("Justson", "just", 119, 11111000L, (short) 23, 1.15646F, 'h', (byte) 4, 123456.415D);
- api.createPoster(poster);
+Api api = pigeon.create(Api.class);
+api.createPoster(new Poster("Justson", "just", 119, 11111000L, (short) 23, 1.15646F, 'h', (byte) 4, 123456.415D));
 ```
 
 ## 方式二
@@ -42,14 +41,10 @@ final Pigeon pigeon = Pigeon.newBuilder(this).setAuthority(ServiceApiImpl.class)
 ### Server
 
 ```java
+@MainThread
 @route("/query/username")
 public void queryUsername(final Bundle in, final Bundle out) {
-    runOnUiThread(new Runnable() {
-        @Override
-        public void run() {
-            ipcLabel.setText("received other app message,\n message:" + in.getString("userid"));
-        }
-    });
+    ipcLabel.setText("received other app message,\n message:" + in.getString("userid"));
     out.putString("username", "ipc-sample");
 }
 ```
@@ -66,4 +61,5 @@ Bundle bundle = flyPigeon.route("/query/username").withString("userid", UUID.ran
 ```
 
 ## 建议
-> 建议App内使用方式一，App与其他App通信使用方式二
+*  建议App内使用方式一，App与其他App通信使用方式二
+*  返回的类型中，尽可能使用基本数据类型的包装类、如Integer,Double,Long,Short,Float,Byte,Boolean,Character
