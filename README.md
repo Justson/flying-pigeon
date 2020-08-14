@@ -60,6 +60,12 @@ Pigeon flyPigeon = Pigeon.newBuilder(MainActivity.this).setAuthority("com.flying
 Bundle bundle = flyPigeon.route("/query/username").withString("userid", UUID.randomUUID().toString()).fly();
 ```
 
+## 混淆
+```
+-keep class com.flyingpigeon.library.*
+-dontwarn com.flyingpigeon.library.*
+```
+
 ## 建议
 *  建议App内使用方式一，App与其他App通信使用方式二
 *  返回的类型中，尽可能使用基本数据类型的包装类、如Integer,Double,Long,Short,Float,Byte,Boolean,Character
