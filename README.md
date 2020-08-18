@@ -7,7 +7,7 @@ Flying-Pigeon 内部提供两种跨进程通信方式，来应对各种跨进程
 
 
 ```gradle
-implementation 'com.github.Justson:flying-pigeon:v1.0.4'
+implementation 'com.github.Justson:flying-pigeon:v1.0.5'
 ```
 
 ## 方式一
