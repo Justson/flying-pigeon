@@ -31,7 +31,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Documented
 @Retention(RUNTIME)
 @Target({PARAMETER,METHOD})
-public @interface route {
+public @interface Route {
 
     String value();
 

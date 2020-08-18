@@ -12,7 +12,7 @@ import android.widget.TextView;
 import com.flyingpigeon.library.Config;
 import com.flyingpigeon.library.Pigeon;
 import com.flyingpigeon.library.ServiceManager;
-import com.flyingpigeon.library.annotations.route;
+import com.flyingpigeon.library.annotations.Route;
 import com.flyingpigeon.library.annotations.thread.MainThread;
 
 import java.util.ArrayList;
@@ -115,7 +115,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @MainThread
-    @route("/show/myapp/name")
+    @Route("/show/myapp/name")
     public void showMyAppName(final Bundle in, Bundle out) {
         out.putString("name", "fly-pigeon");
         String name = in.getString("name");

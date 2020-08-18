@@ -4,7 +4,7 @@ import android.os.Bundle;
 import android.util.Log;
 
 import com.flyingpigeon.library.ServiceContentProvider;
-import com.flyingpigeon.library.annotations.route;
+import com.flyingpigeon.library.annotations.Route;
 
 import java.util.ArrayList;
 
@@ -100,7 +100,7 @@ public class ServiceApiImpl extends ServiceContentProvider implements IServiceAp
         return new byte[testSize];
     }
 
-    @route(value = "/words")
+    @Route(value = "/words")
     public void queryWords(Bundle in, Bundle out) {
         Log.e(TAG, "IPC by route");
     }

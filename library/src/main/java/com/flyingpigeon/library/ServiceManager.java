@@ -25,7 +25,7 @@ import com.flyingpigeon.library.log.FlyPigeonLog;
 
 import com.flyingpigeon.library.annotations.RequestLarge;
 import com.flyingpigeon.library.annotations.ResponseLarge;
-import com.flyingpigeon.library.annotations.route;
+import com.flyingpigeon.library.annotations.Route;
 
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Method;
@@ -89,7 +89,7 @@ public final class ServiceManager implements IServiceManager {
             Method[] methods = clazz.getDeclaredMethods();
             for (int i = 0; i < methods.length; i++) {
                 Method method = methods[i];
-                route route = method.getAnnotation(route.class);
+                Route route = method.getAnnotation(Route.class);
                 if (route != null) {
                     String routeValue = route.value();
                     boolean encode = route.encoded();
@@ -163,7 +163,7 @@ public final class ServiceManager implements IServiceManager {
             Method[] methods = service.getClass().getDeclaredMethods();
             for (int i = 0; i < methods.length; i++) {
                 Method method = methods[i];
-                route route = method.getAnnotation(route.class);
+                Route route = method.getAnnotation(Route.class);
                 if (route != null) {
                     String path = route.value();
                     boolean encode = route.encoded();

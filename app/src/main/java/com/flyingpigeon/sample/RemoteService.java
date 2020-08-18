@@ -16,7 +16,7 @@ import com.flyingpigeon.library.ServiceManager;
 import com.flyingpigeon.library.annotations.BinderThread;
 import com.flyingpigeon.library.annotations.RequestLarge;
 import com.flyingpigeon.library.annotations.ResponseLarge;
-import com.flyingpigeon.library.annotations.route;
+import com.flyingpigeon.library.annotations.Route;
 import com.flyingpigeon.library.annotations.support.Nullable;
 import com.flyingpigeon.library.annotations.thread.MainThread;
 import com.flyingpigeon.library.annotations.thread.SingleThread;
@@ -88,39 +88,39 @@ public class RemoteService extends Service implements RemoteServiceApi {
     };
 
     @SingleThread
-    @route(value = "/words")
+    @Route(value = "/words")
     public void queryWords(Bundle in, Bundle out) {
         Log.e(TAG, "thread:" + Thread.currentThread().getName() + ", IPC by route, parameter name:" + in.getString("name") + " calling package:" + in.getString("key_calling_package"));
         out.putShort("test", (short) 1);
     }
 
-    @route(value = "/hello")
+    @Route(value = "/hello")
     public void queryWords() {
         Log.e(TAG, "IPC by route,route=hello");
     }
 
     @BinderThread
-    @route(value = "/world2")
+    @Route(value = "/world2")
     public void queryWords2(Bundle in) {
         Log.e(TAG, "thread:" + Thread.currentThread().getName() + ", IPC by route,route=world, calling package:" + in.getString("key_calling_package"));
     }
 
     @RequestLarge
-    @route(value = "/submit/bitmap")
+    @Route(value = "/submit/bitmap")
     public void submitBitmap(String key, byte[] data, int length) {
         Log.e(TAG, "IPC by route,submitBitmap:" + key + " data length:" + data.length + " length:" + length);
     }
 
     @MainThread
     @RequestLarge
-    @route(value = "/submit/bitmap2")
+    @Route(value = "/submit/bitmap2")
     public int submitBitmap2(String key, byte[] data, int length) {
         Log.e(TAG, "thread:" + Thread.currentThread().getName() + ", IPC by route,submitBitmap2:" + key + " data length:" + data.length + " length:" + length);
         return 1;
     }
 
     @ResponseLarge
-    @route(value = "/query/bitmap")
+    @Route(value = "/query/bitmap")
     public byte[] queryBitmap(String key) {
         Log.e(TAG, "queryBitmap:" + key);
         return new byte[(int) (1.8 * 1024 * 1024)];

@@ -10,7 +10,7 @@ import com.flyingpigeon.library.Config;
 import com.flyingpigeon.library.Pigeon;
 import com.flyingpigeon.library.ServiceManager;
 import com.flyingpigeon.library.annotations.RequestLarge;
-import com.flyingpigeon.library.annotations.route;
+import com.flyingpigeon.library.annotations.Route;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -39,7 +39,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    @route("/query/username")
+    @Route("/query/username")
     public void queryUsername(final Bundle in, final Bundle out) {
         runOnUiThread(new Runnable() {
             @Override
@@ -51,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @RequestLarge
-    @route("/submit/bitmap")
+    @Route("/submit/bitmap")
     public void submitBitmap(String bitmapInfo, byte[] bitmap) {
         Log.e(TAG, "bitmapInfo:" + bitmapInfo + " bitmap:" + bitmap.length);
     }
