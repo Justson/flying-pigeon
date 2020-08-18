@@ -19,10 +19,10 @@ import android.os.Bundle;
 import android.os.Parcelable;
 import android.util.SparseArray;
 
+import com.flyingpigeon.library.annotations.support.Nullable;
+
 import java.io.Serializable;
 import java.util.ArrayList;
-
-import androidx.annotation.Nullable;
 
 import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_FLAGS;
 import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_ROUTE;

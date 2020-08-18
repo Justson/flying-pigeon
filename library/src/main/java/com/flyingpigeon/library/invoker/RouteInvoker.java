@@ -19,12 +19,12 @@ import android.os.Bundle;
 
 import com.flyingpigeon.library.ClassUtil;
 import com.flyingpigeon.library.Utils;
+import com.flyingpigeon.library.annotations.support.NonNull;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 
-import androidx.annotation.NonNull;
 
 /**
  * @author xiaozhongcen

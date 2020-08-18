@@ -15,11 +15,12 @@
  */
 package com.flyingpigeon.library.invoker;
 
+import com.flyingpigeon.library.annotations.support.NonNull;
+import com.flyingpigeon.library.annotations.support.Nullable;
+
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 /**
  * @author xiaozhongcen

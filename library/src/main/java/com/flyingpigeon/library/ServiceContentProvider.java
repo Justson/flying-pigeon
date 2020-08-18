@@ -24,11 +24,11 @@ import android.os.ParcelFileDescriptor;
 import android.os.Parcelable;
 import android.text.TextUtils;
 
+import com.flyingpigeon.library.annotations.support.NonNull;
+import com.flyingpigeon.library.annotations.support.Nullable;
+
 import java.io.FileNotFoundException;
 import java.lang.reflect.InvocationTargetException;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 import static com.flyingpigeon.library.Config.PREFIX;
 import static com.flyingpigeon.library.PigeonConstant.PIGEON_APPROACH_METHOD;

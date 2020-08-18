@@ -28,6 +28,7 @@ import android.text.TextUtils;
 
 import com.flyingpigeon.library.annotations.RequestLarge;
 import com.flyingpigeon.library.annotations.ResponseLarge;
+import com.flyingpigeon.library.annotations.support.NonNull;
 import com.flyingpigeon.library.boxing.ClientBoxmen;
 import com.flyingpigeon.library.boxing.ClientBoxmenImpl;
 import com.flyingpigeon.library.boxing.ClientLargeBoxmenImpl;
@@ -39,8 +40,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.lang.reflect.Type;
 import java.util.Objects;
-
-import androidx.annotation.NonNull;
 
 import static com.flyingpigeon.library.Config.PREFIX;
 import static com.flyingpigeon.library.PigeonConstant.PIGEON_APPROACH_ROUTE;

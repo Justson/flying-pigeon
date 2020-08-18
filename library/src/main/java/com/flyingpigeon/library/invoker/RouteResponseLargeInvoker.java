@@ -17,11 +17,11 @@ package com.flyingpigeon.library.invoker;
 
 import com.flyingpigeon.library.Config;
 import com.flyingpigeon.library.Utils;
+import com.flyingpigeon.library.annotations.support.NonNull;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-import androidx.annotation.NonNull;
 
 /**
  * @author xiaozhongcen

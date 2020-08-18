@@ -17,6 +17,8 @@ package com.flyingpigeon.library;
 
 import android.os.Parcelable;
 
+import com.flyingpigeon.library.annotations.support.Nullable;
+
 import java.io.Serializable;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Array;
@@ -32,7 +34,6 @@ import java.util.Arrays;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 
-import androidx.annotation.Nullable;
 
 /**
  * @author xiaozhongcen
@@ -52,7 +53,7 @@ public class ClassUtil {
 	}
 
 	static RuntimeException methodError(Method method, @Nullable Throwable cause, String message,
-										Object... args) {
+	                                    Object... args) {
 		message = String.format(message, args);
 		return new IllegalArgumentException(message
 				+ "\n    for method "
