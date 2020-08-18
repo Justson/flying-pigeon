@@ -100,6 +100,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Pigeon flyPigeon = Pigeon.newBuilder(MainActivity.this).setAuthority("com.flyingpigeon.ipc_sample").build();
+                flyPigeon.route("/submit/bitmap", "submit-bitmap", new byte[1024]).resquestLarge().fly();
                 Bundle bundle = flyPigeon.route("/query/username").withString("userid", UUID.randomUUID().toString()).fly();
                 if (bundle != null) {
                     Log.e(TAG, "bundle:" + bundle.toString());

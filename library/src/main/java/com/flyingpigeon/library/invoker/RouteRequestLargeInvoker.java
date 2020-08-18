@@ -17,6 +17,7 @@ package com.flyingpigeon.library.invoker;
 
 import com.flyingpigeon.library.Config;
 import com.flyingpigeon.library.Utils;
+import com.flyingpigeon.library.log.FlyPigeonLog;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -59,6 +60,10 @@ public class RouteRequestLargeInvoker extends AbsMethodInvoker {
                 Object[] p = new Object[parametersLength];
                 System.arraycopy(args, 0, p, 0, Math.min(parametersLength, args.length));
                 args = p;
+            }
+
+            for (int i = 0; i < args.length; i++) {
+                FlyPigeonLog.e(TAG, "args:" + args[i]);
             }
         }
 

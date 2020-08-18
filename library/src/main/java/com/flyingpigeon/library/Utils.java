@@ -21,6 +21,7 @@ import android.os.Parcelable;
 import android.util.Pair;
 
 import com.flyingpigeon.library.ashmem.Ashmem;
+import com.flyingpigeon.library.log.FlyPigeonLog;
 
 import java.io.Serializable;
 import java.lang.reflect.Type;
@@ -35,9 +36,9 @@ import static com.flyingpigeon.library.PigeonConstant.map;
  * @since 1.0.0
  */
 public class Utils {
+    private static final String TAG = Utils.class.getSimpleName();
 
-
-   public static byte[] toPrimitives(Byte[] oBytes) {
+    public static byte[] toPrimitives(Byte[] oBytes) {
         if (oBytes == null || oBytes.length <= 0) {
             return new byte[0];
         }
@@ -311,7 +312,7 @@ public class Utils {
                 Parcelable parcelable = bundle.getParcelable(key);
             } else {
                 ParameterHandler.ByteArrayHandler byteArrayHandler = (ParameterHandler.ByteArrayHandler) map.get(byte[].class);
-                byteArrayHandler.apply(array, byte[].class.getName(), bundle);
+                byteArrayHandler.apply(array, key, bundle);
             }
 
         } else if (Byte[].class.isAssignableFrom(typeClazz)) {
@@ -325,7 +326,7 @@ public class Utils {
                 Parcelable parcelable = bundle.getParcelable(key);
             } else {
                 ParameterHandler.ByteArrayHandler byteArrayHandler = (ParameterHandler.ByteArrayHandler) map.get(byte[].class);
-                byteArrayHandler.apply(array, byte[].class.getName(), bundle);
+                byteArrayHandler.apply(array, key, bundle);
             }
 
         } else if (String.class.isAssignableFrom(typeClazz)) {
@@ -342,6 +343,8 @@ public class Utils {
             assert handler != null;
             handler.apply((Serializable) arg, key, bundle);
             Parcelable parcelable = bundle.getParcelable(key);
+        } else {
+            FlyPigeonLog.e(TAG, "unkown class:" + typeClazz);
         }
     }
 

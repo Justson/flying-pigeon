@@ -113,10 +113,10 @@ public class ServiceContentProvider extends ContentProvider {
             return null;
         }
         Bundle response = new Bundle();
+        in.setClassLoader(Pair.class.getClassLoader());
         Parcelable returnResponse = in.getParcelable(PIGEON_KEY_RESPONSE);
         response.putParcelable(PIGEON_KEY_RESPONSE, returnResponse);
         try {
-            in.setClassLoader(Pair.class.getClassLoader());
             String calling = getCallingPackage();
             if (!TextUtils.isEmpty(calling)) {
                 in.putString(PIGEON_KEY_CALLING_PACKAGE, calling);

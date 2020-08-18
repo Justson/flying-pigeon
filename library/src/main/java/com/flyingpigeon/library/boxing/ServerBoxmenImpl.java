@@ -20,8 +20,6 @@ import android.os.ParcelFileDescriptor;
 import android.os.Parcelable;
 import android.util.Pair;
 
-import com.flyingpigeon.library.log.FlyPigeonLog;
-
 import java.io.FileDescriptor;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -105,7 +103,6 @@ public class ServerBoxmenImpl implements ServerBoxmen<Bundle> {
                 if (value instanceof ParcelFileDescriptor) {
                     String lengthKey = index + PIGEON_KEY_ARRAY_LENGTH;
                     int arrayLength = extras.getInt(lengthKey);
-                    FlyPigeonLog.e(TAG, "keyLength:" + arrayLength + " lengthKey:" + lengthKey);
                     ParcelFileDescriptor parcelFileDescriptor = (ParcelFileDescriptor) value;
                     FileDescriptor fileDescriptor = parcelFileDescriptor.getFileDescriptor();
                     FileInputStream fileInputStream = new FileInputStream(fileDescriptor);

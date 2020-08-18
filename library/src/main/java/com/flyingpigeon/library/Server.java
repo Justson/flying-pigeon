@@ -25,7 +25,6 @@ import com.flyingpigeon.library.boxing.ServerBoxmen;
 import com.flyingpigeon.library.boxing.ServerBoxmenImpl;
 import com.flyingpigeon.library.invoker.MethodInvoker;
 import com.flyingpigeon.library.invoker.RouteResponseLargeInvoker;
-import com.flyingpigeon.library.log.FlyPigeonLog;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -128,7 +127,6 @@ public class Server {
         BundleCursor bundleCursor = new BundleCursor(bundle, new String[]{PIGEON_KEY_RESULT});
         bundle.putInt(PIGEON_KEY_RESPONSE_CODE, PIGEON_RESPONSE_RESULE_SUCCESS);
         try {
-            FlyPigeonLog.e(TAG, "matchQuery:" + route);
             int pLength = (arg.length - 2) / 2;
             String[] params = new String[pLength];
             String[] types = new String[pLength];

@@ -19,6 +19,7 @@ import android.os.Bundle;
 import android.os.Parcelable;
 
 import com.flyingpigeon.library.ClassUtil;
+import com.flyingpigeon.library.Config;
 import com.flyingpigeon.library.Utils;
 
 import java.lang.reflect.Type;
@@ -38,6 +39,8 @@ import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_ROUTE;
  * @since 1.0.0
  */
 public class RouteClientBoxmenImpl implements RouteClientBoxmen<Bundle, Object> {
+    private static final String TAG = Config.PREFIX + RouteClientBoxmenImpl.class.getSimpleName();
+
     @Override
     public Bundle boxing(String route, Object[] params) {
         Type[] types = new Type[params.length];

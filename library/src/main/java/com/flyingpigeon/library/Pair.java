@@ -17,7 +17,6 @@ package com.flyingpigeon.library;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import com.flyingpigeon.library.log.FlyPigeonLog;
 
 import java.io.Serializable;
 
@@ -394,7 +393,6 @@ public abstract class Pair implements Parcelable {
         public PairParcelable(String key, Parcelable value) {
             super(key);
             this.value = value;
-            FlyPigeonLog.e(TAG, "key:" + this.getKey());
         }
 
         protected PairParcelable(String key) {
@@ -447,7 +445,6 @@ public abstract class Pair implements Parcelable {
         public PairString(String key, String value) {
             super(key);
             this.value = value;
-            FlyPigeonLog.e(TAG, "key:" + this.getKey());
         }
 
         protected PairString(String key) {
