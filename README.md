@@ -1,5 +1,5 @@
 # Flying-Pigeon
-Flying-Pigeon 内部提供两种跨进程通信方式，来应对各种跨进程场景
+Flying-Pigeon 是一个IPC跨进程通信组件，把跨进程通信简化到极致，并且突破binder 1MB内存大小限制。
 
 ## 引入
 

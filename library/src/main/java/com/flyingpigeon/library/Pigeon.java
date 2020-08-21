@@ -234,6 +234,23 @@ public final class Pigeon {
         return (T) routeClientBoxmen.unboxing(out);
     }
 
+    <T> T request(String route, Object[] params) {
+        RouteClientBoxmen<Bundle, Object> routeClientBoxmen = new RouteClientBoxmenImpl();
+        Bundle bundle = routeClientBoxmen.boxing(route, params);
+        Bundle out = newCall().execute(route, bundle);
+        if (null == out) {
+            return null;
+        }
+        try {
+            parseReponse(bundle, out);
+        } catch (CallRemoteException e) {
+            e.printStackTrace();
+            return null;
+        }
+        out.setClassLoader(Pair.class.getClassLoader());
+        return (T) routeClientBoxmen.unboxing(out);
+    }
+
     <T> T routeLargeResponse(String route, Object[] params) {
         int length = params.length;
         String[] data = new String[length * 2 + 2];

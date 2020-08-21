@@ -20,7 +20,7 @@ package com.flyingpigeon.library;
  * @date 20-6-22
  * @since 1.0.0
  */
-public final class LargeFlyPigeon {
+public final class LargeFlyPigeon implements Fly {
 
     private String route;
     private Object[] params;
@@ -32,6 +32,9 @@ public final class LargeFlyPigeon {
         this.pigeon = pigeon;
     }
 
+    /**
+     * @return
+     */
     public RequestLargeFlyPigeon resquestLarge() {
         return new RequestLargeFlyPigeon(this);
     }
@@ -40,10 +43,10 @@ public final class LargeFlyPigeon {
         return new ResponseLargeFlyPigeon(this);
     }
 
-
-    public interface Fly {
-        <T> T fly();
+    public <T> T fly() {
+        return pigeon.request(route, params);
     }
+
 
     public static final class RequestLargeFlyPigeon implements Fly {
 
