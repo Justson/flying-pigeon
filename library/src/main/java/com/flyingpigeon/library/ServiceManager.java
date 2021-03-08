@@ -45,8 +45,8 @@ public final class ServiceManager implements IServiceManager {
 
     private static final String TAG = PREFIX + ServiceManager.class.getSimpleName();
     private final Object lock = new Object();
-    private ConcurrentHashMap<Class<?>, BuketMethod> sCache = new ConcurrentHashMap<>();
-    private ConcurrentHashMap<String, ArrayDeque<MethodInvoker>> routers = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<Class<?>, BuketMethod> sCache = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, ArrayDeque<MethodInvoker>> routers = new ConcurrentHashMap<>();
 
     private ServiceManager() {
     }

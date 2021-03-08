@@ -22,10 +22,12 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.ParcelFileDescriptor;
 import android.os.Parcelable;
+import android.os.SystemClock;
 import android.text.TextUtils;
 
 import com.flyingpigeon.library.annotations.support.NonNull;
 import com.flyingpigeon.library.annotations.support.Nullable;
+import com.flyingpigeon.library.log.FlyPigeonLog;
 
 import java.io.FileNotFoundException;
 import java.lang.reflect.InvocationTargetException;
@@ -112,18 +114,24 @@ public class ServiceContentProvider extends ContentProvider {
         if (in == null) {
             return null;
         }
+        long start = SystemClock.elapsedRealtime();
         Bundle response = new Bundle();
         in.setClassLoader(Pair.class.getClassLoader());
         Parcelable returnResponse = in.getParcelable(PIGEON_KEY_RESPONSE);
         response.putParcelable(PIGEON_KEY_RESPONSE, returnResponse);
         try {
             String calling = getCallingPackage();
+            long callingTime = SystemClock.elapsedRealtime();
+            FlyPigeonLog.e(TAG, "used time calling:" + (callingTime - start));
+
             if (!TextUtils.isEmpty(calling)) {
                 in.putString(PIGEON_KEY_CALLING_PACKAGE, calling);
             }
             int approach = in.getInt(PIGEON_KEY_LOOK_UP_APPROACH);
             if (approach == PIGEON_APPROACH_METHOD) {
                 Server.getInstance().dispatch(method, response, arg, in);
+                long dispatchTime = SystemClock.elapsedRealtime();
+                FlyPigeonLog.e(TAG, "used time dispatch:" + (dispatchTime - callingTime));
             } else {
                 String route = in.getString(PIGEON_KEY_ROUTE);
                 int flags = in.getInt(PIGEON_KEY_FLAGS);

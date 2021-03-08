@@ -6,9 +6,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.AsyncTask;
-import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.os.RemoteException;
 import android.util.Log;
 
 import com.flyingpigeon.library.Pigeon;
@@ -32,6 +32,8 @@ public class RemoteService extends Service implements RemoteServiceApi {
 
     public static final String TAG = PREFIX + RemoteService.class.getSimpleName();
 
+    public static IMyAidlInterface mIMyAidlInterface;
+
     public static void startService(final Context context) {
         AsyncTask.THREAD_POOL_EXECUTOR.execute(new Runnable() {
             @Override
@@ -39,6 +41,7 @@ public class RemoteService extends Service implements RemoteServiceApi {
                 context.bindService(new Intent(context, RemoteService.class), new ServiceConnection() {
                     @Override
                     public void onServiceConnected(ComponentName name, IBinder service) {
+                        mIMyAidlInterface = IMyAidlInterface.Stub.asInterface(service);
                     }
 
                     @Override
@@ -73,6 +76,8 @@ public class RemoteService extends Service implements RemoteServiceApi {
          * or
          */
         ServiceManager.getInstance().publish(mApi);
+
+        ServiceManager.getInstance().publish(mStub, IMyAidlInterface.class);
 
     }
 
@@ -126,10 +131,19 @@ public class RemoteService extends Service implements RemoteServiceApi {
         return new byte[(int) (1.8 * 1024 * 1024)];
     }
 
+    private IMyAidlInterface.Stub mStub = new IMyAidlInterface.Stub() {
+        @Override
+        public int basicTypes(int anInt, long aLong, boolean aBoolean, float aFloat, double aDouble, String aString) throws RemoteException {
+            System.out.println("anInt:" + anInt + " aLong:" + aLong + " aBoolean:" + aBoolean + " aFloat:" + aFloat + " aDouble:" + aDouble + " aDouble" + " aString:" + aString);
+            return -283;
+        }
+    };
+
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
-        return new Binder();
+        mIMyAidlInterface = mStub;
+        return mStub;
     }
 
     @Override
@@ -148,6 +162,7 @@ public class RemoteService extends Service implements RemoteServiceApi {
         super.onDestroy();
         ServiceManager.getInstance().unpublish(this, RemoteServiceApi.class);
         ServiceManager.getInstance().unpublish(mApi);
+        ServiceManager.getInstance().unpublish(mStub, IMyAidlInterface.class);
 
     }
 }
