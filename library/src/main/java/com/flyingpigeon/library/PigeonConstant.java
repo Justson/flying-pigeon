@@ -15,9 +15,6 @@
  */
 package com.flyingpigeon.library;
 
-import android.os.Parcelable;
-
-import java.io.Serializable;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -39,10 +36,10 @@ public interface PigeonConstant {
     String PIGEON_KEY_RESPONSE_CODE = "reponse_code";
     String PIGEON_KEY_LENGTH = "key_length";
     String PIGEON_KEY_INDEX = "key_%d";
+    String PIGEON_KEY_TYPE_INDEX = "key_type_%d";
     String PIGEON_KEY_CLASS_INDEX = "key_class_%d";
     String PIGEON_KEY_CLASS = "key_class";
     String PIGEON_KEY_TYPE = "key_type";
-    String PIGEON_KEY_RESPONSE = "key_response";
     String PIGEON_KEY_FLAGS = "key_flags";
     String PIGEON_KEY_ARRAY_LENGTH = "_array_length";
     String PIGEON_KEY_RESULT = "key_result";
@@ -52,19 +49,19 @@ public interface PigeonConstant {
     String PIGEON_PATH_SEGMENT_ROUTE = "11";
 
 
-    ConcurrentHashMap<Class, ParameterHandler> map = new ConcurrentHashMap<Class, ParameterHandler>() {
+    ConcurrentHashMap<String, ParameterHandler> map = new ConcurrentHashMap<String, ParameterHandler>() {
         {
-            put(int.class, new ParameterHandler.IntHandler());
-            put(double.class, new ParameterHandler.DoubleHandler());
-            put(long.class, new ParameterHandler.LongHandler());
-            put(short.class, new ParameterHandler.ShortHandler());
-            put(float.class, new ParameterHandler.FloatHandler());
-            put(byte.class, new ParameterHandler.ByteHandler());
-            put(byte[].class, new ParameterHandler.ByteArrayHandler());
-            put(boolean.class, new ParameterHandler.BooleanHandler());
-            put(Parcelable.class, new ParameterHandler.ParcelableHandler());
-            put(Serializable.class, new ParameterHandler.SerializableHandler());
-            put(String.class, new ParameterHandler.StringHandler());
+            put("int", new ParameterHandler.IntHandler());
+            put("double", new ParameterHandler.DoubleHandler());
+            put("long", new ParameterHandler.LongHandler());
+            put("short", new ParameterHandler.ShortHandler());
+            put("float", new ParameterHandler.FloatHandler());
+            put("byte", new ParameterHandler.ByteHandler());
+            put("[b", new ParameterHandler.ByteArrayHandler());
+            put("boolean", new ParameterHandler.BooleanHandler());
+            put("parcelable", new ParameterHandler.ParcelableHandler());
+            put("serializable", new ParameterHandler.SerializableHandler());
+            put("string", new ParameterHandler.StringHandler());
         }
     };
 

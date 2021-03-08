@@ -120,9 +120,10 @@ public class Utils {
     }
 
     public static Pair<Class<?>, Object> getValue(String type, String param) throws ClassNotFoundException, IllegalArgumentException {
+        Class<?> clazz;
+        Object value = null;
         if (type.startsWith("java.lang")) {
-            Class<?> clazz = Class.forName(type);
-            Object value = null;
+            clazz = Class.forName(type);
             if (type.endsWith("String")) {
                 value = String.valueOf(param);
             } else if (type.endsWith("Integer")) {
@@ -142,10 +143,8 @@ public class Utils {
             } else if (type.endsWith("Character")) {
                 value = param.toCharArray()[0];
             }
-            return new Pair<Class<?>, Object>(clazz, value);
         } else {
-            Class<?> clazz = null;
-            Object value = null;
+            clazz = null;
             if (type.startsWith("int")) {
                 clazz = int.class;
                 value = Integer.valueOf(param);
@@ -170,8 +169,8 @@ public class Utils {
             } else {
                 throw new IllegalArgumentException();
             }
-            return new Pair<Class<?>, Object>(clazz, value);
         }
+        return new Pair<Class<?>, Object>(clazz, value);
 
     }
 
@@ -197,47 +196,27 @@ public class Utils {
         return values;
     }
 
-    static void typeConvert(Type returnType, Bundle bundle, String key) {
+    static void typeConvert(Type returnType, Bundle bundle) {
         if (int.class.isAssignableFrom((Class<?>) returnType)) {
-            ParameterHandler.IntHandler handler = (ParameterHandler.IntHandler) map.get(int.class);
-            assert handler != null;
-            handler.apply(0, key, bundle);
+            bundle.putString(PigeonConstant.PIGEON_KEY_RESULT, "int");
         } else if (double.class.isAssignableFrom((Class<?>) returnType)) {
-            ParameterHandler.DoubleHandler handler = (ParameterHandler.DoubleHandler) map.get(double.class);
-            assert handler != null;
-            handler.apply(0D, key, bundle);
+            bundle.putString(PigeonConstant.PIGEON_KEY_RESULT, "double");
         } else if (long.class.isAssignableFrom((Class<?>) returnType)) {
-            ParameterHandler.LongHandler handler = (ParameterHandler.LongHandler) map.get(long.class);
-            assert handler != null;
-            handler.apply(0L, key, bundle);
+            bundle.putString(PigeonConstant.PIGEON_KEY_RESULT, "long");
         } else if (short.class.isAssignableFrom((Class<?>) returnType)) {
-            ParameterHandler.ShortHandler handler = (ParameterHandler.ShortHandler) map.get(short.class);
-            assert handler != null;
-            handler.apply((short) 0, key, bundle);
+            bundle.putString(PigeonConstant.PIGEON_KEY_RESULT, "short");
         } else if (float.class.isAssignableFrom((Class<?>) returnType)) {
-            ParameterHandler.FloatHandler handler = (ParameterHandler.FloatHandler) map.get(float.class);
-            assert handler != null;
-            handler.apply(0F, key, bundle);
+            bundle.putString(PigeonConstant.PIGEON_KEY_RESULT, "float");
         } else if (byte.class.isAssignableFrom((Class<?>) returnType)) {
-            ParameterHandler.ByteHandler handler = (ParameterHandler.ByteHandler) map.get(byte.class);
-            assert handler != null;
-            handler.apply((byte) 0, key, bundle);
+            bundle.putString(PigeonConstant.PIGEON_KEY_RESULT, "byte");
         } else if (boolean.class.isAssignableFrom((Class<?>) returnType)) {
-            ParameterHandler.BooleanHandler handler = (ParameterHandler.BooleanHandler) map.get(boolean.class);
-            assert handler != null;
-            handler.apply(false, key, bundle);
+            bundle.putString(PigeonConstant.PIGEON_KEY_RESULT, "boolean");
         } else if (String.class.isAssignableFrom((Class<?>) returnType)) {
-            ParameterHandler.StringHandler handler = (ParameterHandler.StringHandler) map.get(String.class);
-            assert handler != null;
-            handler.apply("", key, bundle);
+            bundle.putString(PigeonConstant.PIGEON_KEY_RESULT, "string");
         } else if (Parcelable.class.isAssignableFrom(((Class<?>) returnType))) {
-            ParameterHandler.ParcelableHandler handler = (ParameterHandler.ParcelableHandler) map.get(Parcelable.class);
-            assert handler != null;
-            handler.apply(new Empty(), key, bundle);
+            bundle.putString(PigeonConstant.PIGEON_KEY_RESULT, "parcelable");
         } else if (Serializable.class.isAssignableFrom(((Class<?>) returnType))) {
-            ParameterHandler.SerializableHandler handler = (ParameterHandler.SerializableHandler) map.get(Serializable.class);
-            assert handler != null;
-            handler.apply(new Empty(), key, bundle);
+            bundle.putString(PigeonConstant.PIGEON_KEY_RESULT, "perializable");
         } else if (Void.class.isAssignableFrom(((Class<?>) returnType))) {
         }
     }

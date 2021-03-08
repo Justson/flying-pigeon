@@ -33,7 +33,7 @@ import java.util.ArrayDeque;
 import java.util.Iterator;
 
 import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_CLASS;
-import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_RESPONSE;
+import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_INDEX;
 import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_RESPONSE_CODE;
 import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_RESULT;
 import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_ROUTE;
@@ -114,7 +114,7 @@ public class Server {
             if (o != null) {
                 Class<?> clazz = o.getClass();
 //                Log.e(TAG, "clazz:" + clazz + " o:" + o);
-                Utils.convert(PIGEON_KEY_RESPONSE, in, clazz, o);
+                Utils.convert(String.format(PIGEON_KEY_INDEX, -1), in, clazz, o);
                 serverBoxmen.boxing(in, response, o);
             }
         }
@@ -155,7 +155,7 @@ public class Server {
                 RouteResponseLargeInvoker routeResponseLargeCaller = (RouteResponseLargeInvoker) methodInvoker;
                 Method target = routeResponseLargeCaller.target;
                 Type returnType = target.getGenericReturnType();
-                Utils.typeConvert(returnType, bundle, PIGEON_KEY_RESULT);
+                Utils.typeConvert(returnType, bundle);
             }
         } catch (ClassNotFoundException | InvocationTargetException | IllegalAccessException e) {
             e.printStackTrace();
@@ -204,7 +204,7 @@ public class Server {
                 RouteResponseLargeInvoker routeResponseLargeCaller = (RouteResponseLargeInvoker) methodInvoker;
                 Method target = routeResponseLargeCaller.target;
                 Type returnType = target.getGenericReturnType();
-                Utils.typeConvert(returnType, bundle, PIGEON_KEY_RESULT);
+                Utils.typeConvert(returnType, bundle);
             }
         } catch (ClassNotFoundException | InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
             e.printStackTrace();
