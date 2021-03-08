@@ -48,8 +48,7 @@ public class RealCall {
     Bundle execute(Method method, Bundle bundle) {
         ContentResolver contentResolver = mContext.getContentResolver();
         try {
-            Bundle response = contentResolver.call(mPigeon.base, method.getName(), null, bundle);
-            return response;
+            return contentResolver.call(mPigeon.base, method.getName(), null, bundle);
         } catch (Throwable throwable) {
             throwable.printStackTrace();
         }

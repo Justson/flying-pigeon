@@ -17,18 +17,18 @@ package com.flyingpigeon.library.boxing;
 
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.text.TextUtils;
 
-import com.flyingpigeon.library.Empty;
 import com.flyingpigeon.library.Pair;
 import com.flyingpigeon.library.ParameterHandler;
+import com.flyingpigeon.library.Utils;
 
-import java.io.Serializable;
 import java.lang.reflect.Type;
 
 import static com.flyingpigeon.library.PigeonConstant.PIGEON_APPROACH_METHOD;
 import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_LENGTH;
 import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_LOOK_UP_APPROACH;
-import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_RESPONSE;
+import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_TYPE_INDEX;
 import static com.flyingpigeon.library.PigeonConstant.map;
 
 /**
@@ -50,49 +50,14 @@ public class ClientBoxmenImpl implements ClientBoxmen<Bundle, Bundle, Object> {
 
         // build response type;
         int responseKey = -1;
-//        Type returnType = method.getGenericReturnType();
-        if (int.class.isAssignableFrom((Class<?>) returnType)) {
-            ParameterHandler.IntHandler handler = (ParameterHandler.IntHandler) map.get(int.class);
-            assert handler != null;
-            handler.apply(0, responseKey, bundle);
-        } else if (double.class.isAssignableFrom((Class<?>) returnType)) {
-            ParameterHandler.DoubleHandler handler = (ParameterHandler.DoubleHandler) map.get(double.class);
-            assert handler != null;
-            handler.apply(0D, responseKey, bundle);
-        } else if (long.class.isAssignableFrom((Class<?>) returnType)) {
-            ParameterHandler.LongHandler handler = (ParameterHandler.LongHandler) map.get(long.class);
-            assert handler != null;
-            handler.apply(0L, responseKey, bundle);
-        } else if (short.class.isAssignableFrom((Class<?>) returnType)) {
-            ParameterHandler.ShortHandler handler = (ParameterHandler.ShortHandler) map.get(short.class);
-            assert handler != null;
-            handler.apply((short) 0, responseKey, bundle);
-        } else if (float.class.isAssignableFrom((Class<?>) returnType)) {
-            ParameterHandler.FloatHandler handler = (ParameterHandler.FloatHandler) map.get(float.class);
-            assert handler != null;
-            handler.apply(0F, responseKey, bundle);
-        } else if (byte.class.isAssignableFrom((Class<?>) returnType)) {
-            ParameterHandler.ByteHandler handler = (ParameterHandler.ByteHandler) map.get(byte.class);
-            assert handler != null;
-            handler.apply((byte) 0, responseKey, bundle);
-        } else if (boolean.class.isAssignableFrom((Class<?>) returnType)) {
-            ParameterHandler.BooleanHandler handler = (ParameterHandler.BooleanHandler) map.get(boolean.class);
-            assert handler != null;
-            handler.apply(false, responseKey, bundle);
-        } else if (String.class.isAssignableFrom((Class<?>) returnType)) {
-            ParameterHandler.StringHandler handler = (ParameterHandler.StringHandler) map.get(String.class);
-            assert handler != null;
-            handler.apply("", responseKey, bundle);
-        } else if (Parcelable.class.isAssignableFrom(((Class<?>) returnType))) {
-            ParameterHandler.ParcelableHandler handler = (ParameterHandler.ParcelableHandler) map.get(Parcelable.class);
-            assert handler != null;
-            handler.apply(new Empty(), responseKey, bundle);
-        } else if (Serializable.class.isAssignableFrom(((Class<?>) returnType))) {
-            ParameterHandler.SerializableHandler handler = (ParameterHandler.SerializableHandler) map.get(Serializable.class);
-            assert handler != null;
-            handler.apply(new Empty(), responseKey, bundle);
-        } else if (Void.class.isAssignableFrom(((Class<?>) returnType))) {
+        Object returnValue = Utils.getBasedata((Class<?>) returnType);
+        if (returnValue != null) {
+            ParameterHandler<Object> parameterHandler = map.get(Utils.typeToString(returnType));
+            if (parameterHandler != null) {
+                parameterHandler.apply(returnValue, -1, bundle);
+            }
         }
+//        Type returnType = method.getGenericReturnType();
 
         return bundle;
     }
@@ -102,30 +67,20 @@ public class ClientBoxmenImpl implements ClientBoxmen<Bundle, Bundle, Object> {
     public Object unboxing(Bundle bundle) {
         bundle.setClassLoader(Pair.class.getClassLoader());
         Parcelable parcelable = null;
-        if ((parcelable = bundle.getParcelable(PIGEON_KEY_RESPONSE)) == null) {
+
+        String type = bundle.getString(String.format(PIGEON_KEY_TYPE_INDEX, -1));
+
+        if (TextUtils.isEmpty(type)) {
             return null;
         }
-        if (parcelable instanceof com.flyingpigeon.library.Pair.PairInt) {
-            return ((com.flyingpigeon.library.Pair.PairInt) parcelable).getValue();
-        } else if (parcelable instanceof com.flyingpigeon.library.Pair.PairDouble) {
-            return ((com.flyingpigeon.library.Pair.PairDouble) parcelable).getValue();
-        } else if (parcelable instanceof com.flyingpigeon.library.Pair.PairLong) {
-            return ((com.flyingpigeon.library.Pair.PairLong) parcelable).getValue();
-        } else if (parcelable instanceof com.flyingpigeon.library.Pair.PairShort) {
-            return ((com.flyingpigeon.library.Pair.PairShort) parcelable).getValue();
-        } else if (parcelable instanceof com.flyingpigeon.library.Pair.PairFloat) {
-            return ((com.flyingpigeon.library.Pair.PairFloat) parcelable).getValue();
-        } else if (parcelable instanceof com.flyingpigeon.library.Pair.PairByte) {
-            return ((com.flyingpigeon.library.Pair.PairByte) parcelable).getValue();
-        } else if (parcelable instanceof com.flyingpigeon.library.Pair.PairBoolean) {
-            return ((com.flyingpigeon.library.Pair.PairBoolean) parcelable).isValue();
-        } else if (parcelable instanceof com.flyingpigeon.library.Pair.PairString) {
-            return ((Pair.PairString) parcelable).getValue();
-        } else if (parcelable instanceof com.flyingpigeon.library.Pair.PairSerializable) {
-            return ((Pair.PairSerializable) parcelable).getValue();
-        } else if (parcelable instanceof com.flyingpigeon.library.Pair.PairParcelable) {
-            return ((Pair.PairParcelable) parcelable).getValue();
+        ParameterHandler parameterHandler = map.get(type);
+        if (parameterHandler == null) {
+            return null;
         }
-        return null;
+        android.util.Pair<Class<?>, Object> pair = parameterHandler.map(-1, bundle);
+        if (pair == null) {
+            return null;
+        }
+        return pair.second;
     }
 }

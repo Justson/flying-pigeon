@@ -16,17 +16,13 @@
 package com.flyingpigeon.library;
 
 import android.os.Bundle;
-import android.os.ParcelFileDescriptor;
 import android.os.Parcelable;
+import android.text.TextUtils;
 import android.util.Pair;
-
-import com.flyingpigeon.library.ashmem.Ashmem;
-import com.flyingpigeon.library.log.FlyPigeonLog;
 
 import java.io.Serializable;
 import java.lang.reflect.Type;
 
-import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_ARRAY_LENGTH;
 import static com.flyingpigeon.library.PigeonConstant.map;
 
 
@@ -58,15 +54,15 @@ public class Utils {
         } else if (double.class.isAssignableFrom(clazz)) {
             return 0.0D;
         } else if (long.class.isAssignableFrom(clazz)) {
-            return 0.0D;
+            return 0;
         } else if (short.class.isAssignableFrom(clazz)) {
-            return 0.0D;
+            return 0;
         } else if (float.class.isAssignableFrom(clazz)) {
-            return 0.0D;
+            return 0.0F;
         } else if (byte.class.isAssignableFrom(clazz)) {
-            return 0.0D;
+            return 0;
         } else if (boolean.class.isAssignableFrom(clazz)) {
-            return 0.0D;
+            return Boolean.FALSE;
         } else if (char.class.isAssignableFrom(clazz)) {
             return '0';
         } else if (byte[].class.isAssignableFrom(clazz)) {
@@ -222,109 +218,48 @@ public class Utils {
     }
 
 
-    public static void convert(String key, Bundle bundle, Type type, Object arg) {
-        Class<?> typeClazz = ClassUtil.getRawType(type);
-        if (int.class.isAssignableFrom(typeClazz)) {
-            ParameterHandler.IntHandler handler = (ParameterHandler.IntHandler) map.get(int.class);
-            assert handler != null;
-            handler.apply((Integer) arg, key, bundle);
-        } else if (double.class.isAssignableFrom(typeClazz)) {
-            ParameterHandler.DoubleHandler handler = (ParameterHandler.DoubleHandler) map.get(double.class);
-            assert handler != null;
-            handler.apply((Double) arg, key, bundle);
-        } else if (long.class.isAssignableFrom(typeClazz)) {
-            ParameterHandler.LongHandler handler = (ParameterHandler.LongHandler) map.get(long.class);
-            assert handler != null;
-            handler.apply((Long) arg, key, bundle);
-        } else if (short.class.isAssignableFrom(typeClazz)) {
-            ParameterHandler.ShortHandler handler = (ParameterHandler.ShortHandler) map.get(short.class);
-            assert handler != null;
-            handler.apply((Short) arg, key, bundle);
-        } else if (float.class.isAssignableFrom(typeClazz)) {
-            ParameterHandler.FloatHandler handler = (ParameterHandler.FloatHandler) map.get(float.class);
-            assert handler != null;
-            handler.apply((Float) arg, key, bundle);
-        } else if (byte.class.isAssignableFrom(typeClazz)) {
-            ParameterHandler.ByteHandler handler = (ParameterHandler.ByteHandler) map.get(byte.class);
-            assert handler != null;
-            handler.apply((Byte) arg, key, bundle);
-        } else if (boolean.class.isAssignableFrom(typeClazz)) {
-            ParameterHandler.BooleanHandler handler = (ParameterHandler.BooleanHandler) map.get(boolean.class);
-            assert handler != null;
-            handler.apply((Boolean) arg, key, bundle);
-        } else if (Integer.class.isAssignableFrom(typeClazz)) {
-            ParameterHandler.IntHandler handler = (ParameterHandler.IntHandler) map.get(int.class);
-            assert handler != null;
-            handler.apply((Integer) arg, key, bundle);
-        } else if (Double.class.isAssignableFrom(typeClazz)) {
-            ParameterHandler.DoubleHandler handler = (ParameterHandler.DoubleHandler) map.get(double.class);
-            assert handler != null;
-            handler.apply((Double) arg, key, bundle);
-        } else if (Long.class.isAssignableFrom(typeClazz)) {
-            ParameterHandler.LongHandler handler = (ParameterHandler.LongHandler) map.get(long.class);
-            assert handler != null;
-            handler.apply((Long) arg, key, bundle);
-        } else if (Short.class.isAssignableFrom(typeClazz)) {
-            ParameterHandler.ShortHandler handler = (ParameterHandler.ShortHandler) map.get(short.class);
-            assert handler != null;
-            handler.apply((Short) arg, key, bundle);
-        } else if (Float.class.isAssignableFrom(typeClazz)) {
-            ParameterHandler.FloatHandler handler = (ParameterHandler.FloatHandler) map.get(float.class);
-            assert handler != null;
-            handler.apply((Float) arg, key, bundle);
-        } else if (Byte.class.isAssignableFrom(typeClazz)) {
-            ParameterHandler.ByteHandler handler = (ParameterHandler.ByteHandler) map.get(byte.class);
-            assert handler != null;
-            handler.apply((Byte) arg, key, bundle);
-        } else if (Boolean.class.isAssignableFrom(typeClazz)) {
-            ParameterHandler.BooleanHandler handler = (ParameterHandler.BooleanHandler) map.get(boolean.class);
-            assert handler != null;
-            handler.apply((Boolean) arg, key, bundle);
-        } else if (byte[].class.isAssignableFrom(typeClazz)) {
-            byte[] array = (byte[]) arg;
-            if (array.length > 8 * 1024) {
-                ParcelFileDescriptor parcelFileDescriptor = Ashmem.byteArrayToFileDescriptor(array);
-                bundle.putInt(key + PIGEON_KEY_ARRAY_LENGTH, array.length);
-                ParameterHandler.ParcelableHandler handler = (ParameterHandler.ParcelableHandler) map.get(Parcelable.class);
-                assert handler != null;
-                handler.apply(parcelFileDescriptor, key, bundle);
-                Parcelable parcelable = bundle.getParcelable(key);
-            } else {
-                ParameterHandler.ByteArrayHandler byteArrayHandler = (ParameterHandler.ByteArrayHandler) map.get(byte[].class);
-                byteArrayHandler.apply(array, key, bundle);
-            }
-
-        } else if (Byte[].class.isAssignableFrom(typeClazz)) {
-            byte[] array = Utils.toPrimitives((Byte[]) arg);
-            if (array.length > 8 * 1024) {
-                ParcelFileDescriptor parcelFileDescriptor = Ashmem.byteArrayToFileDescriptor(array);
-                bundle.putInt(key + PIGEON_KEY_ARRAY_LENGTH, array.length);
-                ParameterHandler.ParcelableHandler handler = (ParameterHandler.ParcelableHandler) map.get(Parcelable.class);
-                assert handler != null;
-                handler.apply(parcelFileDescriptor, key, bundle);
-                Parcelable parcelable = bundle.getParcelable(key);
-            } else {
-                ParameterHandler.ByteArrayHandler byteArrayHandler = (ParameterHandler.ByteArrayHandler) map.get(byte[].class);
-                byteArrayHandler.apply(array, key, bundle);
-            }
-
-        } else if (String.class.isAssignableFrom(typeClazz)) {
-            ParameterHandler.StringHandler handler = (ParameterHandler.StringHandler) map.get(String.class);
-            assert handler != null;
-            handler.apply((String) arg, key, bundle);
-        } else if (Parcelable.class.isAssignableFrom((typeClazz))) {
-            ParameterHandler.ParcelableHandler handler = (ParameterHandler.ParcelableHandler) map.get(Parcelable.class);
-            assert handler != null;
-            handler.apply((Parcelable) arg, key, bundle);
-            Parcelable parcelable = bundle.getParcelable(key);
-        } else if (Serializable.class.isAssignableFrom((typeClazz))) {
-            ParameterHandler.SerializableHandler handler = (ParameterHandler.SerializableHandler) map.get(Serializable.class);
-            assert handler != null;
-            handler.apply((Serializable) arg, key, bundle);
-            Parcelable parcelable = bundle.getParcelable(key);
-        } else {
-            FlyPigeonLog.e(TAG, "unkown class:" + typeClazz);
+    public static String typeToString(Type type) {
+        if (int.class.isAssignableFrom((Class<?>) type)) {
+            return "int";
+        } else if (double.class.isAssignableFrom((Class<?>) type)) {
+            return "double";
+        } else if (long.class.isAssignableFrom((Class<?>) type)) {
+            return "long";
+        } else if (short.class.isAssignableFrom((Class<?>) type)) {
+            return "short";
+        } else if (float.class.isAssignableFrom((Class<?>) type)) {
+            return "float";
+        } else if (byte.class.isAssignableFrom((Class<?>) type)) {
+            return "byte";
+        } else if (boolean.class.isAssignableFrom((Class<?>) type)) {
+            return "boolean";
+        } else if (byte[].class.isAssignableFrom((Class<?>) type)) {
+            return "[b";
+        } else if (Byte[].class.isAssignableFrom((Class<?>) type)) {
+            return "[b";
+        } else if (String.class.isAssignableFrom((Class<?>) type)) {
+            return "string";
+        } else if (Parcelable.class.isAssignableFrom(((Class<?>) type))) {
+            return "parcelable";
+        } else if (Serializable.class.isAssignableFrom(((Class<?>) type))) {
+            return "serializable";
+        } else if (Void.class.isAssignableFrom(((Class<?>) type))) {
         }
+        return "";
+    }
+
+
+    public static void convert(Bundle bundle, Type type, Object arg) {
+        Class<?> typeClazz = ClassUtil.getRawType(type);
+        String typeString = typeToString(typeClazz);
+        if (TextUtils.isEmpty(typeString)) {
+            return;
+        }
+        ParameterHandler parameterHandler = map.get(typeString);
+        if (parameterHandler == null) {
+            return;
+        }
+        parameterHandler.apply(arg, -1, bundle);
     }
 
 

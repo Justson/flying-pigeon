@@ -46,15 +46,16 @@ import static com.flyingpigeon.library.PigeonConstant.PIGEON_APPROACH_ROUTE;
 import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_CLASS;
 import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_FLAGS;
 import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_LOOK_UP_APPROACH;
-import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_RESPONSE;
 import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_RESPONSE_CODE;
 import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_RESULT;
 import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_ROUTE;
 import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_TYPE;
+import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_TYPE_INDEX;
 import static com.flyingpigeon.library.PigeonConstant.PIGEON_RESPONSE_RESULE_ILLEGALACCESS;
 import static com.flyingpigeon.library.PigeonConstant.PIGEON_RESPONSE_RESULE_LOST_CLASS;
 import static com.flyingpigeon.library.PigeonConstant.PIGEON_RESPONSE_RESULE_NOT_FOUND_ROUTE;
 import static com.flyingpigeon.library.PigeonConstant.PIGEON_RESPONSE_RESULE_NO_SUCH_METHOD;
+import static com.flyingpigeon.library.PigeonConstant.map;
 
 /**
  * @author xiaozhongcen
@@ -121,13 +122,17 @@ public final class Pigeon {
         Bundle response = realCall.execute(method, bundle);
         if (response == null) {
             response = (Bundle) bundle.clone();
-            Parcelable parcelable = response.getParcelable(PIGEON_KEY_RESPONSE);
-            if (parcelable instanceof com.flyingpigeon.library.Pair.PairSerializable) {
-                return null;
-            } else if (parcelable instanceof com.flyingpigeon.library.Pair.PairParcelable) {
+            String typeString = response.getString(String.format(PIGEON_KEY_TYPE_INDEX, -1));
+            if (TextUtils.isEmpty(typeString)) {
                 return null;
             }
-            return clientBoxmen.unboxing(response);
+            ParameterHandler parameterHandler = map.get(typeString);
+            if (parameterHandler == null) {
+                return null;
+            }
+            android.util.Pair<Class<?>, Object> pair = parameterHandler.map(-1, response);
+
+            return pair.second;
         }
         try {
             parseReponse(new Bundle(), response);
@@ -217,7 +222,7 @@ public final class Pigeon {
         return new Builder(context);
     }
 
-    <T> T routeLargeRequest(String route, Object[] params) {
+    Object routeLargeRequest(String route, Object[] params) {
         RouteClientBoxmen<Bundle, Object> routeClientBoxmen = new RouteClientBoxmenImpl();
         Bundle bundle = routeClientBoxmen.boxing(route, params);
         Bundle out = newCall().execute(route, bundle);
@@ -231,10 +236,10 @@ public final class Pigeon {
             return null;
         }
         out.setClassLoader(Pair.class.getClassLoader());
-        return (T) routeClientBoxmen.unboxing(out);
+        return routeClientBoxmen.unboxing(out);
     }
 
-    <T> T request(String route, Object[] params) {
+    Object request(String route, Object[] params) {
         RouteClientBoxmen<Bundle, Object> routeClientBoxmen = new RouteClientBoxmenImpl();
         Bundle bundle = routeClientBoxmen.boxing(route, params);
         Bundle out = newCall().execute(route, bundle);
@@ -248,10 +253,10 @@ public final class Pigeon {
             return null;
         }
         out.setClassLoader(Pair.class.getClassLoader());
-        return (T) routeClientBoxmen.unboxing(out);
+        return routeClientBoxmen.unboxing(out);
     }
 
-    <T> T routeLargeResponse(String route, Object[] params) {
+    Object routeLargeResponse(String route, Object[] params) {
         int length = params.length;
         String[] data = new String[length * 2 + 2];
         for (int i = 0; i < length; i++) {
@@ -282,13 +287,13 @@ public final class Pigeon {
         try {
             Parcelable parcelable = out.getParcelable(PIGEON_KEY_RESULT);
             if (parcelable != null) {
-                return (T) Utils.parcelableValueOut(parcelable);
+                return Utils.parcelableValueOut(parcelable);
             } else if (cursor.moveToFirst()) {
                 String clazz = out.getString(PIGEON_KEY_TYPE);
                 if ("String".equalsIgnoreCase(clazz)) {
-                    return (T) cursor.getString(0);
+                    return cursor.getString(0);
                 } else if ("[B".equalsIgnoreCase(clazz)) {
-                    return (T) cursor.getBlob(0);
+                    return cursor.getBlob(0);
                 }
             }
         } finally {

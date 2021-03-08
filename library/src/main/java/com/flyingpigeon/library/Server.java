@@ -33,7 +33,6 @@ import java.util.ArrayDeque;
 import java.util.Iterator;
 
 import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_CLASS;
-import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_INDEX;
 import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_RESPONSE_CODE;
 import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_RESULT;
 import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_ROUTE;
@@ -107,16 +106,20 @@ public class Server {
         ServerBoxmenImpl serverBoxmen = new ServerBoxmenImpl();
         Pair<Class<?>[], Object[]> pair = serverBoxmen.unboxing(in);
         Iterator<MethodInvoker> iterators = callers.iterator();
+        Object o = null;
         if (iterators.hasNext()) {
             MethodInvoker methodInvoker = iterators.next();
             Object[] params = pair.second;
-            Object o = methodInvoker.invoke(params);
-            if (o != null) {
-                Class<?> clazz = o.getClass();
-//                Log.e(TAG, "clazz:" + clazz + " o:" + o);
-                Utils.convert(String.format(PIGEON_KEY_INDEX, -1), in, clazz, o);
-                serverBoxmen.boxing(in, response, o);
+            Object objectReturn = methodInvoker.invoke(params);
+            if (objectReturn != null) {
+                o = objectReturn;
             }
+        }
+        if (o != null) {
+            Class<?> clazz = o.getClass();
+//                Log.e(TAG, "clazz:" + clazz + " o:" + o);
+            Utils.convert(in, clazz, o);
+            serverBoxmen.boxing(in, response, o);
         }
         response.putInt(PIGEON_KEY_RESPONSE_CODE, PIGEON_RESPONSE_RESULE_SUCCESS);
     }

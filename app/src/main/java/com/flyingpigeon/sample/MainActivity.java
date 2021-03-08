@@ -1,12 +1,10 @@
 package com.flyingpigeon.sample;
 
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
 import android.util.Log;
-import android.view.View;
 import android.widget.TextView;
 
 import com.flyingpigeon.library.Config;
@@ -55,63 +53,63 @@ public class MainActivity extends AppCompatActivity {
         data.add("test1");
         data.add("test2");
         serviceApi.testArrayList(data);
-
-
-        Poster poster = new Poster("Justson", "just", 119, 11111000L, (short) 23, 1.15646F, 'h', (byte) 4, 123456.415D);
-        int posterId = serviceApi.createPoster(poster);
-        Log.e(TAG, "posterId:" + posterId);
-
-//        Log.e(TAG, "returnResult:" + returnResult);
-        mHandler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                test(pigeon);
-                pigeon.route("/words").withString("name", "Justson").fly();
-                pigeon.route("/hello").with(new Bundle()).fly();
-                pigeon.route("/world2").fly();
-//                pigeon.route("/world/error").fly();
-                pigeon.route("/submit/bitmap", UUID.randomUUID().toString(), new byte[1024 * 1000 * 3], 1200).resquestLarge().fly();
-
-                Integer resquestLargeResult = pigeon.route("/submit/bitmap2", UUID.randomUUID().toString(), new byte[1024 * 1000 * 3], 1200).resquestLarge().<Integer>fly();
-                Log.e(TAG, "resquestLargeResult:" + resquestLargeResult);
-                byte[] data = pigeon.route("/query/bitmap", "girl.jpg", 5555).responseLarge().fly();
-                if (null != data) {
-                    //Arrays.toString(data)
-                    Log.e(TAG, "data length:" + data.length);
-                } else {
-                    Log.e(TAG, "data is null.");
-                }
-
-                AsyncTask.THREAD_POOL_EXECUTOR.execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        for (int i = 0; i < 1; i++) {
-                            SystemClock.sleep(50);
-                            String returnResult = serviceApi.testLargeBlock("hello,worlds ", new byte[1024 * 1024 * 3]);
-                            Log.e(TAG, "returnResult:" + returnResult);
-                        }
-                    }
-                });
-            }
-        }, 400);
-
-        // 跨应用通信
-        this.findViewById(R.id.sendBtn).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Pigeon flyPigeon = Pigeon.newBuilder(MainActivity.this).setAuthority("com.flyingpigeon.ipc_sample").build();
-                flyPigeon.route("/submit/bitmap", "submit-bitmap", new byte[1024]).resquestLarge().fly();
-                Bundle bundle = flyPigeon.route("/query/username").withString("userid", UUID.randomUUID().toString()).fly();
-                if (bundle != null) {
-                    Log.e(TAG, "bundle:" + bundle.toString());
-                    appName.setText(bundle.getString("username"));
-                } else {
-                    Log.e(TAG, "bundle == null");
-                }
-            }
-        });
-
-        ServiceManager.getInstance().publish(this);
+//
+//
+//        Poster poster = new Poster("Justson", "just", 119, 11111000L, (short) 23, 1.15646F, 'h', (byte) 4, 123456.415D);
+//        int posterId = serviceApi.createPoster(poster);
+//        Log.e(TAG, "posterId:" + posterId);
+//
+////        Log.e(TAG, "returnResult:" + returnResult);
+//        mHandler.postDelayed(new Runnable() {
+//            @Override
+//            public void run() {
+//                test(pigeon);
+//                pigeon.route("/words").withString("name", "Justson").fly();
+//                pigeon.route("/hello").with(new Bundle()).fly();
+//                pigeon.route("/world2").fly();
+////                pigeon.route("/world/error").fly();
+//                pigeon.route("/submit/bitmap", UUID.randomUUID().toString(), new byte[1024 * 1000 * 3], 1200).resquestLarge().fly();
+//
+//                Integer resquestLargeResult = (Integer) pigeon.route("/submit/bitmap2", UUID.randomUUID().toString(), new byte[1024 * 1000 * 3], 1200).resquestLarge().fly();
+//                Log.e(TAG, "resquestLargeResult:" + resquestLargeResult);
+//                byte[] data = (byte[]) pigeon.route("/query/bitmap", "girl.jpg", 5555).responseLarge().fly();
+//                if (null != data) {
+//                    //Arrays.toString(data)
+//                    Log.e(TAG, "data length:" + data.length);
+//                } else {
+//                    Log.e(TAG, "data is null.");
+//                }
+//
+//                AsyncTask.THREAD_POOL_EXECUTOR.execute(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        for (int i = 0; i < 1; i++) {
+//                            SystemClock.sleep(50);
+//                            String returnResult = serviceApi.testLargeBlock("hello,worlds ", new byte[1024 * 1024 * 3]);
+//                            Log.e(TAG, "returnResult:" + returnResult);
+//                        }
+//                    }
+//                });
+//            }
+//        }, 400);
+//
+//        // 跨应用通信
+//        this.findViewById(R.id.sendBtn).setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                Pigeon flyPigeon = Pigeon.newBuilder(MainActivity.this).setAuthority("com.flyingpigeon.ipc_sample").build();
+//                flyPigeon.route("/submit/bitmap", "submit-bitmap", new byte[1024]).resquestLarge().fly();
+//                Bundle bundle = flyPigeon.route("/query/username").withString("userid", UUID.randomUUID().toString()).fly();
+//                if (bundle != null) {
+//                    Log.e(TAG, "bundle:" + bundle.toString());
+//                    appName.setText(bundle.getString("username"));
+//                } else {
+//                    Log.e(TAG, "bundle == null");
+//                }
+//            }
+//        });
+//
+//        ServiceManager.getInstance().publish(this);
     }
 
     @MainThread

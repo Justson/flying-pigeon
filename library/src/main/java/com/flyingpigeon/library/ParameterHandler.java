@@ -21,6 +21,9 @@ import android.os.Parcelable;
 
 import com.flyingpigeon.library.ashmem.Ashmem;
 
+import java.io.FileDescriptor;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.Serializable;
 import java.lang.reflect.Type;
 import java.util.Locale;
@@ -78,6 +81,7 @@ public abstract class ParameterHandler<T> {
             } else if (Byte[].class.isAssignableFrom(typeClazz)) {
                 byte[] array = Utils.toPrimitives((Byte[]) args[i]);
                 ParameterHandler.ByteArrayHandler byteArrayHandler = (ParameterHandler.ByteArrayHandler) map.get("[b");
+                assert byteArrayHandler != null;
                 byteArrayHandler.apply(array, key, bundle);
             } else if (boolean.class.isAssignableFrom(typeClazz)) {
                 ParameterHandler.BooleanHandler handler = (ParameterHandler.BooleanHandler) map.get("boolean");
@@ -193,7 +197,7 @@ public abstract class ParameterHandler<T> {
         @Override
         public android.util.Pair<Class<?>, Object> map(int key, Bundle bundle) {
             return new android.util.Pair<Class<?>, Object>(byte
-                    .class, bundle.getFloat(formatKeyValue(key)));
+                    .class, bundle.getByte(formatKeyValue(key), (byte) 0));
         }
     }
 
@@ -274,10 +278,33 @@ public abstract class ParameterHandler<T> {
         }
 
         @Override
-        public android.util.Pair<Class<?>, Object> map(int key, Bundle bundle) {
-            Parcelable parcelable = bundle.getParcelable(formatKeyValue(key));
+        public android.util.Pair<Class<?>, Object> map(int index, Bundle bundle) {
+            Parcelable parcelable = bundle.getParcelable(formatKeyValue(index));
             try {
-                return new android.util.Pair<Class<?>, Object>(Class.forName(((Pair.PairParcelable) parcelable).getKey()), ((Pair.PairParcelable) parcelable).getValue());
+                Parcelable value = ((com.flyingpigeon.library.Pair.PairParcelable) parcelable).getValue();
+                if (value instanceof ParcelFileDescriptor) {
+                    String key = String.format(Locale.ENGLISH, PIGEON_KEY_INDEX, index);
+                    String lengthKey = key + PIGEON_KEY_ARRAY_LENGTH;
+                    int arrayLength = bundle.getInt(lengthKey);
+                    ParcelFileDescriptor parcelFileDescriptor = (ParcelFileDescriptor) value;
+                    FileDescriptor fileDescriptor = parcelFileDescriptor.getFileDescriptor();
+                    FileInputStream fileInputStream = new FileInputStream(fileDescriptor);
+                    byte[] bytes = new byte[arrayLength];
+                    try {
+                        fileInputStream.read(bytes);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    } finally {
+                        try {
+                            fileInputStream.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    return new android.util.Pair<Class<?>, Object>(byte[].class, bytes);
+                } else {
+                    return new android.util.Pair<Class<?>, Object>(Class.forName(((com.flyingpigeon.library.Pair.PairParcelable) parcelable).getKey()), ((com.flyingpigeon.library.Pair.PairParcelable) parcelable).getValue());
+                }
             } catch (ClassNotFoundException e) {
                 e.printStackTrace();
                 return null;

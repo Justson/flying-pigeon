@@ -43,7 +43,7 @@ public final class LargeFlyPigeon implements Fly {
         return new ResponseLargeFlyPigeon(this);
     }
 
-    public <T> T fly() {
+    public Object fly() {
         return pigeon.request(route, params);
     }
 
@@ -57,7 +57,7 @@ public final class LargeFlyPigeon implements Fly {
         }
 
         @Override
-        public <T> T fly() {
+        public Object fly() {
             return mLargeFlyPigeon.pigeon.routeLargeRequest(mLargeFlyPigeon.route, mLargeFlyPigeon.params);
         }
     }
@@ -72,7 +72,7 @@ public final class LargeFlyPigeon implements Fly {
         }
 
         @Override
-        public <T> T fly() {
+        public Object fly() {
             return mLargeFlyPigeon.pigeon.routeLargeResponse(mLargeFlyPigeon.route, mLargeFlyPigeon.params);
         }
     }

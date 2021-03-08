@@ -17,9 +17,12 @@ package com.flyingpigeon.library.boxing;
 
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.text.TextUtils;
 
 import com.flyingpigeon.library.ClassUtil;
 import com.flyingpigeon.library.Config;
+import com.flyingpigeon.library.Pair;
+import com.flyingpigeon.library.ParameterHandler;
 import com.flyingpigeon.library.Utils;
 
 import java.lang.reflect.Type;
@@ -30,8 +33,9 @@ import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_CLASS_INDEX;
 import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_INDEX;
 import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_LENGTH;
 import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_LOOK_UP_APPROACH;
-import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_RESPONSE;
 import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_ROUTE;
+import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_TYPE_INDEX;
+import static com.flyingpigeon.library.PigeonConstant.map;
 
 /**
  * @author xiaozhongcen
@@ -68,16 +72,28 @@ public class RouteClientBoxmenImpl implements RouteClientBoxmen<Bundle, Object> 
                 continue;
             }
             Class<?> typeClazz = ClassUtil.getRawType(types[i]);
-            Utils.convert(index, bundle, typeClazz, args[i]);
+            Utils.convert(bundle, typeClazz, args[i]);
         }
     }
 
     @Override
     public Object unboxing(Bundle bundle) {
-        Parcelable parcelable = bundle.getParcelable(PIGEON_KEY_RESPONSE);
-        if (parcelable == null) {
+        bundle.setClassLoader(Pair.class.getClassLoader());
+        Parcelable parcelable = null;
+
+        String type = bundle.getString(String.format(PIGEON_KEY_TYPE_INDEX, -1));
+
+        if (TextUtils.isEmpty(type)) {
             return null;
         }
-        return Utils.parcelableValueOut(parcelable);
+        ParameterHandler parameterHandler = map.get(type);
+        if (parameterHandler == null) {
+            return null;
+        }
+        android.util.Pair<Class<?>, Object> pair = parameterHandler.map(-1, bundle);
+        if (pair == null) {
+            return null;
+        }
+        return pair.second;
     }
 }

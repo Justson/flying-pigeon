@@ -21,11 +21,11 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.ParcelFileDescriptor;
-import android.os.Parcelable;
 import android.text.TextUtils;
 
 import com.flyingpigeon.library.annotations.support.NonNull;
 import com.flyingpigeon.library.annotations.support.Nullable;
+import com.flyingpigeon.library.log.FlyPigeonLog;
 
 import java.io.FileNotFoundException;
 import java.lang.reflect.InvocationTargetException;
@@ -35,7 +35,6 @@ import static com.flyingpigeon.library.PigeonConstant.PIGEON_APPROACH_METHOD;
 import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_CALLING_PACKAGE;
 import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_FLAGS;
 import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_LOOK_UP_APPROACH;
-import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_RESPONSE;
 import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_RESPONSE_CODE;
 import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_ROUTE;
 import static com.flyingpigeon.library.PigeonConstant.PIGEON_RESPONSE_RESULE_ILLEGALACCESS;
@@ -112,10 +111,11 @@ public class ServiceContentProvider extends ContentProvider {
         if (in == null) {
             return null;
         }
+        FlyPigeonLog.e(TAG, "call");
         Bundle response = new Bundle();
         in.setClassLoader(Pair.class.getClassLoader());
-        Parcelable returnResponse = in.getParcelable(PIGEON_KEY_RESPONSE);
-        response.putParcelable(PIGEON_KEY_RESPONSE, returnResponse);
+//        Parcelable returnResponse = in.getParcelable(PIGEON_KEY_RESPONSE);
+//        response.putParcelable(PIGEON_KEY_RESPONSE, returnResponse);
         try {
             String calling = getCallingPackage();
             if (!TextUtils.isEmpty(calling)) {
