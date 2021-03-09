@@ -1,10 +1,15 @@
 package com.flyingpigeon.sample;
 
+import android.content.ContentResolver;
+import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.RemoteException;
 import android.os.SystemClock;
 import android.util.Log;
+import android.view.View;
 import android.widget.TextView;
 
 import com.flyingpigeon.library.Config;
@@ -24,6 +29,7 @@ public class MainActivity extends AppCompatActivity {
 
     Handler mHandler = new Handler(Looper.getMainLooper());
     TextView appName;
+    private Pigeon mPigeon;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,11 +40,11 @@ public class MainActivity extends AppCompatActivity {
 
 
         Log.e(TAG, "MainActivity");
-        final Pigeon pigeon = Pigeon.newBuilder(this).setAuthority(ServiceApiImpl.class).build();
+        mPigeon = Pigeon.newBuilder(this).setAuthority(ServiceApiImpl.class).build();
 
         Short aShort = 1;
         byte aByte = 10;
-        final IServiceApi serviceApi = pigeon.create(IServiceApi.class);
+        final IServiceApi serviceApi = mPigeon.create(IServiceApi.class);
         serviceApi.queryTest(1);
         serviceApi.queryItems(UUID.randomUUID().hashCode(), 0.001D, SystemClock.elapsedRealtime(), aShort, 0.011F, aByte, true);
         Information information = new Information("Justson", "just", 110, (short) 1, 'c', 1.22F, (byte) 14, 8989123.111D, 100000L);
@@ -110,6 +116,69 @@ public class MainActivity extends AppCompatActivity {
 //        });
 //
 //        ServiceManager.getInstance().publish(this);
+
+        this.findViewById(R.id.benchmark)
+                .setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        AsyncTask.THREAD_POOL_EXECUTOR.execute(new Runnable() {
+                            @Override
+                            public void run() {
+                                runBenchmark();
+                            }
+                        });
+                    }
+                });
+
+    }
+
+
+    private void runBenchmark() {
+        IMyAidlInterface iMyAidlInterface = RemoteService.mIMyAidlInterface;
+
+//        if (iMyAidlInterface == null) {
+//            Log.e(TAG, "error , iMyAidlInterface==null");
+//            return;
+//        }
+//        long start = SystemClock.elapsedRealtime();
+//        for (int i = 0; i < 1000; i++) {
+//            try {
+//                int result = iMyAidlInterface.basicTypes(1000, 100000L, false, 0.00002F, 1273891.938120D, "Tests at the age of seven provide a benchmark against which the child's progress at school can be measured.");
+//            } catch (RemoteException e) {
+//                e.printStackTrace();
+//            }
+//        }
+//        System.out.println("Benchmark,aidl method , used time:" + (SystemClock.elapsedRealtime() - start));
+
+
+        IMyAidlInterface remoteIMyAidlInterface = mPigeon.create(IMyAidlInterface.class);
+        for (int i = 0; i < 10; i++) {
+            long start0 = SystemClock.elapsedRealtime();
+
+            try {
+                int result = remoteIMyAidlInterface.basicTypes(1000, 100000L, false, 0.00002F, 1273891.938120D, "Tests at the age of seven provide a benchmark against which the child's progress at school can be measured.");
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
+            System.out.println("Benchmark,Pigeon method , used time:" + (SystemClock.elapsedRealtime() - start0));
+
+        }
+
+        Uri tools = Uri.parse("content://com.flyingpigeon.sample.tools");
+        ContentResolver contentResolver = this.getContentResolver();
+        for (int i = 0; i < 10; i++) {
+            long start1 = SystemClock.elapsedRealtime();
+            try {
+                Bundle bundle = new Bundle();
+                bundle.putString("a", "Tests at the age of seven provide a benchmark against which the child's progress at school can be measured.");
+                bundle.putInt("b", 1000000);
+                contentResolver.call(tools, "basicTypes", null, new Bundle());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            System.out.println("Benchmark,content provider method , used time:" + (SystemClock.elapsedRealtime() - start1));
+        }
+
     }
 
     @MainThread

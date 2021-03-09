@@ -28,6 +28,13 @@
             android:process=":tools" />
 
         <provider
+            android:name="com.flyingpigeon.sample.ToolsContentProvider"
+            android:authorities="com.flyingpigeon.sample.tools"
+            android:exported="true"
+            android:grantUriPermissions="false"
+            android:process=":tools" />
+
+        <provider
             android:name="com.flyingpigeon.sample.MainProcessApi"
             android:authorities="com.flyingpigeon.sample.main.api"
             android:exported="true"

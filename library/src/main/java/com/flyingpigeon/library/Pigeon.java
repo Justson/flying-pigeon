@@ -24,6 +24,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.os.SystemClock;
 import android.text.TextUtils;
 
 import com.flyingpigeon.library.annotations.RequestLarge;
@@ -34,6 +35,7 @@ import com.flyingpigeon.library.boxing.ClientBoxmenImpl;
 import com.flyingpigeon.library.boxing.ClientLargeBoxmenImpl;
 import com.flyingpigeon.library.boxing.RouteClientBoxmen;
 import com.flyingpigeon.library.boxing.RouteClientBoxmenImpl;
+import com.flyingpigeon.library.log.FlyPigeonLog;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -113,13 +115,18 @@ public final class Pigeon {
         if (isResponseLarge) {
             return large(service, proxy, method, args);
         }
+        long start = SystemClock.elapsedRealtime();
         flags = ParametersSpec.setParamParcel(flags, false);
         ClientBoxmen<Bundle, Bundle, Object> clientBoxmen = new ClientBoxmenImpl();
         Bundle bundle = clientBoxmen.boxing(args, method.getGenericParameterTypes(), method.getGenericReturnType());
+        long boxing = SystemClock.elapsedRealtime();
+        FlyPigeonLog.e(TAG, "boxing used time:" + (boxing - start));
         bundle.putInt(PIGEON_KEY_FLAGS, flags);
         bundle.putString(PIGEON_KEY_CLASS, service.getName());
         RealCall realCall = newCall();
         Bundle response = realCall.execute(method, bundle);
+        long execute = SystemClock.elapsedRealtime();
+        FlyPigeonLog.e(TAG, "execute used time:" + (execute - boxing));
         if (response == null) {
             response = (Bundle) bundle.clone();
             String typeString = response.getString(String.format(PIGEON_KEY_TYPE_INDEX, -1));
@@ -143,8 +150,13 @@ public final class Pigeon {
         return clientBoxmen.unboxing(response);
     }
 
+    private RealCall mRealCall;
+
     private RealCall newCall() {
-        return new RealCall(mContext, this);
+        if (mRealCall == null) {
+            mRealCall = new RealCall(mContext, this);
+        }
+        return mRealCall;
     }
 
     private Object large(Class<?> service, Object proxy, Method method, Object[] args) {
