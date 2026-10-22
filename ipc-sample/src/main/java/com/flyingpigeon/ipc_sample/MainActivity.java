@@ -18,19 +18,20 @@ public class MainActivity extends AppCompatActivity {
 
     TextView ipcLabel;
     public static final String TAG = Config.PREFIX + "MainActivity";
+    private Pigeon mPigeon;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        mPigeon = Pigeon.newBuilder(this).setAuthority("com.flyingpigeon.sample.main.api").build();
         ipcLabel = this.findViewById(R.id.ipcLabel);
         ServiceManager.getInstance().publish(this);
         Button ipcBtn = this.findViewById(R.id.ipcBtn);
         ipcBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Pigeon pigeon = Pigeon.newBuilder(MainActivity.this).setAuthority("com.flyingpigeon.sample.main.api").build();
-                Bundle bundle = pigeon.route("/show/myapp/name").withString("name", "ipc-sample").fly();
+                Bundle bundle = mPigeon.route("/show/myapp/name").withString("name", "ipc-sample").fly();
                 if (bundle != null) {
                     String name = bundle.getString("name");
                     ipcLabel.setText(name);
@@ -58,6 +59,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
+        mPigeon.close();
         super.onDestroy();
         ServiceManager.getInstance().unpublish(this);
     }

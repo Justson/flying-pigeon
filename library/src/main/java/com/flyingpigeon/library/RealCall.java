@@ -15,7 +15,6 @@
  */
 package com.flyingpigeon.library;
 
-import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
@@ -26,7 +25,6 @@ import java.lang.reflect.Method;
 import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_CLASS;
 import static com.flyingpigeon.library.PigeonConstant.PIGEON_KEY_FLAGS;
 import static com.flyingpigeon.library.PigeonConstant.PIGEON_PATH_SEGMENT_METHOD;
-import static com.flyingpigeon.library.PigeonConstant.PIGEON_PATH_SEGMENT_ROUTE;
 import static com.flyingpigeon.library.PigeonConstant.PIGEON_PATH_START;
 
 /**
@@ -37,19 +35,21 @@ import static com.flyingpigeon.library.PigeonConstant.PIGEON_PATH_START;
 public class RealCall {
 
     private static final String TAG = RealCall.class.getSimpleName();
-    private Context mContext;
-    private Pigeon mPigeon;
+    private final Pigeon mPigeon;
+    private final ProviderConnection connection;
 
     RealCall(Context context, Pigeon pigeon) {
-        this.mContext = context;
         this.mPigeon = pigeon;
+        this.connection = new ProviderConnection(context.getContentResolver(), pigeon.base);
     }
 
     Bundle execute(Method method, Bundle bundle) {
-        ContentResolver contentResolver = mContext.getContentResolver();
+        return execute(method.getName(), null, bundle);
+    }
+
+    Bundle execute(String method, String arg, Bundle bundle) {
         try {
-            Bundle response = contentResolver.call(mPigeon.base, method.getName(), null, bundle);
-            return response;
+            return connection.call(method, arg, bundle);
         } catch (Throwable throwable) {
             throwable.printStackTrace();
         }
@@ -57,29 +57,28 @@ public class RealCall {
     }
 
     Bundle execute(String route, Bundle bundle) {
-        ContentResolver contentResolver = mContext.getContentResolver();
+        int flags = 0;
+        flags = ParametersSpec.setParamParcel(flags, false);
+        bundle.putInt(PIGEON_KEY_FLAGS, flags);
+        return execute("", "", bundle);
+    }
+
+
+    Cursor execute(Method method, Class<?> service, String[] contentValues) {
+        Uri uri = mPigeon.base.buildUpon().appendPath(PIGEON_PATH_START).appendPath(PIGEON_PATH_SEGMENT_METHOD).appendPath(method.getName()).appendQueryParameter(PIGEON_KEY_CLASS, service.getName()).build();
+        return query(uri, contentValues);
+    }
+
+    Cursor query(Uri uri, String[] contentValues) {
         try {
-            Uri uri = mPigeon.base.buildUpon().appendPath(PIGEON_PATH_START).appendPath(PIGEON_PATH_SEGMENT_ROUTE).appendPath(route).build();
-            int flags = 0;
-            flags = ParametersSpec.setParamParcel(flags, false);
-            bundle.putInt(PIGEON_KEY_FLAGS, flags);
-            Bundle result = contentResolver.call(uri, "", "", bundle);
-            return result;
+            return connection.query(uri, new String[]{}, "", contentValues, "");
         } catch (Throwable throwable) {
             throwable.printStackTrace();
         }
         return null;
     }
 
-
-    Cursor execute(Method method, Class<?> service, String[] contentValues) {
-        ContentResolver contentResolver = mContext.getContentResolver();
-        try {
-            Uri uri = mPigeon.base.buildUpon().appendPath(PIGEON_PATH_START).appendPath(PIGEON_PATH_SEGMENT_METHOD).appendPath(method.getName()).appendQueryParameter(PIGEON_KEY_CLASS, service.getName()).build();
-            return contentResolver.query(uri, new String[]{}, "", contentValues, "");
-        } catch (Throwable throwable) {
-            throwable.printStackTrace();
-        }
-        return null;
+    void close() {
+        connection.close();
     }
 }

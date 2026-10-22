@@ -33,6 +33,7 @@ public class RemoteService extends Service implements RemoteServiceApi {
     public static final String TAG = PREFIX + RemoteService.class.getSimpleName();
 
     public static IMyAidlInterface mIMyAidlInterface;
+    private Pigeon mPigeon;
 
     public static void startService(final Context context) {
         AsyncTask.THREAD_POOL_EXECUTOR.execute(new Runnable() {
@@ -64,6 +65,7 @@ public class RemoteService extends Service implements RemoteServiceApi {
     @Override
     public void onCreate() {
         super.onCreate();
+        mPigeon = Pigeon.newBuilder(this).setAuthority(MainProcessApi.class).build();
         /**
          * There are three ways to publish your service . such as
          */
@@ -86,8 +88,7 @@ public class RemoteService extends Service implements RemoteServiceApi {
         @Override
         public int createPoster(Poster poster) {
             Log.e(TAG, "thread:" + Thread.currentThread().getName() + ", poster:" + GsonUtils.toJson(poster));
-            Pigeon pigeon = Pigeon.newBuilder(RemoteService.this).setAuthority(MainProcessApi.class).build();
-            pigeon.create(MainProcessService.class).login("test", "test");
+            mPigeon.create(MainProcessService.class).login("test", "test");
             return 11;
         }
     };
@@ -159,6 +160,7 @@ public class RemoteService extends Service implements RemoteServiceApi {
 
     @Override
     public void onDestroy() {
+        mPigeon.close();
         super.onDestroy();
         ServiceManager.getInstance().unpublish(this, RemoteServiceApi.class);
         ServiceManager.getInstance().unpublish(mApi);

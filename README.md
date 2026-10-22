@@ -60,6 +60,31 @@ Pigeon flyPigeon = Pigeon.newBuilder(MainActivity.this).setAuthority("com.flying
 Bundle bundle = flyPigeon.route("/query/username").withString("userid", UUID.randomUUID().toString()).fly();
 ```
 
+## Provider 连接复用与释放
+
+同一个 `Pigeon` 实例的接口调用、路由调用和大响应查询会复用一个
+`ContentProviderClient`，首次请求时才获取连接。请复用 `Pigeon` 实例，
+不要在每次请求时重新创建。
+
+```java
+Pigeon pigeon = Pigeon.newBuilder(context)
+        .setAuthority("com.flyingpigeon.sample.api")
+        .build();
+Api api = pigeon.create(Api.class);
+// 在业务生命周期内复用 pigeon / api。
+
+// 不再使用时（例如持有它的 Activity / Service 销毁时）：
+pigeon.close();
+```
+
+`close()` 可重复调用；关闭后不要再使用该实例或它创建的代理。
+关闭不会中断已经发起的调用，正在读取的 Cursor 关闭后才释放对应连接。
+内部仅在获取、失效和释放连接时同步，不持有连接锁执行远程业务方法。
+
+连接使用 unstable 引用，避免目标进程死亡时因 stable Provider 依赖连带终止调用方。
+遇到 `DeadObjectException` 会清除失效连接，下一次请求重新获取；当前失败请求
+不会自动重发，避免写操作被重复执行。原有调用失败时返回 null / 默认值的行为保持不变。
+
 ## 混淆
 ```
 -keep class com.flyingpigeon.library.*

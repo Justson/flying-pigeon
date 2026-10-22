@@ -30,6 +30,7 @@ public class MainActivity extends AppCompatActivity {
     Handler mHandler = new Handler(Looper.getMainLooper());
     TextView appName;
     private Pigeon mPigeon;
+    private Pigeon mCrossAppPigeon;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +42,7 @@ public class MainActivity extends AppCompatActivity {
 
         Log.e(TAG, "MainActivity");
         mPigeon = Pigeon.newBuilder(this).setAuthority(ServiceApiImpl.class).build();
+        mCrossAppPigeon = Pigeon.newBuilder(this).setAuthority("com.flyingpigeon.ipc_sample").build();
 
         Short aShort = 1;
         byte aByte = 10;
@@ -103,7 +105,7 @@ public class MainActivity extends AppCompatActivity {
         this.findViewById(R.id.sendBtn).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Pigeon flyPigeon = Pigeon.newBuilder(MainActivity.this).setAuthority("com.flyingpigeon.ipc_sample").build();
+                Pigeon flyPigeon = mCrossAppPigeon;
                 flyPigeon.route("/submit/bitmap", "submit-bitmap", new byte[1024]).resquestLarge().fly();
                 Bundle bundle = flyPigeon.route("/query/username").withString("userid", UUID.randomUUID().toString()).fly();
                 if (bundle != null) {
@@ -215,6 +217,9 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
+        mHandler.removeCallbacksAndMessages(null);
+        mPigeon.close();
+        mCrossAppPigeon.close();
         super.onDestroy();
         ServiceManager.getInstance().unpublish(this);
     }

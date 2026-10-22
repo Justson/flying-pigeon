@@ -15,7 +15,6 @@
  */
 package com.flyingpigeon.library;
 
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -37,6 +36,7 @@ import com.flyingpigeon.library.boxing.RouteClientBoxmen;
 import com.flyingpigeon.library.boxing.RouteClientBoxmenImpl;
 import com.flyingpigeon.library.log.FlyPigeonLog;
 
+import java.io.Closeable;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
@@ -63,18 +63,21 @@ import static com.flyingpigeon.library.PigeonConstant.PIGEON_RESPONSE_RESULE_NO_
  * @date 20-6-8
  * @since 1.0.0
  */
-public final class Pigeon {
+public final class Pigeon implements Closeable {
 
     private static final String TAG = PREFIX + Pigeon.class.getSimpleName();
 
     String authority;
     Context mContext;
     final Uri base;
+    private final RealCall mRealCall;
 
     private Pigeon(Builder builder) {
         authority = builder.authority;
-        mContext = builder.mContext;
+        Context applicationContext = builder.mContext.getApplicationContext();
+        mContext = applicationContext != null ? applicationContext : builder.mContext;
         base = Uri.parse("content://" + authority);
+        mRealCall = new RealCall(mContext, this);
     }
 
 
@@ -145,13 +148,18 @@ public final class Pigeon {
         return clientBoxmen.unboxing(response);
     }
 
-    private RealCall mRealCall;
-
     private RealCall newCall() {
-        if (mRealCall == null) {
-            mRealCall = new RealCall(mContext, this);
-        }
         return mRealCall;
+    }
+
+    /**
+     * Releases this instance's cached provider client. Safe to call more than once.
+     * In-flight calls and cursors finish before their client is released.
+     * This instance and its proxies must not be used after closing.
+     */
+    @Override
+    public void close() {
+        mRealCall.close();
     }
 
     private Object large(Class<?> service, Object proxy, Method method, Object[] args) {
@@ -190,10 +198,9 @@ public final class Pigeon {
 
     Bundle fly(@NonNull Bundle in) {
         in.putInt(PIGEON_KEY_LOOK_UP_APPROACH, PIGEON_APPROACH_ROUTE);
-        ContentResolver contentResolver = mContext.getContentResolver();
         Bundle out = null;
         try {
-            out = contentResolver.call(base, "", null, in);
+            out = newCall().execute("", null, in);
             parseReponse(in, out);
         } catch (Throwable e) {
             e.printStackTrace();
@@ -270,11 +277,10 @@ public final class Pigeon {
             data[i] = params[i].toString();
             data[i + length + 2] = params[i].getClass().getName();
         }
-        ContentResolver contentResolver = mContext.getContentResolver();
         Uri uri = base.buildUpon().appendPath("pigeon/10/" + route).build();
         Cursor cursor = null;
         try {
-            cursor = contentResolver.query(uri, new String[]{}, "", data, "");
+            cursor = newCall().query(uri, data);
 
         } catch (Throwable throwable) {
             throwable.printStackTrace();
@@ -282,16 +288,11 @@ public final class Pigeon {
         if (null == cursor) {
             return null;
         }
-        Bundle out = cursor.getExtras();
-        Bundle in = new Bundle();
-        in.putString(PIGEON_KEY_ROUTE, route);
         try {
+            Bundle out = cursor.getExtras();
+            Bundle in = new Bundle();
+            in.putString(PIGEON_KEY_ROUTE, route);
             parseReponse(in, out);
-        } catch (CallRemoteException e) {
-            e.printStackTrace();
-            return null;
-        }
-        try {
             Parcelable parcelable = out.getParcelable(PIGEON_KEY_RESULT);
             if (parcelable != null) {
                 return (T) Utils.parcelableValueOut(parcelable);
@@ -303,6 +304,8 @@ public final class Pigeon {
                     return (T) cursor.getBlob(0);
                 }
             }
+        } catch (CallRemoteException e) {
+            e.printStackTrace();
         } finally {
             cursor.close();
         }
